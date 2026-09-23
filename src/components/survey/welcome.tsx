@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSurveyStore } from "@/store/survey-store";
 import { countQuestionsForDriverType } from "@/lib/survey-data";
+import { InstitutionLogo } from "@/components/institution-logo";
+import { INSTITUTION } from "@/lib/institution";
 
 export function Welcome() {
   const setView = useSurveyStore((s) => s.setView);
@@ -18,9 +20,13 @@ export function Welcome() {
         transition={{ duration: 0.5 }}
         className="text-center"
       >
-        <div className="mx-auto mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10">
-          <ShieldCheck className="h-10 w-10 text-primary" />
+        {/* Logo institucional prominente */}
+        <div className="mb-6 flex justify-center">
+          <InstitutionLogo size="xl" showName={false} />
         </div>
+        <p className="mb-2 text-xs font-medium uppercase tracking-wider text-muted-foreground">
+          {INSTITUTION.name}
+        </p>
         <h1 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
           Hacia una Visión Cero
           <span className="block text-primary">en Siniestros de Motocicletas</span>

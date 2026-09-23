@@ -6,8 +6,10 @@ import { DriverTypeSelector } from "@/components/survey/driver-type-selector";
 import { SurveyForm } from "@/components/survey/survey-form";
 import { ThankYou } from "@/components/survey/thank-you";
 import { Dashboard } from "@/components/dashboard/dashboard";
-import { ShieldCheck, BarChart3 } from "lucide-react";
+import { BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { InstitutionLogo, InstitutionBrand } from "@/components/institution-logo";
+import { INSTITUTION } from "@/lib/institution";
 
 export default function Home() {
   const view = useSurveyStore((s) => s.view);
@@ -20,17 +22,14 @@ export default function Home() {
         <div className="mx-auto flex h-14 max-w-6xl items-center justify-between px-4">
           <button
             onClick={() => setView("welcome")}
-            className="flex items-center gap-2 font-semibold"
+            className="flex items-center gap-2.5 rounded-md"
+            aria-label="Ir al inicio"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <ShieldCheck className="h-4 w-4" />
-            </span>
-            <span className="hidden sm:inline">Visión Cero</span>
-            <span className="text-xs font-normal text-muted-foreground">· Encuesta</span>
+            <InstitutionLogo size="sm" showName compact />
           </button>
           <div className="flex items-center gap-1">
             <Button
-              variant={view === "welcome" || view === "driver" || view === "survey" || view === "thanks" ? "ghost" : "ghost"}
+              variant="ghost"
               size="sm"
               onClick={() => setView("welcome")}
             >
@@ -59,11 +58,19 @@ export default function Home() {
 
       {/* --- sticky footer --- */}
       <footer className="mt-auto border-t bg-muted/30">
-        <div className="mx-auto max-w-6xl px-4 py-4 text-center text-xs text-muted-foreground">
-          <p>
-            Visión Cero en Siniestros de Motocicletas · Encuesta de percepción y propuestas
-          </p>
-          <p className="mt-1">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-3 px-4 py-5 text-center sm:flex-row sm:justify-between sm:text-left">
+          <div className="flex items-center gap-3">
+            <InstitutionLogo size="sm" showName={false} />
+            <div className="text-left leading-tight">
+              <p className="text-xs font-semibold text-foreground">
+                {INSTITUTION.name}
+              </p>
+              <p className="text-[11px] text-muted-foreground">
+                {INSTITUTION.appTitle} · {INSTITUTION.appSubtitle}
+              </p>
+            </div>
+          </div>
+          <p className="text-[11px] text-muted-foreground">
             Datos anónimos · Uso con fines de análisis y política pública
           </p>
         </div>

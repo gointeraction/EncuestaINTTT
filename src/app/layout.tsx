@@ -14,23 +14,23 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Visión Cero · Encuesta de Siniestros de Motocicletas",
-  description: "Encuesta interactiva con preguntas adaptadas al tipo de conductor y dashboard de resultados para avanzar hacia una Visión Cero en siniestros de motocicletas.",
-  keywords: ["visión cero", "motocicletas", "siniestros", "encuesta vial", "seguridad vial", "dashboard"],
-  authors: [{ name: "Visión Cero" }],
+  title: "INTT · Visión Cero · Encuesta de Siniestros de Motocicletas",
+  description: "Encuesta interactiva del Instituto Nacional de Tránsito y Transporte (INTT) con preguntas adaptadas al tipo de conductor y dashboard de resultados para avanzar hacia una Visión Cero en siniestros de motocicletas.",
+  keywords: ["INTT", "visión cero", "motocicletas", "siniestros", "encuesta vial", "seguridad vial", "dashboard", "tránsito", "transporte"],
+  authors: [{ name: "Instituto Nacional de Tránsito y Transporte" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
   openGraph: {
-    title: "Visión Cero · Encuesta de Motocicletas",
+    title: "INTT · Visión Cero · Encuesta de Motocicletas",
     description: "Encuesta interactiva con dashboard de resultados.",
     url: "https://chat.z.ai",
-    siteName: "Visión Cero",
+    siteName: "INTT · Visión Cero",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Visión Cero · Encuesta de Motocicletas",
+    title: "INTT · Visión Cero · Encuesta de Motocicletas",
     description: "Encuesta interactiva con dashboard de resultados.",
   },
 };
