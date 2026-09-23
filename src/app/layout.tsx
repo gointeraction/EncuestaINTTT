@@ -1,7 +1,15 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Georama, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/toaster";
+
+// Georama: tipografía institucional oficial del INTT
+const georama = Georama({
+  variable: "--font-intt",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  display: "swap",
+});
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -41,9 +49,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        className={`${georama.variable} ${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
+        style={{ fontFamily: "var(--font-intt), var(--font-geist-sans), Georama, Helvetica, Arial, sans-serif" }}
       >
         {children}
         <Toaster />

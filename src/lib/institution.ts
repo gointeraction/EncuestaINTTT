@@ -1,18 +1,19 @@
 // ============================================================================
 // Configuración de la institución dueña de la aplicación
 // ============================================================================
-// Para que el logo institucional aparezca automáticamente, coloca el archivo
-// de imagen en:  /home/z/my-project/public/intt-logo.png
-// (también se aceptan .svg, .jpg, .webp — ajusta LOGO_SRC si usas otra extensión)
+// INTT — Instituto Nacional de Transporte Terrestre (Venezuela)
+// Identidad visual extraída de https://www.intt.gob.ve/
 // ============================================================================
 
 export const INSTITUTION = {
   acronym: "INTT",
-  name: "Instituto Nacional de Tránsito y Transporte",
+  name: "Instituto Nacional de Transporte Terrestre",
   shortName: "INTT",
-  // Ruta del logo en /public. Si el archivo no existe, se muestra un fallback
-  // estilizado (monograma) automáticamente.
+  ministry: "Ministerio del Poder Popular para el Ejercicio Interior y Justicia",
+  // Logo horizontal con texto blanco (descargado del sitio oficial INTT).
+  // Se ve sobre fondos navy (header / footer).
   logoSrc: "/intt-logo.png",
   appTitle: "Visión Cero",
   appSubtitle: "Encuesta de Siniestros de Motocicletas",
+  website: "https://www.intt.gob.ve/",
 } as const;

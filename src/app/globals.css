@@ -6,7 +6,7 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-geist-sans), Georama, Helvetica, Arial, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
@@ -37,79 +37,124 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  /* INTT institutional colors exposed to Tailwind */
+  --color-navy: var(--intt-navy);
+  --color-navy-deep: var(--intt-navy-deep);
+  --color-electric: var(--intt-electric);
+  --color-electric-deep: var(--intt-electric-deep);
+  --color-gold: var(--intt-gold);
+  --color-gold-deep: var(--intt-gold-deep);
+  --color-crimson: var(--intt-crimson);
+  --color-sky: var(--intt-sky);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 }
 
+/* ==========================================================================
+   INTT — Instituto Nacional de Transporte Terrestre
+   Paleta institucional extraída de https://www.intt.gob.ve/ (theme.json)
+   ========================================================================== */
 :root {
-  --radius: 0.625rem;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.646 0.222 41.116);
-  --chart-2: oklch(0.6 0.118 184.704);
-  --chart-3: oklch(0.398 0.07 227.392);
-  --chart-4: oklch(0.828 0.189 84.429);
-  --chart-5: oklch(0.769 0.188 70.08);
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  --radius: 0.5rem; /* 8px — INTT radius.md */
+
+  /* Azul Marino (authority / header) */
+  --intt-navy: #1c2454;        /* azul-marino-700 */
+  --intt-navy-deep: #151c41;   /* azul-marino-800 */
+  --intt-navy-900: #101532;
+
+  /* Azul Eléctrico (primary / CTA) */
+  --intt-electric: #1c64f2;    /* azul-electrico-500 */
+  --intt-electric-deep: #1447ac; /* azul-electrico-700 */
+  --intt-electric-50: #e8f0fe;
+
+  /* Amarillo Oro (accent) */
+  --intt-gold: #ffc907;        /* amarillo-oro-500 */
+  --intt-gold-deep: #e8b706;   /* amarillo-oro-600 */
+  --intt-gold-50: #fffae6;
+
+  /* Rojo Carmesí (alert) */
+  --intt-crimson: #a70336;     /* rojo-carmesi-500 */
+
+  /* Sky (hero background tint) */
+  --intt-sky: #e8f0fe;
+
+  /* Gris scale */
+  --intt-gris-100: #f5f5f5;
+  --intt-gris-200: #eeeeee;
+  --intt-gris-300: #e0e0e0;
+  --intt-gris-400: #bdbdbd;
+  --intt-gris-500: #9e9e9e;
+  --intt-gris-700: #616161;
+
+  /* ---- Tokens semánticos de la app (mapeados a la paleta INTT) ---- */
+  --background: oklch(0.99 0.004 240);
+  --foreground: #151c41;                  /* navy-800 texto principal */
+  --card: #ffffff;
+  --card-foreground: #151c41;
+  --popover: #ffffff;
+  --popover-foreground: #151c41;
+  --primary: #1c64f2;                     /* azul-electrico-500 */
+  --primary-foreground: #ffffff;
+  --secondary: #e8f0fe;                   /* electric-50 */
+  --secondary-foreground: #1447ac;        /* electric-700 */
+  --muted: #f5f5f5;                       /* gris-100 */
+  --muted-foreground: #616161;            /* gris-700 */
+  --accent: #ffc907;                      /* amarillo-oro-500 */
+  --accent-foreground: #151c41;           /* navy-800 (contraste sobre oro) */
+  --destructive: #a70336;                 /* rojo-carmesi-500 */
+  --border: #e0e0e0;                      /* gris-300 */
+  --input: #e0e0e0;
+  --ring: #1c64f2;                        /* electric-500 */
+  /* Charts con paleta institucional */
+  --chart-1: #1c64f2;   /* electric */
+  --chart-2: #151c41;   /* navy */
+  --chart-3: #ffc907;   /* gold */
+  --chart-4: #a70336;   /* crimson */
+  --chart-5: #6e76a3;   /* navy-300 */
+  --sidebar: #151c41;                     /* navy-800 */
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffc907;             /* gold */
+  --sidebar-primary-foreground: #151c41;
+  --sidebar-accent: #1c2454;              /* navy-700 */
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255,255,255,0.12);
+  --sidebar-ring: #ffc907;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.488 0.243 264.376);
-  --chart-2: oklch(0.696 0.17 162.48);
-  --chart-3: oklch(0.769 0.188 70.08);
-  --chart-4: oklch(0.627 0.265 303.9);
-  --chart-5: oklch(0.645 0.246 16.439);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --background: #101532;                  /* navy-900 */
+  --foreground: #ffffff;
+  --card: #151c41;                        /* navy-800 */
+  --card-foreground: #ffffff;
+  --popover: #151c41;
+  --popover-foreground: #ffffff;
+  --primary: #1c64f2;
+  --primary-foreground: #ffffff;
+  --secondary: #1c2454;
+  --secondary-foreground: #ffffff;
+  --muted: #1c2454;
+  --muted-foreground: #9ca1c0;
+  --accent: #ffc907;
+  --accent-foreground: #151c41;
+  --destructive: #a70336;
+  --border: rgba(255,255,255,0.12);
+  --input: rgba(255,255,255,0.15);
+  --ring: #1c64f2;
+  --chart-1: #1c64f2;
+  --chart-2: #ffc907;
+  --chart-3: #6e76a3;
+  --chart-4: #a70336;
+  --chart-5: #4983f5;
+  --sidebar: #101532;
+  --sidebar-foreground: #ffffff;
+  --sidebar-primary: #ffc907;
+  --sidebar-primary-foreground: #101532;
+  --sidebar-accent: #1c2454;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: rgba(255,255,255,0.12);
+  --sidebar-ring: #ffc907;
 }
 
 @layer base {
@@ -118,5 +163,43 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: "ss01", "cv01";
   }
+  /* Headings usan navy-800 por defecto (autoridad institucional) */
+  h1, h2, h3, h4, h5, h6 {
+    color: #151c41;
+    letter-spacing: -0.01em;
+  }
+  .dark h1, .dark h2, .dark h3, .dark h4, .dark h5, .dark h6 {
+    color: #ffffff;
+  }
+}
+
+/* ==========================================================================
+   Utilidades institucionales INTT
+   ========================================================================== */
+
+/* Barra superior gov (estilo intt-site-nav navy) */
+.intt-navy-bg {
+  background-color: var(--intt-navy-deep);
+}
+.intt-navy-gradient {
+  background: linear-gradient(135deg, var(--intt-navy) 0%, var(--intt-navy-deep) 100%);
+}
+/* Acento dorado (subrayado / borde destacado) */
+.intt-gold-rule {
+  background: linear-gradient(90deg, var(--intt-gold) 0%, var(--intt-gold-deep) 100%);
+}
+/* Hero fondo azul cielo institucional */
+.intt-hero-bg {
+  background:
+    radial-gradient(120% 80% at 80% 0%, rgba(28,100,242,0.08) 0%, transparent 60%),
+    linear-gradient(180deg, #f4f8ff 0%, #ffffff 100%);
+}
+/* Sombra suave institucional */
+.intt-shadow {
+  box-shadow: 0 1px 2px rgba(16,21,50,0.04), 0 4px 16px rgba(16,21,50,0.06);
+}
+.intt-shadow-lg {
+  box-shadow: 0 4px 12px rgba(16,21,50,0.08), 0 12px 32px rgba(16,21,50,0.10);
 }

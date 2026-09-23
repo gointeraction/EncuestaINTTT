@@ -60,14 +60,16 @@ interface Stats {
   meta: { sections: number; driverTypes: number };
 }
 
+// Paleta institucional INTT
 const COLORS = [
-  "oklch(0.646 0.222 41.116)",
-  "oklch(0.6 0.118 184.704)",
-  "oklch(0.398 0.07 227.392)",
-  "oklch(0.828 0.189 84.429)",
-  "oklch(0.769 0.188 70.08)",
-  "oklch(0.577 0.245 27.325)",
-  "oklch(0.627 0.265 303.9)",
+  "#1c64f2", // azul-electrico-500
+  "#151c41", // azul-marino-800
+  "#ffc907", // amarillo-oro-500
+  "#a70336", // rojo-carmesi-500
+  "#6e76a3", // azul-marino-300
+  "#1447ac", // azul-electrico-700
+  "#e8b706", // amarillo-oro-600
+  "#4983f5", // azul-electrico-400
 ];
 
 export function Dashboard() {
@@ -162,20 +164,20 @@ export function Dashboard() {
               icon={<Users className="h-5 w-5" />}
               label="Total respuestas"
               value={stats.total}
-              color="bg-primary/10 text-primary"
+              color="bg-[var(--intt-electric-50)] text-[var(--intt-electric)]"
             />
             <KpiCard
               icon={<Bike className="h-5 w-5" />}
               label="Tipos de conductor"
               value={stats.byDriverType.filter((d) => d.count > 0).length}
               sub={`${stats.meta.driverTypes} perfiles`}
-              color="bg-orange-500/10 text-orange-600 dark:text-orange-400"
+              color="bg-[#fffae6] text-[#8c6f04]"
             />
             <KpiCard
               icon={<TrendingUp className="h-5 w-5" />}
               label="Edad promedio"
               value={stats.avg.edad ? `${stats.avg.edad.toFixed(0)} años` : "—"}
-              color="bg-green-500/10 text-green-600 dark:text-green-400"
+              color="bg-[#f6e6eb] text-[#770226]"
             />
             <KpiCard
               icon={<Siren className="h-5 w-5" />}
@@ -189,7 +191,7 @@ export function Dashboard() {
                 stats.siniestro.filter((s) => s.label !== "No, nunca").reduce((a, b) => a + b.count, 0),
                 stats.total
               )} del total`}
-              color="bg-red-500/10 text-red-600 dark:text-red-400"
+              color="bg-[#e8f0fe] text-[#1447ac]"
             />
           </div>
 

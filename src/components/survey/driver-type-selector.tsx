@@ -62,15 +62,19 @@ export function DriverTypeSelector() {
               transition={{ duration: 0.3, delay: i * 0.05 }}
             >
               <Card
-                className={`cursor-pointer transition-all hover:shadow-md ${
-                  selected ? "border-primary ring-2 ring-primary/30" : ""
+                className={`intt-shadow cursor-pointer border-[var(--intt-gris-200)] transition-all hover:intt-shadow-lg ${
+                  selected
+                    ? "border-[var(--intt-electric)] ring-2 ring-[var(--intt-electric)]/30"
+                    : ""
                 }`}
                 onClick={() => handleSelect(dt.id)}
               >
                 <CardContent className="flex items-start gap-3 p-4">
                   <div
-                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${
-                      selected ? "bg-primary text-primary-foreground" : "bg-muted"
+                    className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg transition-colors ${
+                      selected
+                        ? "bg-[var(--intt-electric)] text-white"
+                        : "bg-[var(--intt-electric-50)] text-[var(--intt-electric)]"
                     }`}
                   >
                     <Icon className="h-5 w-5" />

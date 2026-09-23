@@ -56,3 +56,25 @@ Work Log:
 Stage Summary:
 - Logo integration complete with automatic fallback.
 - To show the real logo: place intt-new2.png at /home/z/my-project/public/intt-logo.png (or update logoSrc in src/lib/institution.ts to the actual filename). No code changes needed.
+
+---
+Task ID: 9
+Agent: main
+Task: Apply INTT (intt.gob.ve) institutional look and design to the survey app.
+
+Work Log:
+- Fetched https://www.intt.gob.ve/ via z-ai page_reader + downloaded official theme.json + style.css.
+- Extracted full design system: 4 color families (Azul Marino #1c2454/#151c41, Azul Eléctrico #1c64f2/#1447ac, Amarillo Oro #ffc907/#e8b706, Rojo Carmesí #a70336), Gris scale, Georama font, radius scale (xs=2,sm=4,md=8,lg=16px).
+- Downloaded real INTT logo (Logo-horizontal-texto-blanco-1.png, white text on navy) → /public/intt-logo.png.
+- Rewrote globals.css: mapped all shadcn tokens (primary→electric, accent→gold, destructive→crimson, foreground→navy-800, chart palette→INTT colors) + added INTT utility classes (.intt-navy-bg, .intt-navy-gradient, .intt-gold-rule, .intt-hero-bg, .intt-shadow).
+- Added Georama font (institutional) via next/font, set as body default.
+- Rebuilt page.tsx: thin gov top-bar (ministry + website), navy gradient header with real INTT logo, gold CTA for Dashboard, navy institutional footer with gold rule + copyright.
+- Rebuilt welcome.tsx: light-sky hero bg, navy heading with "Visión Cero" in electric-blue + gold underline, right-side feature card with navy header/gold accents.
+- Restyled driver-type-selector, survey-form (progress dots, section icons, pills) with INTT electric-blue + gold.
+- Restyled dashboard: chart COLORS array → INTT palette (#1c64f2,#151c41,#ffc907,#a70336,#6e76a3,#1447ac,#e8b706,#4983f5); KPI card icon backgrounds → institutional tints.
+- Updated institution.ts: name → "Instituto Nacional de Transporte Terrestre", added ministry + website fields.
+
+Stage Summary:
+- Lint clean (0 errors/warnings). Dev server running, no console errors.
+- VLM-verified: welcome matches INTT institutional style (navy header, sky hero, electric blue + gold accents, real INTT logo in header+footer). Dashboard uses INTT chart palette (verified via DOM: bars fill #1c64f2/#151c41/#ffc907/#a70336). Mobile 390px responsive intact.
+- App now visually consistent with intt.gob.ve identity.

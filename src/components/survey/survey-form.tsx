@@ -144,7 +144,7 @@ export function SurveyForm() {
         </div>
         <Progress value={progress} className="h-2" />
         <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
-          <span className="rounded-full bg-muted px-2 py-0.5">{driver.label}</span>
+          <span className="rounded-full bg-[var(--intt-electric-50)] px-2 py-0.5 font-medium text-[var(--intt-electric-deep)]">{driver.label}</span>
           <span>·</span>
           <span>{answeredActive}/{totalActive} preguntas respondidas</span>
         </div>
@@ -161,8 +161,8 @@ export function SurveyForm() {
           <Card>
             <CardHeader>
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
-                  <SectionIcon className="h-5 w-5 text-primary" />
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--intt-electric-50)]">
+                  <SectionIcon className="h-5 w-5 text-[var(--intt-electric)]" />
                 </div>
                 <div>
                   <CardTitle className="text-xl">{currentSection?.title}</CardTitle>
@@ -234,10 +234,10 @@ export function SurveyForm() {
               onClick={() => setSectionIdx(i)}
               className={`h-2.5 w-8 rounded-full transition-colors ${
                 i === sectionIdx
-                  ? "bg-primary"
+                  ? "bg-[var(--intt-electric)]"
                   : done
-                  ? "bg-primary/40"
-                  : "bg-muted"
+                  ? "bg-[var(--intt-electric)]/40"
+                  : "bg-[var(--intt-gris-300)]"
               }`}
               aria-label={`Ir a sección ${i + 1}`}
             />

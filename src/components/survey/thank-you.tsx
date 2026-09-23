@@ -23,9 +23,9 @@ export function ThankYou() {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="flex h-20 w-20 items-center justify-center rounded-full bg-green-100 dark:bg-green-900/30"
+              className="flex h-20 w-20 items-center justify-center rounded-full bg-[var(--intt-electric-50)]"
             >
-              <CheckCircle2 className="h-12 w-12 text-green-600 dark:text-green-400" />
+              <CheckCircle2 className="h-12 w-12 text-[var(--intt-electric)]" />
             </motion.div>
 
             <h2 className="text-2xl font-bold">¡Gracias por tu participación!</h2>
