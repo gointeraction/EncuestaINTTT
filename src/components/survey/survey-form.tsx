@@ -15,9 +15,27 @@ import {
   DRIVER_TYPES,
 } from "@/lib/survey-data";
 import { QuestionRenderer } from "./question-renderer";
+import type { Question } from "@/lib/survey-data";
+import type { AnswerValue } from "@/store/survey-store";
+
+/** Determina si una pregunta está respondida (maneja la pregunta compuesta estado-municipio). */
+function isAnswered(q: Question, answers: Record<string, AnswerValue>): boolean {
+  if (q.type === "estado-municipio") {
+    const e = answers["estado"];
+    const m = answers["municipio"];
+    return !!e && !!m && e !== "" && m !== "";
+  }
+  const v = answers[q.id];
+  return (
+    v !== undefined &&
+    v !== null &&
+    v !== "" &&
+    !(Array.isArray(v) && v.length === 0)
+  );
+}
 
 export function SurveyForm() {
-  const { driverType, answers, setAnswer, setView } =
+  const { driverType, answers, setAnswer, setMultiAnswer, setView } =
     useSurveyStore();
   const { toast } = useToast();
   const [sectionIdx, setSectionIdx] = useState(0);
@@ -37,10 +55,7 @@ export function SurveyForm() {
       const aq = getActiveQuestions(s, driverType, answers);
       total += aq.length;
       for (const q of aq) {
-        const v = answers[q.id];
-        if (v !== undefined && v !== null && v !== "" && !(Array.isArray(v) && v.length === 0)) {
-          answered++;
-        }
+        if (isAnswered(q, answers)) answered++;
       }
     }
     return { totalActive: total, answeredActive: answered };
@@ -65,16 +80,7 @@ export function SurveyForm() {
   const progress = totalActive ? Math.round((answeredActive / totalActive) * 100) : 0;
 
   // --- validación de la sección actual (requeridos) ---
-  const missingRequired = activeQuestions.filter((q) => {
-    if (!q.required) return false;
-    const v = answers[q.id];
-    return (
-      v === undefined ||
-      v === null ||
-      v === "" ||
-      (Array.isArray(v) && v.length === 0)
-    );
-  });
+  const missingRequired = activeQuestions.filter((q) => q.required && !isAnswered(q, answers));
 
   const handleNext = () => {
     if (missingRequired.length > 0) {
@@ -160,6 +166,8 @@ export function SurveyForm() {
                   question={q}
                   value={answers[q.id]}
                   onChange={(v) => setAnswer(q.id, v)}
+                  allAnswers={answers}
+                  onMultiChange={(updates) => setMultiAnswer(updates)}
                 />
               ))}
             </CardContent>
@@ -192,17 +200,7 @@ export function SurveyForm() {
       <div className="mt-6 flex flex-wrap gap-1.5">
         {sections.map((s, i) => {
           const aq = getActiveQuestions(s, driverType, answers);
-          const done =
-            aq.length > 0 &&
-            aq.every((q) => {
-              const v = answers[q.id];
-              return (
-                v !== undefined &&
-                v !== null &&
-                v !== "" &&
-                !(Array.isArray(v) && v.length === 0)
-              );
-            });
+          const done = aq.length > 0 && aq.every((q) => isAnswered(q, answers));
           return (
             <button
               key={s.id}

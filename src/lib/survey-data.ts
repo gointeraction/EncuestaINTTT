@@ -28,7 +28,8 @@ export type QuestionType =
   | "textarea"
   | "scale"
   | "select"
-  | "number";
+  | "number"
+  | "estado-municipio";
 
 export interface Question {
   id: string;
@@ -135,9 +136,10 @@ export const SURVEY: { title: string; subtitle: string; sections: Section[] } = 
           options: ["Femenino", "Masculino", "Otro / Prefiero no decir"],
         },
         {
-          id: "ciudad",
-          type: "text",
-          text: "¿En qué ciudad o municipio resides?",
+          id: "ubicacion",
+          type: "estado-municipio",
+          text: "¿En qué estado y municipio resides?",
+          help: "Selecciona primero el estado y luego el municipio.",
           appliesTo: "all",
           required: true,
         },

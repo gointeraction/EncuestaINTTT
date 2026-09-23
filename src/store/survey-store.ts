@@ -24,6 +24,7 @@ interface SurveyState {
   setView: (v: View) => void;
   setDriverType: (d: DriverTypeId) => void;
   setAnswer: (id: string, v: AnswerValue) => void;
+  setMultiAnswer: (updates: Record<string, AnswerValue>) => void;
   clearAnswers: () => void;
   setSavedId: (id: string) => void;
   setSorteoResult: (codigo: string | null, participa: boolean) => void;
@@ -50,6 +51,8 @@ export const useSurveyStore = create<SurveyState>((set) => ({
   setDriverType: (d) => set({ driverType: d }),
   setAnswer: (id, v) =>
     set((s) => ({ answers: { ...s.answers, [id]: v } })),
+  setMultiAnswer: (updates) =>
+    set((s) => ({ answers: { ...s.answers, ...updates } })),
   clearAnswers: () =>
     set({ answers: {}, savedId: null, codigoSorteo: null, participaSorteo: false, sorteo: { ...emptySorteo } }),
   setSavedId: (id) => set({ savedId: id }),

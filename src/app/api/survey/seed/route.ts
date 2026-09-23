@@ -8,6 +8,7 @@ import {
   type Question,
 } from "@/lib/survey-data";
 import { generateSorteoCode } from "@/lib/sorteo";
+import { VENEZUELA_ESTADOS, getMunicipiosByEstado } from "@/lib/venezuela-estados";
 
 // POST /api/survey/seed?count=60 — genera datos de demostración
 export async function POST(req: Request) {
@@ -78,6 +79,15 @@ function generateAnswers(driverType: DriverTypeId): Record<string, string | stri
     for (let pass = 0; pass < 3; pass++) {
       const active = getActiveQuestions(section, driverType, answers);
       for (const q of active) {
+        // Pregunta compuesta estado-municipio: guarda en dos claves
+        if (q.type === "estado-municipio") {
+          if (answers["estado"] === undefined) {
+            const estado = pick(VENEZUELA_ESTADOS);
+            answers["estado"] = estado.nombre;
+            answers["municipio"] = pick(estado.municipios);
+          }
+          continue;
+        }
         if (answers[q.id] !== undefined) continue;
         const v = fakeAnswer(q, driverType);
         if (v !== null) answers[q.id] = v;
@@ -101,8 +111,6 @@ function fakeAnswer(
         ["Femenino", 0.28],
         ["Otro / Prefiero no decir", 0.02],
       ]);
-    case "ciudad":
-      return pick(["Bogotá", "Medellín", "Cali", "Barranquilla", "Bucaramanga", "Pereira", "Cartagena"]);
     case "ocupacion":
       return pick(["Estudiante", "Comerciante", "Delivery", "Mototaxista", "Empleado", "Independiente"]);
     case "nivel_educativo":

@@ -109,3 +109,21 @@ Stage Summary:
   * Thanks screen: gold box "¡Estás participando en el sorteo!" + 8-char code (e.g. PFAZJ983) + "guárdalo" note. (for anonymous: "Respondiste de forma anónima").
   * DB verified: Carmen Vega, E-18234567, +58-424-3344556, PFAZJ983 — normalization works (0424-3344556 → +58-424-3344556).
   * Dashboard: gold banner "Participantes en el sorteo: 58 (72% de 81)"; "Ver lista" opens Dialog with participant table.
+
+---
+Task ID: 11
+Agent: main
+Task: Add Venezuelan state + municipality dependent selection (load municipios by estado).
+
+Work Log:
+- Created `src/lib/venezuela-estados.ts` with all 24 states + Distrito Capital + Dependencias Federales, each with their complete list of municipalities + capital. Helpers: getMunicipiosByEstado(), getCapitalByEstado(), ESTADO_NOMBRES.
+- Added "estado-municipio" to QuestionType union in survey-data.ts; replaced old free-text "ciudad" question with composite "ubicacion" question (type estado-municipio, required).
+- Extended QuestionRenderer with new props (allAnswers, onMultiChange) and added "estado-municipio" case: two dependent Selects (Estado grid-sm:2). Estado select loads all 26 entities; Municipio is disabled + "Primero elige un estado" until estado chosen; on estado change, municipio resets. Shows hint "Capital del estado X · N municipio(s) disponible(s)".
+- Added setMultiAnswer to Zustand store for composite-question updates.
+- Updated SurveyForm: passes allAnswers + onMultiChange; added isAnswered() helper handling composite question (checks estado AND municipio); used in progress calc, missingRequired filter, and section-dot nav.
+- Updated seed API: imports VENEZUELA_ESTADOS; generateAnswers handles estado-municipio specially (picks random estado + matching municipio); removed old "ciudad" case.
+
+Stage Summary:
+- Lint clean. Dev server running, no errors.
+- Agent Browser verified: Estado dropdown shows all 26 entities; selecting Mérida enables Municipio + shows "Capital Mérida · 23 municipios"; Municipio loads Mérida's actual municipalities (Libertador, Rangel, Tovar, Zea...); selecting Tovar works; changing Estado to Zulia resets Municipio to placeholder; selecting Maracaibo + completing demographics → Siguiente passes validation (composite required question satisfied).
+- Seed data verified: 80 responses with coherent estado/municipio pairs (e.g. Yaracuy/Sucre, Portuguesa/Agua Blanca, Distrito Capital/Libertador, Barinas/Barinas).

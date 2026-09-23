@@ -13,16 +13,26 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
+import { MapPin } from "lucide-react";
 import type { Question } from "@/lib/survey-data";
 import type { AnswerValue } from "@/store/survey-store";
+import {
+  VENEZUELA_ESTADOS,
+  ESTADO_NOMBRES,
+  getMunicipiosByEstado,
+} from "@/lib/venezuela-estados";
 
 interface Props {
   question: Question;
   value: AnswerValue | undefined;
   onChange: (v: AnswerValue) => void;
+  /** Respuestas completas (necesarias para preguntas compuestas como estado-municipio). */
+  allAnswers?: Record<string, AnswerValue>;
+  /** Setter para respuestas compuestas (varias claves a la vez). */
+  onMultiChange?: (updates: Record<string, AnswerValue>) => void;
 }
 
-export function QuestionRenderer({ question, value, onChange }: Props) {
+export function QuestionRenderer({ question, value, onChange, allAnswers, onMultiChange }: Props) {
   const q = question;
 
   const labelEl = (
@@ -207,6 +217,91 @@ export function QuestionRenderer({ question, value, onChange }: Props) {
               ))}
             </div>
           </div>
+        </div>
+      );
+    }
+
+    // -------------------------------------------------------------------------
+    case "estado-municipio": {
+      const estadoVal =
+        (allAnswers?.["estado"] as string | undefined) ?? "";
+      const municipioVal =
+        (allAnswers?.["municipio"] as string | undefined) ?? "";
+      const municipios = estadoVal ? getMunicipiosByEstado(estadoVal) : [];
+      const capital = estadoVal
+        ? VENEZUELA_ESTADOS.find((e) => e.nombre === estadoVal)?.capital
+        : undefined;
+
+      return (
+        <div className="space-y-3">
+          {labelEl}
+          <div className="grid gap-4 sm:grid-cols-2">
+            {/* Estado */}
+            <div className="space-y-1.5">
+              <Label htmlFor={`${q.id}-estado`} className="text-sm font-medium">
+                Estado <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={estadoVal}
+                onValueChange={(v) => {
+                  // Al cambiar el estado, se resetea el municipio
+                  onMultiChange?.({ estado: v, municipio: "" });
+                }}
+              >
+                <SelectTrigger id={`${q.id}-estado`} className="w-full">
+                  <span className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <SelectValue placeholder="Selecciona el estado" />
+                  </span>
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {ESTADO_NOMBRES.map((est) => (
+                    <SelectItem key={est} value={est}>
+                      {est}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Municipio */}
+            <div className="space-y-1.5">
+              <Label htmlFor={`${q.id}-municipio`} className="text-sm font-medium">
+                Municipio <span className="text-destructive">*</span>
+              </Label>
+              <Select
+                value={municipioVal}
+                onValueChange={(v) => onMultiChange?.({ municipio: v })}
+                disabled={!estadoVal}
+              >
+                <SelectTrigger id={`${q.id}-municipio`} className="w-full">
+                  <SelectValue
+                    placeholder={
+                      estadoVal
+                        ? municipios.length
+                          ? "Selecciona el municipio"
+                          : "Sin municipios"
+                        : "Primero elige un estado"
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent className="max-h-72">
+                  {municipios.map((mun) => (
+                    <SelectItem key={mun} value={mun}>
+                      {mun}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          {estadoVal && capital && (
+            <p className="text-xs text-muted-foreground">
+              Capital del estado: <strong className="text-foreground">{capital}</strong>
+              {" · "}
+              {municipios.length} municipio(s) disponible(s)
+            </p>
+          )}
         </div>
       );
     }
