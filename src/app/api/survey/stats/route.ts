@@ -13,6 +13,7 @@ export async function GET() {
       driverType: r.driverType as DriverTypeId,
       answers: JSON.parse(r.answers) as Record<string, string | string[] | number>,
       completedAt: r.completedAt,
+      participaSorteo: r.participaSorteo,
     }));
 
     // --- Distribución por tipo de conductor ---
@@ -96,6 +97,9 @@ export async function GET() {
       .filter((n): n is number => n !== null);
     const avgEdad = ages.length ? ages.reduce((s, n) => s + n, 0) / ages.length : 0;
 
+    // --- Sorteo: conteo de participantes ---
+    const sorteoParticipantes = parsed.filter((p) => p.participaSorteo).length;
+
     return NextResponse.json({
       total,
       byDriverType,
@@ -120,6 +124,9 @@ export async function GET() {
         velocidadOpinion: avgVelocidadOpinion,
         edad: avgEdad,
       },
+      sorteo: {
+        participantes: sorteoParticipantes,
+      },
       meta: {
         sections: SURVEY.sections.length,
         driverTypes: DRIVER_TYPES.length,
@@ -139,6 +146,7 @@ type Parsed = {
   driverType: DriverTypeId;
   answers: Record<string, string | string[] | number>;
   completedAt: Date;
+  participaSorteo: boolean;
 };
 
 function countValues(

@@ -78,3 +78,34 @@ Stage Summary:
 - Lint clean (0 errors/warnings). Dev server running, no console errors.
 - VLM-verified: welcome matches INTT institutional style (navy header, sky hero, electric blue + gold accents, real INTT logo in header+footer). Dashboard uses INTT chart palette (verified via DOM: bars fill #1c64f2/#151c41/#ffc907/#a70336). Mobile 390px responsive intact.
 - App now visually consistent with intt.gob.ve identity.
+
+---
+Task ID: 10
+Agent: main
+Task: Capture personal data (cédula + teléfono) for raffle participation.
+
+Work Log:
+- Added Prisma fields: participaSorteo, nombre, cedula, telefono, codigoSorteo + indexes; pushed to DB.
+- Created `src/lib/sorteo.ts` with Venezuelan cédula validator (V-/E- + 6-8 digits, normalizes to canonical form), teléfono validator (0412/0414/0424/0416/0426 mobile prefixes, normalizes to +58-XXX-XXXXXXX), cedulaYaParticipa() uniqueness check, generateSorteoCode() (8 char, no ambiguous chars).
+- Updated submit API: accepts optional `sorteo` object, validates, checks cédula uniqueness (409 on dup), generates códigoSorteo.
+- Updated stats API: added `sorteo.participantes` count.
+- Updated seed API: ~65% of synthetic records participate with realistic VE cédula/teléfono/código.
+- Added admin API `/api/survey/participants` listing all raffle entrants (for the draw).
+- Updated Zustand store: added "sorteo" view, sorteo data, codigoSorteo, participaSorteo.
+- Created `SorteoForm` component: opt-in switch, terms notice, validated nombre/cédula/teléfono with live errors, server error handling (409), consent checkbox.
+- Wired survey flow: last section button now says "Continuar al sorteo" (with Gift icon) → sorteo step → submit.
+- Updated welcome: gold "¡Participa en el sorteo!" banner.
+- Updated thank-you: gold confirmation box with códigoSorteo (or anonymous note).
+- Updated dashboard: gold "Participantes en el sorteo" banner with count + "Ver lista" button opening a Dialog with full participant table (#, Nombre, Cédula, Teléfono, Código).
+- Fixed bugs: button disabled-before-click preventing validation display; clearAnswers() order (set result AFTER clear).
+
+Stage Summary:
+- Lint clean. Dev server running, no errors.
+- Server validation verified via curl: invalid cédula/phone → 400 with fieldErrors; valid → 200 + código; duplicate cédula → 409.
+- E2E verified via Agent Browser + VLM:
+  * Welcome shows gold sorteo banner.
+  * Survey last section: "Continuar al sorteo" button (Gift icon).
+  * Sorteo step: opt-in switch reveals nombre/cédula/teléfono; invalid data shows red errors (nombre min 3, cédula formato, teléfono móvil VE); valid data submits → thanks.
+  * Thanks screen: gold box "¡Estás participando en el sorteo!" + 8-char code (e.g. PFAZJ983) + "guárdalo" note. (for anonymous: "Respondiste de forma anónima").
+  * DB verified: Carmen Vega, E-18234567, +58-424-3344556, PFAZJ983 — normalization works (0424-3344556 → +58-424-3344556).
+  * Dashboard: gold banner "Participantes en el sorteo: 58 (72% de 81)"; "Ver lista" opens Dialog with participant table.

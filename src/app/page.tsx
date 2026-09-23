@@ -4,6 +4,7 @@ import { useSurveyStore } from "@/store/survey-store";
 import { Welcome } from "@/components/survey/welcome";
 import { DriverTypeSelector } from "@/components/survey/driver-type-selector";
 import { SurveyForm } from "@/components/survey/survey-form";
+import { SorteoForm } from "@/components/survey/sorteo-form";
 import { ThankYou } from "@/components/survey/thank-you";
 import { Dashboard } from "@/components/dashboard/dashboard";
 import { BarChart3, ClipboardList, ExternalLink } from "lucide-react";
@@ -52,7 +53,7 @@ export default function Home() {
               size="sm"
               onClick={() => setView("welcome")}
               className={
-                view === "welcome" || view === "driver" || view === "survey" || view === "thanks"
+                view === "welcome" || view === "driver" || view === "survey" || view === "sorteo" || view === "thanks"
                   ? "text-white hover:bg-white/10"
                   : "text-white/70 hover:bg-white/10 hover:text-white"
               }
@@ -81,6 +82,7 @@ export default function Home() {
         {view === "welcome" && <Welcome />}
         {view === "driver" && <DriverTypeSelector />}
         {view === "survey" && <SurveyForm />}
+        {view === "sorteo" && <SorteoForm />}
         {view === "thanks" && <ThankYou />}
         {view === "dashboard" && <Dashboard />}
       </main>

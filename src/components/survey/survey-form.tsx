@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, ArrowRight, Loader2, Send } from "lucide-react";
+import { ArrowLeft, ArrowRight, Gift } from "lucide-react";
 import { useSurveyStore } from "@/store/survey-store";
 import {
   getSectionsForDriverType,
@@ -17,11 +17,10 @@ import {
 import { QuestionRenderer } from "./question-renderer";
 
 export function SurveyForm() {
-  const { driverType, answers, setAnswer, setView, setSavedId, clearAnswers } =
+  const { driverType, answers, setAnswer, setView } =
     useSurveyStore();
   const { toast } = useToast();
   const [sectionIdx, setSectionIdx] = useState(0);
-  const [submitting, setSubmitting] = useState(false);
 
   const driver = DRIVER_TYPES.find((d) => d.id === driverType);
   const sections = useMemo(
@@ -90,7 +89,9 @@ export function SurveyForm() {
       setSectionIdx(sectionIdx + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
-      handleSubmit();
+      // Última sección → ir al paso del sorteo (captura opcional de datos)
+      setView("sorteo");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -100,31 +101,6 @@ export function SurveyForm() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     } else {
       setView("driver");
-    }
-  };
-
-  const handleSubmit = async () => {
-    setSubmitting(true);
-    try {
-      const res = await fetch("/api/survey/submit", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ driverType, answers }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Error");
-      setSavedId(data.id);
-      toast({ title: "Encuesta enviada", description: "Gracias por participar." });
-      clearAnswers();
-      setView("thanks");
-    } catch (e) {
-      toast({
-        title: "Error al enviar",
-        description: e instanceof Error ? e.message : "Intenta de nuevo",
-        variant: "destructive",
-      });
-    } finally {
-      setSubmitting(false);
     }
   };
 
@@ -193,16 +169,15 @@ export function SurveyForm() {
 
       {/* --- navegación --- */}
       <div className="mt-6 flex items-center justify-between">
-        <Button variant="ghost" onClick={handlePrev} disabled={submitting}>
+        <Button variant="ghost" onClick={handlePrev}>
           <ArrowLeft className="mr-1 h-4 w-4" />
           {sectionIdx === 0 ? "Cambiar perfil" : "Anterior"}
         </Button>
-        <Button onClick={handleNext} disabled={submitting}>
-          {submitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button onClick={handleNext}>
           {isLast ? (
             <>
-              {submitting ? "Enviando..." : "Enviar encuesta"}
-              {!submitting && <Send className="ml-2 h-4 w-4" />}
+              Continuar al sorteo
+              <Gift className="ml-2 h-4 w-4" />
             </>
           ) : (
             <>

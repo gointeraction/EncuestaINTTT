@@ -7,6 +7,7 @@ import {
   type DriverTypeId,
   type Question,
 } from "@/lib/survey-data";
+import { generateSorteoCode } from "@/lib/sorteo";
 
 // POST /api/survey/seed?count=60 — genera datos de demostración
 export async function POST(req: Request) {
@@ -17,16 +18,38 @@ export async function POST(req: Request) {
     // Limpiar existentes
     await db.surveyResponse.deleteMany({});
 
+    const usedCedulas = new Set<string>();
     const created = [];
     for (let i = 0; i < count; i++) {
       const driverType = pick(DRIVER_TYPES).id;
       const answers = generateAnswers(driverType);
-      const saved = await db.surveyResponse.create({
-        data: {
-          driverType,
-          answers: JSON.stringify(answers),
-        },
-      });
+
+      // ~65% de los registros participan en el sorteo
+      const participa = Math.random() < 0.65;
+      const data: Parameters<typeof db.surveyResponse.create>[0]["data"] = {
+        driverType,
+        answers: JSON.stringify(answers),
+        participaSorteo: participa,
+        nombre: null,
+        cedula: null,
+        telefono: null,
+        codigoSorteo: null,
+      };
+      if (participa) {
+        let cedula = genCedula();
+        let attempts = 0;
+        while (usedCedulas.has(cedula) && attempts < 10) {
+          cedula = genCedula();
+          attempts++;
+        }
+        usedCedulas.add(cedula);
+        data.nombre = genNombre();
+        data.cedula = cedula;
+        data.telefono = genTelefono();
+        data.codigoSorteo = generateSorteoCode();
+      }
+
+      const saved = await db.surveyResponse.create({ data });
       created.push(saved.id);
     }
 
@@ -316,6 +339,32 @@ function fakeAnswer(
 
 function randInt(min: number, max: number): number {
   return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+// --- Generadores de datos personales para el sorteo ---
+const NOMBRES = [
+  "José Rodríguez", "María González", "Carlos Pérez", "Ana Hernández",
+  "Luis Martínez", "Carolina García", "Miguel Sánchez", "Andrea Ramírez",
+  "Javier Torres", "Daniela Morales", "Fernando Castro", "Patricia Jiménez",
+  "Roberto Díaz", "Sofía Romero", "Eduardo Vargas", "Valentina Mendoza",
+  "Ricardo Aguilar", "Natalia Cordero", "Jorge Rivas", "Gabriela Peña",
+  "Manuel Lara", "Teresa Bravo", "Antonio Medina", "Lucía Ortega",
+];
+
+function genNombre(): string {
+  return pick(NOMBRES);
+}
+
+function genCedula(): string {
+  const letra = Math.random() < 0.85 ? "V" : "E";
+  const num = randInt(1_000_000, 29_999_999);
+  return `${letra}-${num}`;
+}
+
+function genTelefono(): string {
+  const prefix = pick(["412", "414", "424", "416", "426"]);
+  const rest = String(randInt(0, 9_999_999)).padStart(7, "0");
+  return `+58-${prefix}-${rest}`;
 }
 
 function pick<T>(arr: T[]): T {

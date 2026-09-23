@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ShieldCheck, Bike, BarChart3, ArrowRight, ClipboardCheck } from "lucide-react";
+import { ShieldCheck, Bike, BarChart3, ArrowRight, ClipboardCheck, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSurveyStore } from "@/store/survey-store";
@@ -73,6 +73,27 @@ export function Welcome() {
                 Tiempo estimado: 8–12 minutos · Hasta{" "}
                 {countQuestionsForDriverType("delivery")} preguntas según tu perfil
               </p>
+
+              {/* banner sorteo */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+                className="mt-5 flex items-center gap-3 rounded-xl border border-[var(--intt-gold)]/40 bg-[var(--intt-gold-50)] p-3"
+              >
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--intt-gold)] text-[var(--intt-navy-deep)]">
+                  <Gift className="h-5 w-5" />
+                </div>
+                <div className="text-sm">
+                  <p className="font-semibold text-[#6b5403]">
+                    ¡Participa en el sorteo!
+                  </p>
+                  <p className="text-xs text-[#8c6f04]">
+                    Al final de la encuesta puedes registrar tu cédula y teléfono
+                    para concursar. Participación opcional.
+                  </p>
+                </div>
+              </motion.div>
             </motion.div>
 
             {/* tarjeta visual derecha */}

@@ -18,6 +18,16 @@ model SurveyResponse {
   answers     String   // JSON string
   completedAt DateTime @default(now())
 
+  // Datos personales para el sorteo (opcionales — solo si participa)
+  participaSorteo Boolean @default(false)
+  nombre          String?
+  cedula          String? // formato: V-12345678 o E-12345678
+  telefono        String? // formato: +58 412-1234567
+  // Hash del número de confirmación para el sorteo
+  codigoSorteo    String?
+
   @@index([driverType])
   @@index([completedAt])
+  @@index([participaSorteo])
+  @@index([cedula])
 }

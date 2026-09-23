@@ -19,6 +19,13 @@ import {
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import {
   Users,
@@ -30,6 +37,8 @@ import {
   Database,
   Loader2,
   ArrowLeft,
+  Gift,
+  Ticket,
 } from "lucide-react";
 import { useSurveyStore } from "@/store/survey-store";
 
@@ -57,6 +66,7 @@ interface Stats {
     velocidadOpinion: number;
     edad: number;
   };
+  sorteo: { participantes: number };
   meta: { sections: number; driverTypes: number };
 }
 
@@ -76,6 +86,11 @@ export function Dashboard() {
   const [stats, setStats] = useState<Stats | null>(null);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
+  const [showParticipants, setShowParticipants] = useState(false);
+  const [participants, setParticipants] = useState<
+    { id: string; nombre: string | null; cedula: string | null; telefono: string | null; codigo: string | null; driverType: string; completedAt: string }[]
+  >([]);
+  const [loadingParticipants, setLoadingParticipants] = useState(false);
   const { toast } = useToast();
   const setView = useSurveyStore((s) => s.setView);
 
@@ -111,6 +126,24 @@ export function Dashboard() {
     } finally {
       setSeeding(false);
     }
+  };
+
+  const loadParticipants = async () => {
+    setLoadingParticipants(true);
+    try {
+      const res = await fetch("/api/survey/participants", { cache: "no-store" });
+      const data = await res.json();
+      setParticipants(data.participants ?? []);
+    } catch {
+      toast({ title: "Error al cargar participantes", variant: "destructive" });
+    } finally {
+      setLoadingParticipants(false);
+    }
+  };
+
+  const openParticipants = () => {
+    setShowParticipants(true);
+    void loadParticipants();
   };
 
   return (
@@ -194,6 +227,42 @@ export function Dashboard() {
               color="bg-[#e8f0fe] text-[#1447ac]"
             />
           </div>
+
+          {/* --- banner sorteo --- */}
+          <Card className="overflow-hidden border-[var(--intt-gold)]/40">
+            <div className="flex flex-col items-start justify-between gap-3 p-4 sm:flex-row sm:items-center">
+              <div className="flex items-center gap-3">
+                <div className="flex h-11 w-11 items-center justify-center rounded-lg bg-[var(--intt-gold)] text-[var(--intt-navy-deep)]">
+                  <Gift className="h-5 w-5" />
+                </div>
+                <div>
+                  <p className="font-semibold text-[var(--intt-navy-deep)]">Participantes en el sorteo</p>
+                  <p className="text-xs text-muted-foreground">
+                    Personas que registraron su cédula y teléfono para concursar
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-4">
+                <div className="text-right">
+                  <p className="text-2xl font-bold text-[var(--intt-navy-deep)]">
+                    {stats.sorteo?.participantes ?? 0}
+                  </p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {pct(stats.sorteo?.participantes ?? 0, stats.total)} de {stats.total} encuestados
+                  </p>
+                </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="border-[var(--intt-navy)] text-[var(--intt-navy-deep)] hover:bg-[var(--intt-electric-50)]"
+                  onClick={openParticipants}
+                >
+                  <Users className="mr-1.5 h-4 w-4" />
+                  Ver lista
+                </Button>
+              </div>
+            </div>
+          </Card>
 
           {/* --- fila 1: tipo de conductor + sexo --- */}
           <div className="grid gap-4 lg:grid-cols-2">
@@ -451,6 +520,68 @@ export function Dashboard() {
           </div>
         </div>
       )}
+
+      {/* --- diálogo: lista de participantes del sorteo --- */}
+      <Dialog open={showParticipants} onOpenChange={setShowParticipants}>
+        <DialogContent className="max-w-3xl max-h-[80vh] overflow-hidden">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-[var(--intt-navy-deep)]">
+              <Gift className="h-5 w-5 text-[#8c6f04]" />
+              Participantes del sorteo
+            </DialogTitle>
+            <DialogDescription>
+              {participants.length} persona(s) registrada(s) con cédula y teléfono para concursar.
+              Datos visibles solo para administración.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="max-h-[55vh] overflow-y-auto">
+            {loadingParticipants ? (
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : participants.length === 0 ? (
+              <p className="py-10 text-center text-sm text-muted-foreground">
+                Aún no hay participantes en el sorteo.
+              </p>
+            ) : (
+              <table className="w-full text-sm">
+                <thead className="sticky top-0 bg-background">
+                  <tr className="border-b text-left text-xs text-muted-foreground">
+                    <th className="py-2 pr-2 font-medium">#</th>
+                    <th className="py-2 pr-2 font-medium">Nombre</th>
+                    <th className="py-2 pr-2 font-medium">Cédula</th>
+                    <th className="py-2 pr-2 font-medium">Teléfono</th>
+                    <th className="py-2 pr-2 font-medium">Código</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {participants.map((p, i) => (
+                    <tr key={p.id} className="border-b last:border-0">
+                      <td className="py-2 pr-2 text-muted-foreground">{i + 1}</td>
+                      <td className="py-2 pr-2 font-medium text-[var(--intt-navy-deep)]">
+                        {p.nombre ?? "—"}
+                      </td>
+                      <td className="py-2 pr-2 font-mono text-xs">{p.cedula ?? "—"}</td>
+                      <td className="py-2 pr-2 font-mono text-xs">{p.telefono ?? "—"}</td>
+                      <td className="py-2 pr-2">
+                        {p.codigo ? (
+                          <span className="inline-flex items-center gap-1 rounded bg-[var(--intt-gold-50)] px-1.5 py-0.5 font-mono text-xs font-semibold text-[#6b5403]">
+                            <Ticket className="h-3 w-3" />
+                            {p.codigo}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
