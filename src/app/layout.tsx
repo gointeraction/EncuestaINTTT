@@ -14,24 +14,24 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "Visión Cero · Encuesta de Siniestros de Motocicletas",
+  description: "Encuesta interactiva con preguntas adaptadas al tipo de conductor y dashboard de resultados para avanzar hacia una Visión Cero en siniestros de motocicletas.",
+  keywords: ["visión cero", "motocicletas", "siniestros", "encuesta vial", "seguridad vial", "dashboard"],
+  authors: [{ name: "Visión Cero" }],
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "Visión Cero · Encuesta de Motocicletas",
+    description: "Encuesta interactiva con dashboard de resultados.",
     url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    siteName: "Visión Cero",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "Visión Cero · Encuesta de Motocicletas",
+    description: "Encuesta interactiva con dashboard de resultados.",
   },
 };
 
