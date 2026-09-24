@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { isAdminAuthed } from "@/lib/admin-auth";
 
 // GET /api/survey/participants — lista de participantes del sorteo (admin)
 // Devuelve cédula, nombre, teléfono y código (para ejecutar el sorteo).
 export async function GET() {
   try {
+    if (!(await isAdminAuthed())) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const rows = await db.surveyResponse.findMany({
       where: { participaSorteo: true },
       orderBy: { completedAt: "desc" },

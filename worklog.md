@@ -155,3 +155,31 @@ Stage Summary:
 - Stats API verified: all 28 new indicators return data with realistic distributions.
 - Agent Browser verified: 50 chart surfaces rendered (was 18), 8 section dividers present, 8 KPI cards (2 rows), MiniDonuts show center number + legend with counts/percentages.
 - Dashboard went from 14 → ~46 indicators covering essentially all survey questions.
+
+---
+Task ID: 13
+Agent: main
+Task: Hide Dashboard from public access; make it a private URL with authentication; remove 3 info cards from home.
+
+Work Log:
+- Created `src/lib/admin-auth.ts`: HMAC-SHA256 signed httpOnly cookie session (7-day expiry), timing-safe password comparison, createAdminSession/destroyAdminSession/isAdminAuthed helpers.
+- Set ADMIN_PASSWORD + ADMIN_SECRET in .env.
+- Created API routes: POST /api/admin/login (validate password → set cookie), POST /api/admin/logout (clear cookie), GET /api/admin/session (check authed).
+- Protected 3 APIs with isAdminAuthed(): /api/survey/stats, /api/survey/participants, /api/survey/seed → return 401 without session. Kept /api/survey/submit public.
+- Added admin state to Zustand store: mode (public/admin), adminAuthed, adminChecking + setters.
+- Created `src/components/admin/admin-login.tsx`: AdminLogin (password form, error toast, "Volver a la encuesta" link) + AdminHeader (navy bar with "Panel privado · Modo administrador" + Cerrar sesión button).
+- Rewrote `src/app/page.tsx`: detects ?admin=1 query param on load → sets mode=admin → checks session via /api/admin/session → renders login (if not authed) or dashboard with AdminHeader (if authed). Public mode: removed Dashboard button from header nav (only Encuesta button remains).
+- Updated welcome.tsx: removed the 3 info cards (Preguntas adaptadas / Confidencial / Dashboard público) — both the desktop right-side card AND the mobile stacked cards. Removed "Ver dashboard" button. Hero is now centered with just Comenzar encuesta + sorteo banner.
+- Updated thank-you.tsx: removed "Ver dashboard de resultados" button (only "Realizar otra encuesta" remains). Removed unused BarChart3 import.
+
+Stage Summary:
+- Lint clean. Dev server running, no console errors.
+- API protection verified via curl: stats/participants/seed → 401 without auth; submit → 200 (public).
+- Agent Browser verified:
+  * Public home: NO Dashboard button, NO 3 info cards, NO "Ver dashboard" button (VLM confirmed all 3 = NO).
+  * Private URL /?admin=1: shows "Panel privado" login with password field.
+  * Wrong password → stays on login (rejected).
+  * Correct password (VisionCero2026!) → dashboard loads with 50 charts, KPI=81, AdminHeader with "Cerrar sesión".
+  * Reload → session persists (cookie httpOnly).
+  * Logout → redirects to public / (no admin).
+- Private access URL: /?admin=1 (bookmarkable). Password in .env: VisionCero2026!

@@ -9,10 +9,14 @@ import {
 } from "@/lib/survey-data";
 import { generateSorteoCode } from "@/lib/sorteo";
 import { VENEZUELA_ESTADOS, getMunicipiosByEstado } from "@/lib/venezuela-estados";
+import { isAdminAuthed } from "@/lib/admin-auth";
 
-// POST /api/survey/seed?count=60 — genera datos de demostración
+// POST /api/survey/seed?count=60 — genera datos de demostración (requiere admin)
 export async function POST(req: Request) {
   try {
+    if (!(await isAdminAuthed())) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const url = new URL(req.url);
     const count = Math.min(200, Math.max(1, Number(url.searchParams.get("count") ?? 60)));
 

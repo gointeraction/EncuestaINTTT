@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { SURVEY, DRIVER_TYPES, type DriverTypeId } from "@/lib/survey-data";
+import { isAdminAuthed } from "@/lib/admin-auth";
 
-// GET /api/survey/stats — agregaciones para el dashboard
+// GET /api/survey/stats — agregaciones para el dashboard (requiere admin)
 export async function GET() {
   try {
+    if (!(await isAdminAuthed())) {
+      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+    }
     const rows = await db.surveyResponse.findMany();
     const total = rows.length;
 

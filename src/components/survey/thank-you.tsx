@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { CheckCircle2, BarChart3, RotateCcw, Gift, Ticket } from "lucide-react";
+import { CheckCircle2, RotateCcw, Gift, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useSurveyStore } from "@/store/survey-store";
@@ -83,13 +83,9 @@ export function ThankYou() {
 
             <div className="mt-2 flex w-full flex-col gap-2 sm:flex-row sm:justify-center">
               <Button
-                onClick={() => setView("dashboard")}
+                onClick={() => setView("welcome")}
                 className="bg-[var(--intt-electric)] text-white hover:bg-[var(--intt-electric-deep)]"
               >
-                <BarChart3 className="mr-2 h-4 w-4" />
-                Ver dashboard de resultados
-              </Button>
-              <Button variant="outline" onClick={() => setView("welcome")}>
                 <RotateCcw className="mr-2 h-4 w-4" />
                 Realizar otra encuesta
               </Button>

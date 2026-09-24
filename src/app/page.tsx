@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useSurveyStore } from "@/store/survey-store";
 import { Welcome } from "@/components/survey/welcome";
 import { DriverTypeSelector } from "@/components/survey/driver-type-selector";
@@ -7,7 +8,8 @@ import { SurveyForm } from "@/components/survey/survey-form";
 import { SorteoForm } from "@/components/survey/sorteo-form";
 import { ThankYou } from "@/components/survey/thank-you";
 import { Dashboard } from "@/components/dashboard/dashboard";
-import { BarChart3, ClipboardList, ExternalLink } from "lucide-react";
+import { AdminLogin, AdminHeader } from "@/components/admin/admin-login";
+import { ClipboardList, ExternalLink, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstitutionLogo } from "@/components/institution-logo";
 import { INSTITUTION } from "@/lib/institution";
@@ -15,7 +17,85 @@ import { INSTITUTION } from "@/lib/institution";
 export default function Home() {
   const view = useSurveyStore((s) => s.view);
   const setView = useSurveyStore((s) => s.setView);
+  const mode = useSurveyStore((s) => s.mode);
+  const setMode = useSurveyStore((s) => s.setMode);
+  const adminAuthed = useSurveyStore((s) => s.adminAuthed);
+  const setAdminAuthed = useSurveyStore((s) => s.setAdminAuthed);
+  const adminChecking = useSurveyStore((s) => s.adminChecking);
+  const setAdminChecking = useSurveyStore((s) => s.setAdminChecking);
 
+  // Detectar acceso privado: /?admin=1
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isAdmin = params.get("admin") === "1";
+    if (isAdmin) {
+      setMode("admin");
+      setAdminChecking(true);
+      // Verificar si ya hay sesión activa
+      fetch("/api/admin/session", { cache: "no-store" })
+        .then((r) => r.json())
+        .then((d) => {
+          setAdminAuthed(!!d.authed);
+          setAdminChecking(false);
+        })
+        .catch(() => {
+          setAdminAuthed(false);
+          setAdminChecking(false);
+        });
+    } else {
+      setMode("public");
+      setAdminChecking(false);
+    }
+  }, []);
+
+  // ===================== MODO ADMIN (URL privada) =====================
+  if (mode === "admin") {
+    // Verificando sesión...
+    if (adminChecking) {
+      return (
+        <div className="flex min-h-screen flex-col bg-background">
+          <div className="intt-navy-bg flex h-16 items-center px-4">
+            <InstitutionLogo size="sm" variant="light" />
+          </div>
+          <div className="flex flex-1 items-center justify-center">
+            <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+          </div>
+        </div>
+      );
+    }
+
+    // No autenticado → login
+    if (!adminAuthed) {
+      return (
+        <div className="flex min-h-screen flex-col bg-background">
+          <div className="intt-navy-bg flex h-16 items-center px-4">
+            <InstitutionLogo size="sm" variant="light" />
+          </div>
+          <main className="flex-1">
+            <AdminLogin />
+          </main>
+        </div>
+      );
+    }
+
+    // Autenticado → dashboard con header admin + footer
+    return (
+      <div className="flex min-h-screen flex-col bg-background">
+        <div className="intt-navy-bg flex h-16 items-center justify-between px-4">
+          <InstitutionLogo size="sm" variant="light" />
+        </div>
+        <AdminHeader />
+        <main className="flex-1">
+          <Dashboard />
+        </main>
+        <footer className="intt-navy-bg mt-auto py-4 text-center text-[11px] text-white/50">
+          © {new Date().getFullYear()} {INSTITUTION.shortName} · Panel privado de administración
+        </footer>
+      </div>
+    );
+  }
+
+  // ===================== MODO PÚBLICO (encuesta) =====================
   return (
     <div className="flex min-h-screen flex-col bg-background">
       {/* --- barra superior gov (delgada, navy profundo) --- */}
@@ -47,31 +127,16 @@ export default function Home() {
             <InstitutionLogo size="sm" variant="light" />
           </button>
 
+          {/* Solo el botón de Encuesta (Dashboard oculto del acceso público) */}
           <nav className="flex items-center gap-1">
             <Button
               variant="ghost"
               size="sm"
               onClick={() => setView("welcome")}
-              className={
-                view === "welcome" || view === "driver" || view === "survey" || view === "sorteo" || view === "thanks"
-                  ? "text-white hover:bg-white/10"
-                  : "text-white/70 hover:bg-white/10 hover:text-white"
-              }
+              className="text-white hover:bg-white/10"
             >
               <ClipboardList className="mr-1.5 h-4 w-4" />
               <span className="hidden sm:inline">Encuesta</span>
-            </Button>
-            <Button
-              size="sm"
-              onClick={() => setView("dashboard")}
-              className={
-                view === "dashboard"
-                  ? "bg-[var(--intt-gold)] text-[var(--intt-navy-deep)] hover:bg-[var(--intt-gold-deep)] hover:text-[var(--intt-navy-deep)]"
-                  : "bg-white/10 text-white hover:bg-white/20"
-              }
-            >
-              <BarChart3 className="mr-1.5 h-4 w-4" />
-              <span className="hidden sm:inline">Dashboard</span>
             </Button>
           </nav>
         </div>
@@ -84,7 +149,6 @@ export default function Home() {
         {view === "survey" && <SurveyForm />}
         {view === "sorteo" && <SorteoForm />}
         {view === "thanks" && <ThankYou />}
-        {view === "dashboard" && <Dashboard />}
       </main>
 
       {/* --- sticky footer institucional --- */}

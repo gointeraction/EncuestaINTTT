@@ -5,6 +5,9 @@ export type AnswerValue = string | string[] | number;
 
 export type View = "welcome" | "driver" | "survey" | "sorteo" | "thanks" | "dashboard";
 
+/** Modo de la app: público (encuesta) o admin (dashboard privado). */
+export type AppMode = "public" | "admin";
+
 export interface SorteoData {
   participa: boolean;
   nombre: string;
@@ -14,6 +17,9 @@ export interface SorteoData {
 
 interface SurveyState {
   view: View;
+  mode: AppMode;
+  adminAuthed: boolean;
+  adminChecking: boolean;
   driverType: DriverTypeId | null;
   answers: Record<string, AnswerValue>;
   savedId: string | null;
@@ -22,6 +28,9 @@ interface SurveyState {
   sorteo: SorteoData;
 
   setView: (v: View) => void;
+  setMode: (m: AppMode) => void;
+  setAdminAuthed: (a: boolean) => void;
+  setAdminChecking: (c: boolean) => void;
   setDriverType: (d: DriverTypeId) => void;
   setAnswer: (id: string, v: AnswerValue) => void;
   setMultiAnswer: (updates: Record<string, AnswerValue>) => void;
@@ -40,6 +49,9 @@ const emptySorteo: SorteoData = {
 
 export const useSurveyStore = create<SurveyState>((set) => ({
   view: "welcome",
+  mode: "public",
+  adminAuthed: false,
+  adminChecking: true,
   driverType: null,
   answers: {},
   savedId: null,
@@ -48,6 +60,9 @@ export const useSurveyStore = create<SurveyState>((set) => ({
   sorteo: { ...emptySorteo },
 
   setView: (v) => set({ view: v }),
+  setMode: (m) => set({ mode: m }),
+  setAdminAuthed: (a) => set({ adminAuthed: a }),
+  setAdminChecking: (c) => set({ adminChecking: c }),
   setDriverType: (d) => set({ driverType: d }),
   setAnswer: (id, v) =>
     set((s) => ({ answers: { ...s.answers, [id]: v } })),
