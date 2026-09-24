@@ -183,3 +183,24 @@ Stage Summary:
   * Reload → session persists (cookie httpOnly).
   * Logout → redirects to public / (no admin).
 - Private access URL: /?admin=1 (bookmarkable). Password in .env: VisionCero2026!
+
+---
+Task ID: 14
+Agent: main
+Task: Protect survey against bot attacks (Cloudflare Turnstile + rate limiting + honeypot).
+
+Work Log:
+- Clarified two Cloudflare options: (1) WAF/Bot Management = infra-level (DNS proxy, config in CF dashboard, can't do from code); (2) Turnstile = app-level CAPTCHA-free (can integrate in code). Implemented the latter + complementary layers.
+- Created `src/lib/turnstile.ts`: TURNSTILE_SITE_KEY (public, client) + verifyTurnstileToken() server-side (calls Cloudflare siteverify API, timing-safe). Uses test keys (1x00000000000000000000AA always-pass) overridable via env.
+- Created `src/lib/rate-limit.ts`: in-memory sliding-window rate limiter by IP (5 submits / 10 min per IP), getClientIp() from x-forwarded-for/x-real-ip headers, periodic cleanup of empty buckets.
+- Added TURNSTILE_SITE_KEY + TURNSTILE_SECRET_KEY to .env (test keys, with comments on how to get real keys from dash.cloudflare.com → Turnstile).
+- Protected /api/survey/submit with 3 layers: (1) rate limit by IP → 429; (2) honeypot field "website" → silent ok (bot fooled); (3) Turnstile token verification → 403 if missing/invalid.
+- Created `src/components/survey/turnstile-widget.tsx`: loads CF script, renders widget via window.turnstile.render, handles callback/expired/error, exposes onToken to parent. Site key from env.
+- Updated SorteoForm: added turnstileToken state + honeypot "website" state; handleSubmit requires token (toast if missing); payload includes turnstileToken + website; handles 403 (turnstile) + 429 (rate limit) server errors with inline messages; added TurnstileWidget in a bordered box + honeypot hidden input (positioned off-screen).
+- Fixed lint: refactored TurnstileWidget effect to avoid setState-in-effect warning (renderWidget returns boolean, setLoaded called in doRender wrapper).
+
+Stage Summary:
+- Lint clean. Dev server running, no console errors.
+- API protections verified via curl: no token → 403; honeypot filled → silent ok (not saved); valid test token → 200 saved; 6 rapid requests → 429 from 3rd onward (rate limit).
+- Agent Browser verified: Turnstile widget renders on sorteo step with "¡Operación exitosa!" (test key auto-passes), shows "Protegido por Cloudflare Turnstile contra envíos automatizados"; submit blocked by rate limit shows inline error "Has enviado demasiadas encuestas. Intenta de nuevo en ~8 minuto(s).".
+- For production: replace test keys in .env with real Turnstile keys (create site at dash.cloudflare.com → Turnstile). Optionally also enable Cloudflare WAF "Bot Fight Mode" at DNS-proxy level for defense-in-depth.

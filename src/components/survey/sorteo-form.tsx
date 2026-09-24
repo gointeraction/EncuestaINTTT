@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Gift, ArrowLeft, ArrowRight, Loader2, ShieldCheck, Info, CheckCircle2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,6 +12,7 @@ import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useSurveyStore } from "@/store/survey-store";
 import { validatePersonalData, VE_MOBILE_PREFIXES } from "@/lib/sorteo";
+import { TurnstileWidget } from "./turnstile-widget";
 
 export function SorteoForm() {
   const { sorteo, setSorteo, answers, driverType, setView, setSavedId, setSorteoResult, clearAnswers } =
@@ -20,6 +21,13 @@ export function SorteoForm() {
   const [touched, setTouched] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  // honeypot: campo oculto (los bots lo rellenan, los humanos no)
+  const [website, setWebsite] = useState("");
+
+  const handleTurnstileToken = useCallback((token: string | null) => {
+    setTurnstileToken(token);
+  }, []);
 
   // Validación en vivo (solo si participa)
   const validation = useMemo(() => {
@@ -45,6 +53,15 @@ export function SorteoForm() {
       return;
     }
 
+    if (!turnstileToken) {
+      toast({
+        title: "Verificación pendiente",
+        description: "Completa la verificación de seguridad para enviar.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setSubmitting(true);
     try {
       const payload: Record<string, unknown> = {
@@ -58,6 +75,8 @@ export function SorteoForm() {
               telefono: validation.normalized!.telefono,
             }
           : { participa: false },
+        turnstileToken,
+        website, // honeypot
       };
       const res = await fetch("/api/survey/submit", {
         method: "POST",
@@ -68,6 +87,10 @@ export function SorteoForm() {
       if (!res.ok) {
         if (res.status === 409) {
           setServerError(data.error ?? "Esta cédula ya participó.");
+        } else if (res.status === 429) {
+          setServerError(data.error ?? "Demasiados envíos. Intenta más tarde.");
+        } else if (res.status === 403) {
+          setServerError(data.error ?? "Verificación de seguridad fallida. Recarga e intenta de nuevo.");
         } else if (data.fieldErrors) {
           // errores de validación del servidor
           toast({
@@ -254,13 +277,32 @@ export function SorteoForm() {
               </div>
             )}
 
-            {/* Error de servidor (cédula duplicada) */}
+            {/* Error de servidor (cédula duplicada / rate limit / turnstile) */}
             {serverError && (
               <div className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive">
                 <Info className="h-4 w-4 shrink-0" />
                 {serverError}
               </div>
             )}
+
+            {/* --- verificación anti-bot (Cloudflare Turnstile) --- */}
+            <div className="rounded-lg border border-[var(--intt-gris-200)] bg-[var(--intt-electric-50)]/40 p-4">
+              <TurnstileWidget onToken={handleTurnstileToken} />
+            </div>
+
+            {/* honeypot: campo oculto para bots (no visible para humanos) */}
+            <div aria-hidden="true" style={{ position: "absolute", left: "-9999px", width: "1px", height: "1px", overflow: "hidden" }}>
+              <label htmlFor="website-hp">No rellenar (sitio web)</label>
+              <input
+                id="website-hp"
+                type="text"
+                name="website"
+                tabIndex={-1}
+                autoComplete="off"
+                value={website}
+                onChange={(e) => setWebsite(e.target.value)}
+              />
+            </div>
 
             {/* --- navegación --- */}
             <div className="flex items-center justify-between border-t border-[var(--intt-gris-200)] pt-4">

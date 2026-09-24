@@ -5,12 +5,45 @@ import {
   cedulaYaParticipa,
   generateSorteoCode,
 } from "@/lib/sorteo";
+import { verifyTurnstileToken } from "@/lib/turnstile";
+import { rateLimit, getClientIp } from "@/lib/rate-limit";
 
 // POST /api/survey/submit — guardar una respuesta de encuesta
 export async function POST(req: NextRequest) {
   try {
+    // ====== 1) Rate limiting por IP (anti-spam de bots) ======
+    const ip = getClientIp(req);
+    const rl = rateLimit(ip, { max: 5, windowMs: 10 * 60 * 1000 }); // 5 envíos / 10 min por IP
+    if (!rl.ok) {
+      const mins = Math.ceil((rl.resetAt - Date.now()) / 60000);
+      return NextResponse.json(
+        {
+          error: `Has enviado demasiadas encuestas. Intenta de nuevo en ~${mins} minuto(s).`,
+        },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)) },
+        }
+      );
+    }
+
     const body = await req.json();
-    const { driverType, answers, sorteo } = body ?? {};
+    const { driverType, answers, sorteo, turnstileToken, website } = body ?? {};
+
+    // ====== 2) Honeypot: campo oculto que solo los bots rellenan ======
+    if (website && typeof website === "string" && website.trim() !== "") {
+      // Silenciosamente rechazado como si fuera exitoso (para no alertar al bot)
+      return NextResponse.json({ id: "hp-blocked", ok: true });
+    }
+
+    // ====== 3) Cloudflare Turnstile: verifica que sea humano ======
+    const ts = await verifyTurnstileToken(turnstileToken, ip);
+    if (!ts.ok) {
+      return NextResponse.json(
+        { error: ts.error ?? "Verificación de seguridad fallida." },
+        { status: 403 }
+      );
+    }
 
     if (!driverType || typeof driverType !== "string") {
       return NextResponse.json(
