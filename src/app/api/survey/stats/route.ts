@@ -80,12 +80,22 @@ export async function GET() {
     // --- Estado de vías (escala) ---
     const estadoVias = countScale(parsed, "estado_vias");
 
+    // --- Señalización vial (escala) ---
+    const senalizacion = countScale(parsed, "senalizacion");
+
+    // --- Velocidad: respeto al límite (escala) ---
+    const velocidadOpinion = countScale(parsed, "velocidad_opinion");
+
+    // --- Respeto a peatones (escala) ---
+    const rebasesPeatones = countScale(parsed, "rebases_peatones");
+
     // --- Promedios de escalas ---
     const avgPercepcionSeguridad = avgScale(parsed, "percepcion_seguridad");
     const avgEfectividadControl = avgScale(parsed, "efectividad_control");
     const avgEstadoVias = avgScale(parsed, "estado_vias");
     const avgSenalizacion = avgScale(parsed, "senalizacion");
     const avgVelocidadOpinion = avgScale(parsed, "velocidad_opinion");
+    const avgRebasesPeatones = avgScale(parsed, "rebases_peatones");
 
     // --- Promedio de edad ---
     const ages = parsed
@@ -96,6 +106,115 @@ export async function GET() {
       })
       .filter((n): n is number => n !== null);
     const avgEdad = ages.length ? ages.reduce((s, n) => s + n, 0) / ages.length : 0;
+
+    // --- Promedio de años conduciendo ---
+    const anosCond = parsed
+      .map((p) => {
+        const a = p.answers["anos_conduciendo"];
+        const n = typeof a === "number" ? a : a ? Number(a) : NaN;
+        return isNaN(n) ? null : n;
+      })
+      .filter((n): n is number => n !== null);
+    const avgAnosConduciendo = anosCond.length ? anosCond.reduce((s, n) => s + n, 0) / anosCond.length : 0;
+
+    // --- Promedio de km diarios ---
+    const kmArr = parsed
+      .map((p) => {
+        const a = p.answers["km_diarios"];
+        const n = typeof a === "number" ? a : a ? Number(a) : NaN;
+        return isNaN(n) ? null : n;
+      })
+      .filter((n): n is number => n !== null);
+    const avgKmDiarios = kmArr.length ? kmArr.reduce((s, n) => s + n, 0) / kmArr.length : 0;
+
+    // --- Promedio de horas diarias ---
+    const horasArr = parsed
+      .map((p) => {
+        const a = p.answers["horas_diarias"];
+        const n = typeof a === "number" ? a : a ? Number(a) : NaN;
+        return isNaN(n) ? null : n;
+      })
+      .filter((n): n is number => n !== null);
+    const avgHorasDiarias = horasArr.length ? horasArr.reduce((s, n) => s + n, 0) / horasArr.length : 0;
+
+    // ====================================================================
+    // NUEVOS INDICADORES
+    // ====================================================================
+
+    // --- Distribución por estado ---
+    const byEstado = countValues(parsed, "estado").slice(0, 12);
+
+    // --- Nivel educativo ---
+    const nivelEducativo = countValues(parsed, "nivel_educativo");
+
+    // --- Frecuencia de conducción ---
+    const frecuenciaConduccion = countValues(parsed, "frecuencia_conduccion");
+
+    // --- Categoría de licencia ---
+    const categoriaLicencia = countValues(parsed, "categoria_licencia");
+
+    // --- Uso principal de la moto ---
+    const usoPrincipal = countValues(parsed, "uso_principal");
+
+    // --- Conducción nocturna ---
+    const conduccionNocturna = countValues(parsed, "conduccion_nocturna");
+
+    // --- Conducción con lluvia ---
+    const climaLluvia = countValues(parsed, "clima_lluvia");
+
+    // --- Tipo de casco ---
+    const cascoTipo = countValues(parsed, "casco_tipo");
+
+    // --- Casco certificado ---
+    const cascoCertificado = countValues(parsed, "casco_certificado");
+
+    // --- Equipamiento adicional (checkbox) ---
+    const equipamientoAdicional = countCheckbox(parsed, "equipamiento_adicional");
+
+    // --- Elementos de seguridad de la moto (checkbox) ---
+    const elementosMoto = countCheckbox(parsed, "elementos_moto");
+
+    // --- Pasajeros extra (triples) ---
+    const pasajerosExtra = countValues(parsed, "pasajeros_extra");
+
+    // --- Presión por tiempo (delivery/mototaxi) ---
+    const presionTiempo = countValues(parsed, "presion_tiempo");
+
+    // --- Fatiga ---
+    const fatiga = countValues(parsed, "fatiga");
+
+    // --- Año del siniestro (distribución) ---
+    const siniestroAno = countValues(parsed, "siniestro_ano");
+
+    // --- Causas del siniestro (checkbox, distinto de causas_principales) ---
+    const siniestroCausas = countCheckbox(parsed, "siniestro_causas");
+
+    // --- Atención médica post-siniestro ---
+    const siniestroAtencion = countValues(parsed, "siniestro_atencion");
+
+    // --- Iluminación vial ---
+    const iluminacion = countValues(parsed, "iluminacion");
+
+    // --- Problemas de infraestructura (checkbox) ---
+    const problemasVia = countCheckbox(parsed, "problemas_via");
+
+    // --- Conocimiento de límites de velocidad ---
+    const conoceLimitesVelocidad = countValues(parsed, "conoce_limites_velocidad");
+
+    // --- Conocimiento de alcoholemia ---
+    const conoceAlcoholemia = countValues(parsed, "conoce_alcoholemia");
+
+    // --- Conocimiento de sanciones ---
+    const conoceSanciones = countValues(parsed, "conoce_sanciones");
+
+    // --- Recibió capacitación ---
+    const recibioCapacitacion = countValues(parsed, "recibio_capacitacion");
+
+    // --- Apoyo a Visión Cero ---
+    const apoyoVisionCero = countValues(parsed, "apoyo_vision_cero");
+
+    // --- Disposición a participar ---
+    const disposicionParticipar = countValues(parsed, "disposicion_participar");
 
     // --- Sorteo: conteo de participantes ---
     const sorteoParticipantes = parsed.filter((p) => p.participaSorteo).length;
@@ -116,13 +235,46 @@ export async function GET() {
       usoCelular,
       alcohol,
       estadoVias,
+      // Nuevos
+      byEstado,
+      nivelEducativo,
+      frecuenciaConduccion,
+      categoriaLicencia,
+      usoPrincipal,
+      conduccionNocturna,
+      climaLluvia,
+      cascoTipo,
+      cascoCertificado,
+      equipamientoAdicional,
+      elementosMoto,
+      pasajerosExtra,
+      presionTiempo,
+      fatiga,
+      siniestroAno,
+      siniestroCausas,
+      siniestroAtencion,
+      senalizacion,
+      velocidadOpinion,
+      rebasesPeatones,
+      iluminacion,
+      problemasVia,
+      conoceLimitesVelocidad,
+      conoceAlcoholemia,
+      conoceSanciones,
+      recibioCapacitacion,
+      apoyoVisionCero,
+      disposicionParticipar,
       avg: {
         percepcionSeguridad: avgPercepcionSeguridad,
         efectividadControl: avgEfectividadControl,
         estadoVias: avgEstadoVias,
         senalizacion: avgSenalizacion,
         velocidadOpinion: avgVelocidadOpinion,
+        rebasesPeatones: avgRebasesPeatones,
         edad: avgEdad,
+        anosConduciendo: avgAnosConduciendo,
+        kmDiarios: avgKmDiarios,
+        horasDiarias: avgHorasDiarias,
       },
       sorteo: {
         participantes: sorteoParticipantes,

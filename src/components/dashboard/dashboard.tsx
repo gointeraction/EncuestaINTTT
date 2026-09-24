@@ -39,6 +39,22 @@ import {
   ArrowLeft,
   Gift,
   Ticket,
+  Gauge,
+  Route,
+  ClipboardCheck,
+  MapPin,
+  GraduationCap,
+  Construction,
+  Scale,
+  Lightbulb,
+  Moon,
+  CloudRain,
+  HardHat,
+  Clock,
+  BatteryLow,
+  HeartPulse,
+  BookOpen,
+  ThumbsUp,
 } from "lucide-react";
 import { useSurveyStore } from "@/store/survey-store";
 
@@ -58,13 +74,46 @@ interface Stats {
   usoCelular: { label: string; count: number }[];
   alcohol: { label: string; count: number }[];
   estadoVias: Record<string, number>;
+  // Nuevos indicadores
+  byEstado: { label: string; count: number }[];
+  nivelEducativo: { label: string; count: number }[];
+  frecuenciaConduccion: { label: string; count: number }[];
+  categoriaLicencia: { label: string; count: number }[];
+  usoPrincipal: { label: string; count: number }[];
+  conduccionNocturna: { label: string; count: number }[];
+  climaLluvia: { label: string; count: number }[];
+  cascoTipo: { label: string; count: number }[];
+  cascoCertificado: { label: string; count: number }[];
+  equipamientoAdicional: { label: string; count: number }[];
+  elementosMoto: { label: string; count: number }[];
+  pasajerosExtra: { label: string; count: number }[];
+  presionTiempo: { label: string; count: number }[];
+  fatiga: { label: string; count: number }[];
+  siniestroAno: { label: string; count: number }[];
+  siniestroCausas: { label: string; count: number }[];
+  siniestroAtencion: { label: string; count: number }[];
+  senalizacion: Record<string, number>;
+  velocidadOpinion: Record<string, number>;
+  rebasesPeatones: Record<string, number>;
+  iluminacion: { label: string; count: number }[];
+  problemasVia: { label: string; count: number }[];
+  conoceLimitesVelocidad: { label: string; count: number }[];
+  conoceAlcoholemia: { label: string; count: number }[];
+  conoceSanciones: { label: string; count: number }[];
+  recibioCapacitacion: { label: string; count: number }[];
+  apoyoVisionCero: { label: string; count: number }[];
+  disposicionParticipar: { label: string; count: number }[];
   avg: {
     percepcionSeguridad: number;
     efectividadControl: number;
     estadoVias: number;
     senalizacion: number;
     velocidadOpinion: number;
+    rebasesPeatones: number;
     edad: number;
+    anosConduciendo: number;
+    kmDiarios: number;
+    horasDiarias: number;
   };
   sorteo: { participantes: number };
   meta: { sections: number; driverTypes: number };
@@ -222,6 +271,39 @@ export function Dashboard() {
               }`}
               sub={`${pct(
                 stats.siniestro.filter((s) => s.label !== "No, nunca").reduce((a, b) => a + b.count, 0),
+                stats.total
+              )} del total`}
+              color="bg-[#e8f0fe] text-[#1447ac]"
+            />
+            <KpiCard
+              icon={<Gauge className="h-5 w-5" />}
+              label="Años conduciendo (prom.)"
+              value={stats.avg.anosConduciendo ? `${stats.avg.anosConduciendo.toFixed(1)} años` : "—"}
+              color="bg-[var(--intt-electric-50)] text-[var(--intt-electric)]"
+            />
+            <KpiCard
+              icon={<Route className="h-5 w-5" />}
+              label="Km/día (prom.)"
+              value={stats.avg.kmDiarios ? `${stats.avg.kmDiarios.toFixed(0)} km` : "—"}
+              sub={stats.avg.horasDiarias ? `${stats.avg.horasDiarias.toFixed(1)} h/día` : undefined}
+              color="bg-[#fffae6] text-[#8c6f04]"
+            />
+            <KpiCard
+              icon={<ShieldCheck className="h-5 w-5" />}
+              label="Siempre usa casco"
+              value={stats.casco.filter((c) => c.label === "Siempre").reduce((a, b) => a + b.count, 0)}
+              sub={`${pct(
+                stats.casco.filter((c) => c.label === "Siempre").reduce((a, b) => a + b.count, 0),
+                stats.total
+              )} del total`}
+              color="bg-[#f6e6eb] text-[#770226]"
+            />
+            <KpiCard
+              icon={<ClipboardCheck className="h-5 w-5" />}
+              label="Licencia vigente"
+              value={stats.licencia.filter((l) => l.label === "Sí, vigente").reduce((a, b) => a + b.count, 0)}
+              sub={`${pct(
+                stats.licencia.filter((l) => l.label === "Sí, vigente").reduce((a, b) => a + b.count, 0),
                 stats.total
               )} del total`}
               color="bg-[#e8f0fe] text-[#1447ac]"
@@ -468,7 +550,7 @@ export function Dashboard() {
           </div>
 
           {/* --- percepciones (escalas) --- */}
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             <ScaleCard
               title="Percepción de seguridad"
               avg={stats.avg.percepcionSeguridad}
@@ -489,6 +571,27 @@ export function Dashboard() {
               data={stats.estadoVias}
               color={COLORS[2]}
               labels={["Muy malo", "Muy bueno"]}
+            />
+            <ScaleCard
+              title="Señalización vial"
+              avg={stats.avg.senalizacion}
+              data={stats.senalizacion}
+              color={COLORS[5]}
+              labels={["Nada clara", "Muy clara"]}
+            />
+            <ScaleCard
+              title="Respeto al límite de velocidad"
+              avg={stats.avg.velocidadOpinion}
+              data={stats.velocidadOpinion}
+              color={COLORS[6]}
+              labels={["Nunca respeto", "Siempre respeto"]}
+            />
+            <ScaleCard
+              title="Respeto a peatones"
+              avg={stats.avg.rebasesPeatones}
+              data={stats.rebasesPeatones}
+              color={COLORS[0]}
+              labels={["Nunca", "Siempre"]}
             />
           </div>
 
@@ -514,6 +617,414 @@ export function Dashboard() {
                   <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
                   <Tooltip />
                   <Bar dataKey="count" fill={COLORS[5]} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Ubicación y perfil socioeducativo
+              ==================================================== */}
+          <SectionDivider icon={<MapPin className="h-4 w-4" />} title="Ubicación y perfil socioeducativo" />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Distribución por estado (top 12)" icon={<MapPin className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.byEstado}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={110} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[0]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Nivel educativo" icon={<GraduationCap className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.nivelEducativo}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={150} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[2]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Experiencia y uso de la motocicleta
+              ==================================================== */}
+          <SectionDivider icon={<Gauge className="h-4 w-4" />} title="Experiencia y uso de la motocicleta" />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Frecuencia de conducción" icon={<Gauge className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.frecuenciaConduccion}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={150} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[1]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Categoría de licencia" icon={<ClipboardCheck className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart data={stats.categoriaLicencia} margin={{ left: -10, right: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[5]} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Uso principal de la motocicleta" icon={<Route className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.usoPrincipal}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={150} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[3]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Conducción nocturna" icon={<Moon className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={stats.conduccionNocturna}
+                    dataKey="count"
+                    nameKey="label"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label={(e) => `${e.count}`}
+                  >
+                    {stats.conduccionNocturna.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend wrapperStyle={{ fontSize: 11 }} />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Conducción con lluvia o clima adverso" icon={<CloudRain className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={stats.climaLluvia} margin={{ left: -10, right: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} angle={-15} textAnchor="end" height={60} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[6]} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Equipamiento de seguridad
+              ==================================================== */}
+          <SectionDivider icon={<ShieldCheck className="h-4 w-4" />} title="Equipamiento de seguridad" />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Tipo de casco utilizado" icon={<ShieldCheck className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={280}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.cascoTipo}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={140} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[0]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Casco con certificación de seguridad" icon={<ShieldCheck className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={280}>
+                <PieChart>
+                  <Pie
+                    data={stats.cascoCertificado}
+                    dataKey="count"
+                    nameKey="label"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={90}
+                    label={(e) => `${e.label}: ${e.count}`}
+                  >
+                    {stats.cascoCertificado.map((_, i) => (
+                      <Cell key={i} fill={COLORS[i % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard
+              title="Equipamiento de protección adicional"
+              icon={<HardHat className="h-4 w-4" />}
+              description="Selección múltiple"
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.equipamientoAdicional}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={150} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[3]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard
+              title="Elementos de seguridad de la motocicleta"
+              icon={<HardHat className="h-4 w-4" />}
+              description="Selección múltiple"
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.elementosMoto}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={160} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[1]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Comportamiento al conducir
+              ==================================================== */}
+          <SectionDivider icon={<Brain className="h-4 w-4" />} title="Comportamiento al conducir" />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Transporte de pasajeros extra (triples)" icon={<Users className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart data={stats.pasajerosExtra} margin={{ left: -10, right: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[6]} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Presión por tiempo (delivery / mototaxi)" icon={<Clock className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.presionTiempo}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={120} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[5]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Conducción con fatiga o sueño" icon={<BatteryLow className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={240}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.fatiga}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={120} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[3]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Detalle de siniestros
+              ==================================================== */}
+          <SectionDivider icon={<Siren className="h-4 w-4" />} title="Detalle de siniestros" />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Siniestros por año" icon={<Siren className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={stats.siniestroAno} margin={{ left: -10, right: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[4]} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Atención médica post-siniestro" icon={<HeartPulse className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.siniestroAtencion}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={130} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[2]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard
+              title="Causas de los siniestros (según víctimas)"
+              icon={<Siren className="h-4 w-4" />}
+              description="Selección múltiple"
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.siniestroCausas}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={150} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[4]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Infraestructura vial (detalle)
+              ==================================================== */}
+          <SectionDivider icon={<Construction className="h-4 w-4" />} title="Infraestructura vial" />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Iluminación en vías nocturnas" icon={<Moon className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.iluminacion}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 11 }} width={160} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[6]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard
+              title="Problemas de infraestructura más frecuentes"
+              icon={<Construction className="h-4 w-4" />}
+              description="Selección múltiple"
+            >
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart
+                  layout="vertical"
+                  data={stats.problemasVia}
+                  margin={{ left: 20, right: 20 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis type="number" allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <YAxis type="category" dataKey="label" tick={{ fontSize: 10 }} width={160} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[1]} radius={[0, 6, 6, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Conocimiento de normativas
+              ==================================================== */}
+          <SectionDivider icon={<Scale className="h-4 w-4" />} title="Conocimiento de normativas" />
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <ChartCard title="Límites de velocidad" icon={<Scale className="h-4 w-4" />}>
+              <MiniDonut data={stats.conoceLimitesVelocidad} />
+            </ChartCard>
+            <ChartCard title="Normas de alcoholemia" icon={<Scale className="h-4 w-4" />}>
+              <MiniDonut data={stats.conoceAlcoholemia} />
+            </ChartCard>
+            <ChartCard title="Sanciones por infracciones" icon={<Scale className="h-4 w-4" />}>
+              <MiniDonut data={stats.conoceSanciones} />
+            </ChartCard>
+            <ChartCard title="Recibió capacitación" icon={<BookOpen className="h-4 w-4" />}>
+              <MiniDonut data={stats.recibioCapacitacion} />
+            </ChartCard>
+          </div>
+
+          {/* ====================================================
+              SECCIÓN: Adopción de Visión Cero
+              ==================================================== */}
+          <SectionDivider icon={<Lightbulb className="h-4 w-4" />} title="Adopción de Visión Cero" />
+
+          <div className="grid gap-4 lg:grid-cols-2">
+            <ChartCard title="Apoyo a la política Visión Cero" icon={<ThumbsUp className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={stats.apoyoVisionCero} margin={{ left: -10, right: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="label" tick={{ fontSize: 11 }} angle={-15} textAnchor="end" height={60} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[0]} radius={[6, 6, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </ChartCard>
+
+            <ChartCard title="Disposición a participar en campañas" icon={<ThumbsUp className="h-4 w-4" />}>
+              <ResponsiveContainer width="100%" height={260}>
+                <BarChart data={stats.disposicionParticipar} margin={{ left: -10, right: 10 }}>
+                  <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+                  <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip />
+                  <Bar dataKey="count" fill={COLORS[2]} radius={[6, 6, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -589,6 +1100,68 @@ export function Dashboard() {
 // ---------------------------------------------------------------------------
 // Sub-componentes
 // ---------------------------------------------------------------------------
+
+/** Separador de sección con título e ícono (estilo institucional INTT). */
+function SectionDivider({ icon, title }: { icon: React.ReactNode; title: string }) {
+  return (
+    <div className="flex items-center gap-3 pt-4">
+      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[var(--intt-navy-deep)] text-white">
+        {icon}
+      </div>
+      <h3 className="text-lg font-bold text-[var(--intt-navy-deep)]">{title}</h3>
+      <div className="intt-gold-rule h-0.5 flex-1 rounded-full opacity-40" />
+    </div>
+  );
+}
+
+/** Mini gráfico de dona para indicadores sí/no/más o menos. */
+function MiniDonut({ data }: { data: { label: string; count: number }[] }) {
+  const total = data.reduce((s, d) => s + d.count, 0) || 1;
+  return (
+    <div className="flex items-center gap-4 py-2">
+      <div className="relative h-24 w-24 shrink-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={data}
+              dataKey="count"
+              nameKey="label"
+              cx="50%"
+              cy="50%"
+              innerRadius={32}
+              outerRadius={48}
+              paddingAngle={2}
+            >
+              {data.map((_, i) => (
+                <Cell key={i} fill={COLORS[i % COLORS.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+          </PieChart>
+        </ResponsiveContainer>
+        <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-lg font-bold text-[var(--intt-navy-deep)]">{total}</span>
+          <span className="text-[9px] text-muted-foreground">total</span>
+        </div>
+      </div>
+      <div className="flex-1 space-y-1">
+        {data.map((d, i) => (
+          <div key={d.label} className="flex items-center gap-2 text-xs">
+            <span
+              className="h-2.5 w-2.5 shrink-0 rounded-sm"
+              style={{ backgroundColor: COLORS[i % COLORS.length] }}
+            />
+            <span className="flex-1 truncate text-muted-foreground">{d.label}</span>
+            <span className="font-mono font-medium">{d.count}</span>
+            <span className="w-8 text-right text-[10px] text-muted-foreground">
+              {Math.round((d.count / total) * 100)}%
+            </span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 function KpiCard({
   icon,

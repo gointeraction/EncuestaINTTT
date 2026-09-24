@@ -127,3 +127,31 @@ Stage Summary:
 - Lint clean. Dev server running, no errors.
 - Agent Browser verified: Estado dropdown shows all 26 entities; selecting Mérida enables Municipio + shows "Capital Mérida · 23 municipios"; Municipio loads Mérida's actual municipalities (Libertador, Rangel, Tovar, Zea...); selecting Tovar works; changing Estado to Zulia resets Municipio to placeholder; selecting Maracaibo + completing demographics → Siguiente passes validation (composite required question satisfied).
 - Seed data verified: 80 responses with coherent estado/municipio pairs (e.g. Yaracuy/Sucre, Portuguesa/Agua Blanca, Distrito Capital/Libertador, Barinas/Barinas).
+
+---
+Task ID: 12
+Agent: main
+Task: Add many more indicators to the dashboard based on all survey questions.
+
+Work Log:
+- Audited all ~55 survey questions vs the 14 existing dashboard indicators → found ~30 questions without visualization.
+- Extended stats API (`/api/survey/stats`) with 28 new aggregations + 4 new averages: byEstado, nivelEducativo, frecuenciaConduccion, categoriaLicencia, usoPrincipal, conduccionNocturna, climaLluvia, cascoTipo, cascoCertificado, equipamientoAdicional, elementosMoto, pasajerosExtra, presionTiempo, fatiga, siniestroAno, siniestroCausas, siniestroAtencion, senalizacion (scale), velocidadOpinion (scale), rebasesPeatones (scale), iluminacion, problemasVia, conoceLimitesVelocidad, conoceAlcoholemia, conoceSanciones, recibioCapacitacion, apoyoVisionCero, disposicionParticipar; avg.anosConduciendo, avg.kmDiarios, avg.horasDiarias, avg.rebasesPeatones.
+- Added 4 new KPI cards (now 8 total, 2 rows): Años conduciendo (prom.), Km/día (prom.) + horas/día, Siempre usa casco, Licencia vigente.
+- Extended ScaleCards from 3 to 6 (added Señalización vial, Respeto al límite de velocidad, Respeto a peatones).
+- Created SectionDivider component (navy icon box + gold rule) and MiniDonut component (donut + center total + legend with counts/%).
+- Added 8 themed sections with ~32 new charts:
+  1. Ubicación y perfil socioeducativo (estado top12, nivel educativo)
+  2. Experiencia y uso de la motocicleta (frecuencia, categoría licencia, uso principal, conducción nocturna, lluvia)
+  3. Equipamiento de seguridad (tipo casco, certificación, equipamiento adicional, elementos moto)
+  4. Comportamiento al conducir (pasajeros extra, presión tiempo, fatiga)
+  5. Detalle de siniestros (por año, atención médica, causas víctimas)
+  6. Infraestructura vial (iluminación, problemas frecuentes)
+  7. Conocimiento de normativas (4 mini-donuts: límites, alcoholemia, sanciones, capacitación)
+  8. Adopción de Visión Cero (apoyo, disposición a participar)
+- Added 20 new lucide icons import.
+
+Stage Summary:
+- Lint clean. Dev server running, no console errors.
+- Stats API verified: all 28 new indicators return data with realistic distributions.
+- Agent Browser verified: 50 chart surfaces rendered (was 18), 8 section dividers present, 8 KPI cards (2 rows), MiniDonuts show center number + legend with counts/percentages.
+- Dashboard went from 14 → ~46 indicators covering essentially all survey questions.
