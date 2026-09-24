@@ -204,3 +204,17 @@ Stage Summary:
 - API protections verified via curl: no token → 403; honeypot filled → silent ok (not saved); valid test token → 200 saved; 6 rapid requests → 429 from 3rd onward (rate limit).
 - Agent Browser verified: Turnstile widget renders on sorteo step with "¡Operación exitosa!" (test key auto-passes), shows "Protegido por Cloudflare Turnstile contra envíos automatizados"; submit blocked by rate limit shows inline error "Has enviado demasiadas encuestas. Intenta de nuevo en ~8 minuto(s).".
 - For production: replace test keys in .env with real Turnstile keys (create site at dash.cloudflare.com → Turnstile). Optionally also enable Cloudflare WAF "Bot Fight Mode" at DNS-proxy level for defense-in-depth.
+
+---
+Task ID: 15
+Agent: main
+Task: Generate Specification Driven Development (SDD) documentation.
+
+Work Log:
+- Inventoried all source files (APIs, components, lib, store, prisma) to ensure spec accuracy.
+- Counted: 8 API routes, ~10 custom components, 8 lib modules, 10 survey sections, ~55 questions, 6 driver types, 26 VE entities, ~46 dashboard indicators.
+- Wrote comprehensive SDD document at `docs/SPECIFICATION.md` (665 lines, ~3400 words, 17 sections).
+
+Stage Summary:
+- Document covers: vision/actors/routes, tech stack, system architecture diagram, domain model (driver types, sections, question types), conditional logic (appliesTo + showIf), DB schema, API spec (public/private/auth), component tree, security model (3-layer bot protection + admin auth), dashboard indicators, INTT visual design, config/deploy, environment constraints.
+- Includes 2 appendices: file structure tree + glossary.
