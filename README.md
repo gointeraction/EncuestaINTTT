@@ -269,6 +269,7 @@ EncuestaINTTT/
 ├── docs/                               # Documentación Técnica Formal
 │   ├── ARQUITECTURA_REQUERIDA.md       # Documento de Arquitectura (SAD v1.1)
 │   ├── GUIA_IMPLEMENTACION_ONPREMISES.md # Manual paso a paso de producción
+│   ├── PROCESO_SUMARIZACION.md         # Documento Técnico del Proceso de Sumarización (CQRS)
 │   └── SPECIFICATION.md                # Especificación Funcional Completa (SDD v1.1)
 ├── prisma/
 │   └── schema.prisma                   # Esquema de Prisma ORM para PostgreSQL
@@ -335,4 +336,5 @@ sudo pg_dump -U intt_user -h 127.0.0.1 intt_encuesta | gzip > /var/backups/encue
 Para más detalles, consulta los documentos de ingeniería disponibles en la carpeta `docs/`:
 * **[docs/ARQUITECTURA_REQUERIDA.md](docs/ARQUITECTURA_REQUERIDA.md):** Especificación completa de topología de red, zonas de seguridad, matrices de hardware y dimensionamiento de carga.
 * **[docs/GUIA_IMPLEMENTACION_ONPREMISES.md](docs/GUIA_IMPLEMENTACION_ONPREMISES.md):** Manual detallado de despliegue paso a paso para administradores de sistemas y centros de datos.
+* **[docs/PROCESO_SUMARIZACION.md](docs/PROCESO_SUMARIZACION.md):** Documento técnico de ingeniería sobre el patrón CQRS, agregación de métricas y configuración de cron para el Dashboard gerencial.
 * **[docs/SPECIFICATION.md](docs/SPECIFICATION.md):** Especificación técnica formal (SDD) de todas las preguntas, validaciones, modelos de datos y endpoints de API.

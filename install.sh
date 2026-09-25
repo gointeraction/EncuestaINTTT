@@ -170,6 +170,10 @@ if [ -f "db/sqlite_backup.json" ]; then
     npm run db:import-backup || true
 fi
 
+# Generar primera sumarización analítica (Fast Dashboard)
+echo -e "  Generando resumen analítico inicial..."
+npm run survey:summarize || true
+
 # 8. Compilación de Producción (Standalone)
 echo -e "${BLUE}${BOLD}[6/8] Compilando la aplicación para producción (Next.js Standalone)...${NC}"
 npm run build
@@ -295,11 +299,14 @@ systemctl restart nginx
 # Firewall básico
 ufw allow 'Nginx Full' >/dev/null 2>&1 || true
 
-# 11. Tarea programada de Respaldo Diario (Cron)
+# 11. Tarea programada de Respaldo Diario y Sumarización (Cron)
 mkdir -p /var/backups/encuesta-intt
 cat > /etc/cron.d/backup-encuesta-intt <<EOF
 # Respaldo automático diario de la base de datos a las 02:00 AM
 0 2 * * * root PGPASSWORD='${DB_PASSWORD}' pg_dump -U intt_user -h 127.0.0.1 intt_encuesta | gzip > /var/backups/encuesta-intt/backup_\$(date +\%F).sql.gz && find /var/backups/encuesta-intt/ -type f -name "*.sql.gz" -mtime +30 -delete
+
+# Sumarización analítica horaria para carga ultrarrápida del Dashboard (< 5 ms)
+0 * * * * root cd ${APP_DIR} && /usr/bin/npm run survey:summarize >> /var/log/encuesta-summarize.log 2>&1
 EOF
 
 # Guardar resumen de credenciales

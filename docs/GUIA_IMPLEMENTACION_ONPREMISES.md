@@ -326,7 +326,23 @@ Agrega la siguiente línea para respaldar la base de datos todos los días a las
 0 2 * * * pg_dump -d intt_encuesta -Fc | gzip > /var/backups/postgresql/encuesta_$(date +\%F).dump.gz
 ```
 
-### B. Comandos Útiles de Operación
+### B. Programación del Proceso de Sumarización (Fast Dashboard)
+Para que el Dashboard gerencial cargue en tiempo récord (< 5 ms) sin saturar el servidor, configure la ejecución periódica del proceso de sumarización por lotes:
+
+```bash
+# Editar el crontab del sistema
+sudo crontab -e
+```
+
+Añadir la tarea para recalcular métricas consolidadas cada hora (o según requerimiento institucional):
+```cron
+# Sumarización de métricas analíticas cada hora
+0 * * * * cd /var/www/encuesta-intt && /usr/bin/npm run survey:summarize >> /var/log/encuesta-summarize.log 2>&1
+```
+
+Para más detalles, consulte la [Guía Técnica del Proceso de Sumarización](PROCESO_SUMARIZACION.md).
+
+### C. Comandos Útiles de Operación
 
 * **Ver estado de los procesos de la app:**
   ```bash
