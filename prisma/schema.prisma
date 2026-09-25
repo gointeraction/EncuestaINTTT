@@ -6,7 +6,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -15,7 +15,7 @@ model SurveyResponse {
   id          String   @id @default(cuid())
   driverType  String   // DriverTypeId
   // Las respuestas se guardan como JSON: { questionId: value }
-  answers     String   // JSON string
+  answers     String   @db.Text // JSON string
   completedAt DateTime @default(now())
 
   // Datos personales para el sorteo (opcionales — solo si participa)

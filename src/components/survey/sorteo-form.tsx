@@ -11,7 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
 import { useSurveyStore } from "@/store/survey-store";
-import { validatePersonalData, VE_MOBILE_PREFIXES } from "@/lib/sorteo";
+import { validatePersonalData, VE_MOBILE_PREFIXES, type PersonalData } from "@/lib/sorteo";
 import { TurnstileWidget } from "./turnstile-widget";
 
 export function SorteoForm() {
@@ -31,7 +31,7 @@ export function SorteoForm() {
 
   // Validación en vivo (solo si participa)
   const validation = useMemo(() => {
-    if (!sorteo.participa) return { ok: true, errors: {}, normalized: null as null | { nombre: string; cedula: string; telefono: string } };
+    if (!sorteo.participa) return { ok: true, errors: {} as Partial<Record<keyof PersonalData, string>>, normalized: null as null | { nombre: string; cedula: string; telefono: string } };
     const v = validatePersonalData({
       nombre: sorteo.nombre,
       cedula: sorteo.cedula,

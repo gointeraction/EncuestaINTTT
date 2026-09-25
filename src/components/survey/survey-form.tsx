@@ -112,7 +112,7 @@ export function SurveyForm() {
 
   const isLast = sectionIdx === sections.length - 1;
   const SectionIcon =
-    (Icons as Record<string, Icons.LucideIcon>)[currentSection?.icon ?? ""] ?? Icons.List;
+    ((Icons as unknown) as Record<string, Icons.LucideIcon>)[currentSection?.icon ?? ""] ?? Icons.List;
 
   return (
     <div className="mx-auto max-w-3xl px-4 py-6">

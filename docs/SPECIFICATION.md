@@ -3,7 +3,7 @@
 
 > **Documento tipo Specification Driven Development (SDD)**
 > Instituto Nacional de Transporte Terrestre (INTT) — Venezuela
-> Versión: 1.0 · Última actualización: 2026
+> Versión: 1.1 · Última actualización: Septiembre 2026 (Migración PostgreSQL & On-Premises)
 
 ---
 
@@ -58,10 +58,10 @@ La app expone una **sola ruta visible** (`/`) con dos modos determinados por que
 
 | Capa | Tecnología | Versión |
 |---|---|---|
-| Framework | Next.js (App Router) | 16 |
+| Framework | Next.js (App Router, Standalone) | 16 |
 | Lenguaje | TypeScript | 5 |
 | Estilos | Tailwind CSS + shadcn/ui (New York) | 4 |
-| Base de datos | SQLite + Prisma ORM | 6 |
+| Base de datos | PostgreSQL (Motor) + Prisma ORM (Driver) | 16 / 6 |
 | Estado cliente | Zustand | 5 |
 | Estado servidor | fetch + cache: no-store | — |
 | Gráficas | Recharts | 2 |
@@ -70,7 +70,9 @@ La app expone una **sola ruta visible** (`/`) con dos modos determinados por que
 | Formularios | React Hook Form + Zod | 7 / 4 |
 | Tipografía | Georama (institucional INTT) + Geist | — |
 | Anti-bot | Cloudflare Turnstile | — |
-| Runtime | Bun | — |
+| Servidor Web | Nginx (Proxy reverso, SSL, Gzip, Caché) | 1.24+ |
+| Gestor de procesos | PM2 (Modo Cluster multinúcleo) | 5 |
+| Runtime | Node.js (v20 / v22 LTS) o Bun | — |
 
 ---
 
@@ -102,11 +104,11 @@ La app expone una **sola ruta visible** (`/`) con dos modos determinados por que
 │  │verify   │   │guard     │   │guard     │   │Cookie   │   │
 │  └────┬────┘   └──────────┘   └──────────┘   └─────────┘   │
 │       │                                                      │
-│       ▼  ┌────────────────────────┐                          │
-│  ┌─────┐ │  Prisma Client (SQLite)│                          │
-│  │Rate │ │  ┌──────────────────┐  │                          │
-│  │Limit│ │  │ SurveyResponse   │  │                          │
-│  └─────┘ └──┴──────────────────┴──┘                          │
+│       ▼  ┌────────────────────────────┐                      │
+│  ┌─────┐ │  Prisma Client (PostgreSQL)│                      │
+│  │Rate │ │  ┌──────────────────────┐  │                      │
+│  │Limit│ │  │   SurveyResponse     │  │                      │
+│  └─────┘ └──┴──────────────────────┴──┘                      │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -217,21 +219,26 @@ Caso especial: el `id` es `ubicacion` pero guarda **dos claves** (`estado` + `mu
 
 ## 6. Esquema de base de datos
 
-### 6.1 Modelo `SurveyResponse` (Prisma / SQLite)
+### 6.1 Modelo `SurveyResponse` (Prisma / PostgreSQL)
 
 ```prisma
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
 model SurveyResponse {
-  id          String   @id @default(cuid())
-  driverType  String   // DriverTypeId
-  answers     String   // JSON string: { questionId: value }
-  completedAt DateTime @default(now())
+  id              String   @id @default(cuid())
+  driverType      String   // DriverTypeId
+  answers         String   @db.Text // JSON string: { questionId: value }
+  completedAt     DateTime @default(now())
 
   // Datos personales para el sorteo (opcionales)
-  participaSorteo Boolean @default(false)
+  participaSorteo Boolean  @default(false)
   nombre          String?
-  cedula          String? // formato: V-12345678 o E-12345678
-  telefono        String? // formato: +58 412-1234567
-  codigoSorteo    String? // 8 chars, generado al participar
+  cedula          String?  // formato: V-12345678 o E-12345678
+  telefono        String?  // formato: +58 412-1234567
+  codigoSorteo    String?  // 8 chars, generado al participar
 
   @@index([driverType])
   @@index([completedAt])
@@ -242,15 +249,16 @@ model SurveyResponse {
 
 ### 6.2 Notas
 
-- `answers` se guarda como **string JSON** (SQLite no soporta tipos compuestos Prisma). Se parsea con `JSON.parse` al leer.
-- `cedula` tiene índice único lógico (validado en app: `cedulaYaParticipa()`) para impedir doble participación.
-- `codigoSorteo` es un código de 8 caracteres alfanuméricos (sin caracteres ambiguos 0/O/1/I) para reclamar el premio.
+- `answers` se almacena como **string JSON con tipo `@db.Text`** en PostgreSQL (sin límite de tamaño, óptimo para payloads de 40-50 preguntas). Se serializa con `JSON.stringify` al crear y se parsea con `JSON.parse` al leer.
+- `cedula` tiene índice B-Tree y validación lógica en aplicación (`cedulaYaParticipa()`) para impedir doble registro de un mismo participante en el sorteo.
+- `codigoSorteo` es un código de 8 caracteres alfanuméricos únicos (alfabeto sin caracteres ambiguos `0/O/1/I`) para reclamo de premios.
 
-### 6.3 Comandos
+### 6.3 Comandos de Gestión de Base de Datos
 
 ```bash
-bun run db:push     # Sincroniza schema → DB (acepta data-loss)
-bun run db:generate # Regenera Prisma Client
+npx prisma db push          # Sincroniza schema → PostgreSQL (crea tablas e índices)
+npx prisma generate         # Regenera Prisma Client para PostgreSQL
+npm run db:import-backup    # Restaura datos del respaldo si aplica
 ```
 
 ---
@@ -458,9 +466,9 @@ Todas las APIs `/stats`, `/participants`, `/seed` invocan `isAdminAuthed()` al i
 
 ### 9.4 Variables de entorno (`.env`)
 
-| Variable | Propósito | Valor default (test) |
+| Variable | Propósito | Valor default / Formato |
 |---|---|---|
-| `DATABASE_URL` | Conexión SQLite | `file:.../custom.db` |
+| `DATABASE_URL` | Conexión a PostgreSQL | `postgresql://usuario:clave@host:5432/intt_encuesta?schema=public` |
 | `ADMIN_PASSWORD` | Contraseña panel admin | `VisionCero2026!` |
 | `ADMIN_SECRET` | Secreto HMAC cookies | (hex 64 chars) |
 | `TURNSTILE_SITE_KEY` | Site key público (client) | `1x0000...AA` (test, always-pass) |
@@ -548,40 +556,57 @@ Percepción de seguridad · Efectividad del control · Estado de vías · Señal
 
 ## 12. Configuración y despliegue
 
-### 12.1 Requisitos
+### 12.1 Requisitos de Infraestructura
 
-- Bun runtime
-- Node.js compatible (Next.js 16)
-- Puerto 3000 (auto dev server)
+- **Node.js:** v20.x o v22.x LTS (compatible con Next.js 16)
+- **Base de Datos:** PostgreSQL 16 o 18 (puerto 5432)
+- **Servidor Web:** Nginx 1.24+ (proxy reverso, SSL y compresión)
+- **Administrador de procesos:** PM2 (en modo cluster para producción)
 
-### 12.2 Setup inicial
+### 12.2 Instalación Automatizada On-Premises (Linux Ubuntu / Debian)
+
+Para desplegar todo el sistema en un solo comando:
+```bash
+sudo bash install.sh
+```
+
+### 12.3 Setup Manual / Desarrollo
 
 ```bash
 # 1. Instalar dependencias
-bun install
+npm install
 
-# 2. Configurar .env (ver sección 9.4)
-#    - DATABASE_URL, ADMIN_PASSWORD, ADMIN_SECRET, TURNSTILE_*
+# 2. Configurar .env (apuntando a PostgreSQL)
+cp .env.example .env
 
-# 3. Sincronizar DB
-bun run db:push
+# 3. Sincronizar schema con PostgreSQL y generar cliente
+npx prisma generate
+npx prisma db push
 
-# 4. Iniciar dev server
-bun run dev    # http://localhost:3000
+# 4. (Opcional) Restaurar datos previos del respaldo
+npm run db:import-backup
+
+# 5. Iniciar servidor de desarrollo
+npm run dev    # http://localhost:3000
 ```
 
-### 12.3 Datos de demostración
+### 12.4 Datos de demostración
 
-Desde el dashboard admin, botón **"Cargar datos demo"** → `POST /api/survey/seed?count=80` genera 80 respuestas sintéticas plausibles (con estado/municipio coherentes, ~65% participantes del sorteo).
+Desde el dashboard admin (`/?admin=1`), botón **"Cargar datos demo"** → `POST /api/survey/seed?count=80` genera 80 respuestas sintéticas plausibles (con estado/municipio coherentes de Venezuela, ~65% participantes del sorteo).
 
-### 12.4 Producción
+### 12.5 Puesta en Producción (Standalone + PM2)
 
 ```bash
-bun run build   # build standalone
-bun run start   # sirve el build
+# 1. Compilar bundle optimizado standalone
+npm run build
+
+# 2. Ejecutar con PM2 en modo cluster
+pm2 start ecosystem.config.js
+pm2 save
+pm2 startup
 ```
 
-### 12.5 Accesos
+### 12.6 Accesos
 
 | Acceso | URL | Credenciales |
 |---|---|---|

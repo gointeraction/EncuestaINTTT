@@ -51,7 +51,7 @@ export function DriverTypeSelector() {
 
       <div className="mt-6 grid gap-3 sm:grid-cols-2">
         {DRIVER_TYPES.map((dt, i) => {
-          const Icon = (Icons as Record<string, Icons.LucideIcon>)[dt.icon] ?? Icons.User;
+          const Icon = ((Icons as unknown) as Record<string, Icons.LucideIcon>)[dt.icon] ?? Icons.User;
           const selected = driverType === dt.id;
           const qCount = countQuestionsForDriverType(dt.id);
           return (

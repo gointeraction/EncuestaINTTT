@@ -24,7 +24,7 @@ export async function POST(req: Request) {
     await db.surveyResponse.deleteMany({});
 
     const usedCedulas = new Set<string>();
-    const created = [];
+    const created: string[] = [];
     for (let i = 0; i < count; i++) {
       const driverType = pick(DRIVER_TYPES).id;
       const answers = generateAnswers(driverType);
