@@ -31,3 +31,14 @@ model SurveyResponse {
   @@index([participaSorteo])
   @@index([cedula])
 }
+
+// Resumen consolidado y precalculado de analítica para el Dashboard (CQRS)
+model SurveySummary {
+  id           String   @id @default("latest")
+  calculatedAt DateTime @default(now())
+  totalCount   Int      @default(0)
+  summaryData  String   @db.Text // JSON con todas las métricas precalculadas
+
+  @@index([calculatedAt])
+}
+

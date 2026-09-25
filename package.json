@@ -11,7 +11,8 @@
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:reset": "prisma migrate reset",
-    "db:import-backup": "npx tsx scripts/import-backup-to-postgres.ts"
+    "db:import-backup": "npx tsx scripts/import-backup-to-postgres.ts",
+    "survey:summarize": "npx tsx scripts/summarize.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

@@ -239,6 +239,29 @@ npm run dev
 
 ---
 
+## ⚡ Proceso de Sumarización y Pre-Agregación (Fast Dashboard)
+
+Para garantizar que el **Dashboard Gerencial (`/?admin=1`)** responda de forma instantánea (**< 5 ms**) incluso con volúmenes masivos de **1.000.000 de encuestas**, el sistema implementa una arquitectura desacoplada de pre-agregación (patrón CQRS):
+
+1. **Tabla de Resumen (`SurveySummary`):**
+   * Persiste un registro consolidado con id `"latest"` que almacena los 46 indicadores calculados en un payload JSON comprimido (~8.6 KB).
+   * La API `/api/survey/stats` responde en $O(1)$ leyendo directamente este resumen pre-calculado, evitando el escaneo de millones de filas en memoria durante cada visita directiva.
+2. **Ejecución de Sumarización por Lotes (Batch Job / Cron):**
+   * Puede ejecutarse periódicamente (ej: cada hora, cada medianoche o al cierre de la jornada) o tras finalizar campañas masivas:
+     ```bash
+     npm run survey:summarize
+     ```
+   * En servidores de producción, puede programarse en el crontab del sistema:
+     ```cron
+     # Recalcular métricas consolidadas cada hora
+     0 * * * * cd /var/www/encuesta-intt && npm run survey:summarize >> /var/log/encuesta-summarize.log 2>&1
+     ```
+3. **Re-cálculo en Vivo bajo Demanda (Live Fallback):**
+   * Si se requiere ver los datos en tiempo real omitiendo la pre-agregación, la API admite el parámetro `GET /api/survey/stats?refresh=1`.
+   * El sistema también soporta la invocación vía `POST /api/survey/stats` (restringida a administradores) para refrescar el resumen desde el propio Dashboard.
+
+---
+
 ## 📁 Estructura del Proyecto
 
 ```
