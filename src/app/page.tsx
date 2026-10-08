@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useSurveyStore } from "@/store/survey-store";
 import { Welcome } from "@/components/survey/welcome";
 import { DriverTypeSelector } from "@/components/survey/driver-type-selector";
@@ -8,13 +8,16 @@ import { SurveyForm } from "@/components/survey/survey-form";
 import { SorteoForm } from "@/components/survey/sorteo-form";
 import { ThankYou } from "@/components/survey/thank-you";
 import { Dashboard } from "@/components/dashboard/dashboard";
+import { SurveyManager } from "@/components/admin/survey-manager";
 import { AdminLogin, AdminHeader } from "@/components/admin/admin-login";
-import { ClipboardList, ExternalLink, Loader2 } from "lucide-react";
+import { ClipboardList, ExternalLink, Loader2, BarChart3, FilePlus2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstitutionLogo } from "@/components/institution-logo";
 import { INSTITUTION } from "@/lib/institution";
 
 export default function Home() {
+  const [adminSection, setAdminSection] = useState<"dashboard" | "surveys">("dashboard");
+  const [selectedSurveyId, setSelectedSurveyId] = useState<string>("legacy");
   const view = useSurveyStore((s) => s.view);
   const setView = useSurveyStore((s) => s.setView);
   const mode = useSurveyStore((s) => s.mode);
@@ -24,10 +27,23 @@ export default function Home() {
   const adminChecking = useSurveyStore((s) => s.adminChecking);
   const setAdminChecking = useSurveyStore((s) => s.setAdminChecking);
 
-  // Detectar acceso privado: /?admin=1
+  // Detectar acceso privado: /?admin=1 y pestaña seleccionada (?tab=surveys)
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const isAdmin = params.get("admin") === "1";
+    const tab = params.get("tab");
+    const surveyIdParam = params.get("surveyId");
+
+    if (surveyIdParam) {
+      setSelectedSurveyId(surveyIdParam);
+    }
+
+    if (tab === "surveys") {
+      setAdminSection("surveys");
+    } else if (tab === "dashboard") {
+      setAdminSection("dashboard");
+    }
+
     if (isAdmin) {
       setMode("admin");
       setAdminChecking(true);
@@ -85,8 +101,67 @@ export default function Home() {
           <InstitutionLogo size="sm" variant="light" />
         </div>
         <AdminHeader />
+        
+        {/* Barra de navegación de secciones del panel */}
+        <div className="border-b bg-white shadow-xs">
+          <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-2.5">
+            <div className="flex items-center gap-2">
+              <Button
+                variant={adminSection === "surveys" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setAdminSection("surveys")}
+                className={
+                  adminSection === "surveys"
+                    ? "bg-[var(--intt-electric)] text-white hover:bg-[var(--intt-electric-deep)] font-semibold shadow-xs"
+                    : "text-slate-700 hover:text-slate-900 border-slate-200"
+                }
+              >
+                <FilePlus2 className="mr-1.5 h-4 w-4" />
+                Gestión y Creación de Encuestas
+              </Button>
+              <Button
+                variant={adminSection === "dashboard" ? "default" : "outline"}
+                size="sm"
+                onClick={() => setAdminSection("dashboard")}
+                className={
+                  adminSection === "dashboard"
+                    ? "bg-[var(--intt-navy)] text-white hover:bg-[var(--intt-navy-900)] font-semibold shadow-xs"
+                    : "text-slate-700 hover:text-slate-900 border-slate-200"
+                }
+              >
+                <BarChart3 className="mr-1.5 h-4 w-4" />
+                Dashboard y Analítica
+              </Button>
+            </div>
+
+            <a
+              href="/"
+              className="inline-flex items-center gap-1 text-xs text-muted-foreground hover:text-slate-900 font-medium transition-colors"
+            >
+              <ExternalLink className="h-3.5 w-3.5" />
+              Ver vista ciudadana
+            </a>
+          </div>
+        </div>
+
         <main className="flex-1">
-          <Dashboard />
+          {adminSection === "dashboard" ? (
+            <Dashboard
+              selectedSurveyId={selectedSurveyId}
+              onSelectSurvey={setSelectedSurveyId}
+              onOpenBuilder={(surveyId) => {
+                setSelectedSurveyId(surveyId);
+                setAdminSection("surveys");
+              }}
+            />
+          ) : (
+            <SurveyManager
+              onSelectSurveyForDashboard={(surveyId) => {
+                setSelectedSurveyId(surveyId);
+                setAdminSection("dashboard");
+              }}
+            />
+          )}
         </main>
         <footer className="intt-navy-bg mt-auto py-4 text-center text-[11px] text-white/50">
           © {new Date().getFullYear()} {INSTITUTION.shortName} · Panel privado de administración
@@ -127,8 +202,8 @@ export default function Home() {
             <InstitutionLogo size="sm" variant="light" />
           </button>
 
-          {/* Solo el botón de Encuesta (Dashboard oculto del acceso público) */}
-          <nav className="flex items-center gap-1">
+          {/* Barra de navegación pública con acceso directo al módulo de gestión */}
+          <nav className="flex items-center gap-2">
             <Button
               variant="ghost"
               size="sm"
@@ -136,8 +211,16 @@ export default function Home() {
               className="text-white hover:bg-white/10"
             >
               <ClipboardList className="mr-1.5 h-4 w-4" />
-              <span className="hidden sm:inline">Encuesta</span>
+              <span className="hidden sm:inline">Responder Encuesta</span>
             </Button>
+
+            <a
+              href="/?admin=1&tab=surveys"
+              className="inline-flex items-center gap-1.5 rounded-md bg-[var(--intt-electric)] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[var(--intt-electric-deep)] transition-all hover:scale-[1.02]"
+            >
+              <FilePlus2 className="h-4 w-4" />
+              <span>Crear / Gestionar Encuestas</span>
+            </a>
           </nav>
         </div>
       </header>
@@ -182,15 +265,24 @@ export default function Home() {
             <p>
               © {new Date().getFullYear()} {INSTITUTION.shortName} · Todos los derechos reservados
             </p>
-            <a
-              href={INSTITUTION.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-1 transition-colors hover:text-white"
-            >
-              {INSTITUTION.website.replace("https://www.", "")}
-              <ExternalLink className="h-3 w-3" />
-            </a>
+            <div className="flex items-center gap-4">
+              <a
+                href="/?admin=1&tab=surveys"
+                className="inline-flex items-center gap-1 text-[var(--intt-gold)] hover:underline font-medium"
+              >
+                <FilePlus2 className="h-3.5 w-3.5" />
+                <span>Panel de Administración · Crear Encuestas</span>
+              </a>
+              <a
+                href={INSTITUTION.website}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1 transition-colors hover:text-white"
+              >
+                {INSTITUTION.website.replace("https://www.", "")}
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
           </div>
         </div>
       </footer>

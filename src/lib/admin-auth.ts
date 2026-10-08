@@ -79,6 +79,11 @@ export async function destroyAdminSession(): Promise<void> {
   store.delete(COOKIE_NAME);
 }
 
+/** Verifica un token firmado de administrador directamente. */
+export function verifyAdminToken(token: string): boolean {
+  return verifyToken(token);
+}
+
 /** Verifica si la petición actual está autenticada como admin. */
 export async function isAdminAuthed(): Promise<boolean> {
   try {

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAdminPassword, createAdminSession } from "@/lib/admin-auth";
+import { createAuthSessionCookie } from "@/lib/auth";
 
 // POST /api/admin/login — autenticar administrador
 export async function POST(req: NextRequest) {
@@ -18,6 +19,11 @@ export async function POST(req: NextRequest) {
       );
     }
     await createAdminSession();
+    await createAuthSessionCookie({
+      id: "admin-master",
+      email: "admin@intt.gob.ve",
+      role: "admin",
+    });
     return NextResponse.json({ ok: true });
   } catch (e) {
     console.error("[admin/login] error", e);

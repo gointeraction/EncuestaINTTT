@@ -55,8 +55,17 @@ import {
   HeartPulse,
   BookOpen,
   ThumbsUp,
+  BarChart3,
 } from "lucide-react";
 import { useSurveyStore } from "@/store/survey-store";
+import { Badge } from "@/components/ui/badge";
+import { SurveyAnalyticsView } from "./survey-analytics-view";
+
+interface DashboardProps {
+  selectedSurveyId?: string;
+  onSelectSurvey?: (id: string) => void;
+  onOpenBuilder?: (surveyId: string) => void;
+}
 
 interface Stats {
   total: number;
@@ -131,8 +140,15 @@ const COLORS = [
   "#4983f5", // azul-electrico-400
 ];
 
-export function Dashboard() {
+export function Dashboard({
+  selectedSurveyId = "legacy",
+  onSelectSurvey,
+  onOpenBuilder,
+}: DashboardProps = {}) {
+  const [currentSurveyId, setCurrentSurveyId] = useState<string>(selectedSurveyId);
+  const [surveysList, setSurveysList] = useState<Array<{ id: string; title: string; status: string }>>([]);
   const [stats, setStats] = useState<Stats | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
   const [showParticipants, setShowParticipants] = useState(false);
@@ -143,13 +159,44 @@ export function Dashboard() {
   const { toast } = useToast();
   const setView = useSurveyStore((s) => s.setView);
 
+  useEffect(() => {
+    setCurrentSurveyId(selectedSurveyId);
+  }, [selectedSurveyId]);
+
+  useEffect(() => {
+    // Cargar listado de encuestas disponibles
+    fetch("/api/v1/surveys", { cache: "no-store" })
+      .then((r) => r.json())
+      .then((d) => {
+        if (d && Array.isArray(d.data)) {
+          setSurveysList(d.data);
+        }
+      })
+      .catch(() => {});
+  }, []);
+
+  const handleSurveyChange = (newId: string) => {
+    setCurrentSurveyId(newId);
+    if (onSelectSurvey) {
+      onSelectSurvey(newId);
+    }
+  };
+
   const load = async () => {
     setLoading(true);
+    setErrorMsg(null);
     try {
       const res = await fetch("/api/survey/stats", { cache: "no-store" });
       const data = await res.json();
+      if (!res.ok || data.error || !data.byDriverType || !Array.isArray(data.byDriverType)) {
+        setStats(null);
+        setErrorMsg(data.error || "No se pudieron obtener las estadísticas.");
+        return;
+      }
       setStats(data);
     } catch {
+      setStats(null);
+      setErrorMsg("Error de conexión con el servidor");
       toast({ title: "Error al cargar datos", variant: "destructive" });
     } finally {
       setLoading(false);
@@ -197,24 +244,76 @@ export function Dashboard() {
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
-      {/* --- header --- */}
-      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <Button variant="ghost" size="sm" className="mb-2" onClick={() => setView("welcome")}>
-            <ArrowLeft className="mr-1 h-4 w-4" /> Volver al inicio
-          </Button>
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-            Dashboard de Resultados
-          </h1>
-          <p className="mt-1 text-muted-foreground">
-            Análisis agregado de las encuestas de Visión Cero en Siniestros de Motocicletas.
-          </p>
+      {/* --- Selector de Encuesta Activa --- */}
+      <div className="mb-6 rounded-xl border border-slate-200 bg-white p-4 shadow-xs">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-[var(--intt-navy)] text-white">
+              <BarChart3 className="h-5 w-5" />
+            </div>
+            <div>
+              <label htmlFor="survey-select" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground block">
+                Seleccionar Encuesta para Analítica
+              </label>
+              <div className="flex items-center gap-2 mt-0.5">
+                <select
+                  id="survey-select"
+                  value={currentSurveyId}
+                  onChange={(e) => handleSurveyChange(e.target.value)}
+                  className="rounded-md border border-slate-300 bg-slate-50 px-3 py-1.5 text-sm font-semibold text-slate-900 focus:border-[var(--intt-electric)] focus:bg-white focus:outline-none cursor-pointer"
+                >
+                  <option value="legacy">
+                    🏍️ Visión Cero: Siniestros de Motocicletas (Encuesta Base)
+                  </option>
+                  {surveysList.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      📋 {s.title} ({s.status === "published" ? "Publicada" : "Borrador"})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            {currentSurveyId === "legacy" ? (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 text-xs py-1">
+                Encuesta Base Institucional
+              </Badge>
+            ) : (
+              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs py-1">
+                Encuesta Personalizada Dinámica
+              </Badge>
+            )}
+          </div>
         </div>
-        <Button variant="outline" size="sm" onClick={handleSeed} disabled={seeding}>
-          {seeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
-          {seeding ? "Generando..." : "Cargar datos demo"}
-        </Button>
       </div>
+
+      {currentSurveyId !== "legacy" ? (
+        <SurveyAnalyticsView
+          surveyId={currentSurveyId}
+          onOpenBuilder={onOpenBuilder}
+        />
+      ) : (
+        <>
+          {/* --- header --- */}
+          <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <Button variant="ghost" size="sm" className="mb-2" onClick={() => setView("welcome")}>
+                <ArrowLeft className="mr-1 h-4 w-4" /> Volver al inicio
+              </Button>
+              <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
+                Dashboard de Resultados
+              </h1>
+              <p className="mt-1 text-muted-foreground">
+                Análisis agregado de las encuestas de Visión Cero en Siniestros de Motocicletas.
+              </p>
+            </div>
+            <Button variant="outline" size="sm" onClick={handleSeed} disabled={seeding}>
+              {seeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
+              {seeding ? "Generando..." : "Cargar datos demo"}
+            </Button>
+          </div>
 
       {loading ? (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -222,13 +321,15 @@ export function Dashboard() {
             <Skeleton key={i} className="h-28" />
           ))}
         </div>
-      ) : !stats || stats.total === 0 ? (
+      ) : !stats || !Array.isArray(stats.byDriverType) || stats.total === 0 ? (
         <Card>
           <CardContent className="flex flex-col items-center gap-3 p-10 text-center">
             <Database className="h-10 w-10 text-muted-foreground" />
-            <h3 className="font-semibold">Aún no hay respuestas</h3>
+            <h3 className="font-semibold">{errorMsg ? "No se pudieron cargar las estadísticas" : "Aún no hay respuestas"}</h3>
             <p className="max-w-md text-sm text-muted-foreground">
-              Completa la encuesta o carga datos de demostración para visualizar el dashboard.
+              {errorMsg
+                ? `${errorMsg}. Inicia sesión o verifica la conexión.`
+                : "Completa la encuesta o carga datos de demostración para visualizar el dashboard."}
             </p>
             <div className="flex gap-2">
               <Button onClick={() => setView("welcome")}>Responder encuesta</Button>
@@ -251,14 +352,14 @@ export function Dashboard() {
             <KpiCard
               icon={<Bike className="h-5 w-5" />}
               label="Tipos de conductor"
-              value={stats.byDriverType.filter((d) => d.count > 0).length}
-              sub={`${stats.meta.driverTypes} perfiles`}
+              value={stats.byDriverType?.filter((d) => d.count > 0)?.length ?? 0}
+              sub={`${stats.meta?.driverTypes ?? 0} perfiles`}
               color="bg-[#fffae6] text-[#8c6f04]"
             />
             <KpiCard
               icon={<TrendingUp className="h-5 w-5" />}
               label="Edad promedio"
-              value={stats.avg.edad ? `${stats.avg.edad.toFixed(0)} años` : "—"}
+              value={stats.avg?.edad ? `${stats.avg.edad.toFixed(0)} años` : "—"}
               color="bg-[#f6e6eb] text-[#770226]"
             />
             <KpiCard
@@ -266,12 +367,12 @@ export function Dashboard() {
               label="Han tenido siniestro"
               value={`${
                 stats.siniestro
-                  .filter((s) => s.label !== "No, nunca")
-                  .reduce((a, b) => a + b.count, 0)
+                  ?.filter((s) => s.label !== "No, nunca")
+                  ?.reduce((a, b) => a + b.count, 0) ?? 0
               }`}
               sub={`${pct(
-                stats.siniestro.filter((s) => s.label !== "No, nunca").reduce((a, b) => a + b.count, 0),
-                stats.total
+                stats.siniestro?.filter((s) => s.label !== "No, nunca")?.reduce((a, b) => a + b.count, 0) ?? 0,
+                stats.total || 1
               )} del total`}
               color="bg-[#e8f0fe] text-[#1447ac]"
             />
@@ -1093,6 +1194,8 @@ export function Dashboard() {
           </div>
         </DialogContent>
       </Dialog>
+        </>
+      )}
     </div>
   );
 }
