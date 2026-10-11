@@ -19,10 +19,10 @@ import { PANEL_STATE, type PanelStateContract } from './business/contracts/panel
 import { PanelStateService } from './business/state/panel.state.service';
 import {
   questionBase,
-  summarize,
   type PanelFilter,
   type QuestionAnalytics,
 } from './business/models/panel.model';
+import { ActivatedRoute } from '@angular/router';
 import { API_BASE } from '../../../../core/api.config';
 
 /** Paleta de la dona (tokens de data-viz del design system). */
@@ -181,18 +181,6 @@ interface ChartVm {
           </ds-container>
         }
 
-        <!-- TABLA: RESUMEN DE PREGUNTAS -->
-        <ds-container kind="section" name="tabla-preguntas">
-          <ds-data-table-card
-            title="Preguntas de la encuesta"
-            subtitle="Subconjunto filtrado"
-            [columns]="summaryColumns"
-            [rows]="summaryRows()"
-            emptyTitle="Sin preguntas"
-            emptyBody="Ajuste los filtros o elija otra encuesta."
-          />
-        </ds-container>
-
         <!-- TABLA: RESPUESTAS ABIERTAS -->
         @if (commentRows().length) {
           <ds-container kind="section" name="comentarios">
@@ -221,14 +209,6 @@ export class PanelEncuestaPage {
     { key: 'label', label: 'Categoría' },
     { key: 'count', label: 'Conteo' },
     { key: 'pct', label: '%', format: (v) => (v == null ? '—' : `${v}%`) },
-  ];
-
-  readonly summaryColumns: DsTableColumn[] = [
-    { key: 'position', label: '#' },
-    { key: 'label', label: 'Pregunta' },
-    { key: 'type', label: 'Tipo' },
-    { key: 'visual', label: 'Visual' },
-    { key: 'base', label: 'Respuestas' },
   ];
 
   readonly commentColumns: DsTableColumn[] = [
@@ -353,13 +333,6 @@ export class PanelEncuestaPage {
     return [];
   });
 
-  readonly summaryRows = computed<DsTableRow[]>(() =>
-    this.state.filtered().map((q, i) => {
-      const s = summarize(q);
-      return { position: i + 1, label: s.label, type: s.type, visual: s.visual, base: s.base };
-    }),
-  );
-
   readonly commentRows = computed<DsTableRow[]>(() => {
     const q = this.state.selected();
     if (!q || q.kind !== 'text') return [];
@@ -373,7 +346,7 @@ export class PanelEncuestaPage {
       logic: { function: 'FL3' },
       seo: { title: 'Panel por encuesta · INTT' },
     });
-    void this.state.loadSources();
+    void this.state.loadSources(inject(ActivatedRoute).snapshot.queryParams['q'] ?? '');
   }
 
   exportUrl(): string {

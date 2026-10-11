@@ -13,6 +13,10 @@ export const ANALYTICS_ROUTES: Routes = [
       import('./pages/panel-encuesta/panel-encuesta.page').then((m) => m.PanelEncuestaPage),
   },
   {
+    path: 'preguntas',
+    loadComponent: () => import('./pages/preguntas/preguntas.page').then((m) => m.PreguntasPage),
+  },
+  {
     path: 'reportes-cruzados',
     loadComponent: () =>
       import('./pages/reportes-cruzados/reportes-cruzados.page').then((m) => m.ReportesCruzadosPage),

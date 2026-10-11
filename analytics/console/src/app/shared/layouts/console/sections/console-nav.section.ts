@@ -21,9 +21,10 @@ import { DsNavComponent, type DsNavItem } from '@cifraflow/design';
 export class ConsoleNavSection {
   protected readonly items: DsNavItem[] = [
     { label: 'Global', route: '/' },
+    { label: 'Preguntas', route: '/preguntas' },
     { label: 'Panel', route: '/panel' },
     { label: 'Cruzados', route: '/reportes-cruzados' },
     { label: 'Participantes', route: '/participantes' },
-    { label: 'Datos', route: '/datos' },
+    { label: 'Datos', route: '/seed' },
   ];
 }

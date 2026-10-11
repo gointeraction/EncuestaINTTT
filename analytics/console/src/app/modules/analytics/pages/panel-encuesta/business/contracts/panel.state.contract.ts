@@ -23,7 +23,7 @@ export interface PanelStateContract {
   readonly dimensionValue: Signal<string>;
   readonly filtered: Signal<QuestionAnalytics[]>;
   readonly selected: Signal<QuestionAnalytics | null>;
-  loadSources(): Promise<void>;
+  loadSources(initialQuestionId?: string): Promise<void>;
   selectSurvey(id: string): Promise<void>;
   setSearch(value: string): void;
   setType(value: string): void;

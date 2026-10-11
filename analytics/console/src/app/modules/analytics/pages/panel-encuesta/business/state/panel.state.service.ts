@@ -46,13 +46,15 @@ export class PanelStateService implements PanelStateContract {
     return list.find((q) => q.id === id) ?? list[0] ?? null;
   });
 
-  async loadSources(): Promise<void> {
+  async loadSources(initialQuestionId = ''): Promise<void> {
     const sources = await this.data.loadSources();
     this.sources.set(sources);
     // Auto-selecciona la primera fuente (hoy hay una: Visión Cero) para no salir en blanco.
     if (sources.length > 0 && !this._surveyId()) {
       await this.selectSurvey(sources[0].id);
     }
+    // Deep-link del catálogo: enfoca la pregunta indicada (`/panel?q=<id>`).
+    if (initialQuestionId) this._questionId.set(initialQuestionId);
   }
 
   async selectSurvey(id: string): Promise<void> {
