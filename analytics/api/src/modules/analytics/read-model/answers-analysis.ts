@@ -7,6 +7,8 @@ export interface QuestionAgg {
   kind: 'choice' | 'numeric' | 'text';
   /** true si es una pregunta AUTOCONTESTADA (derivada). */
   derived?: boolean;
+  /** Preguntas de origen de una autocontestada. */
+  sources?: string[];
   /** Número de referencia (orden en el cuestionario) para ubicarla en selectores. */
   position?: number;
   /** Nº de cuestionarios que respondieron ESTA pregunta (la base de cálculo). */
@@ -171,6 +173,7 @@ export function aggregateAnswers(
       label: d.label,
       kind: 'choice',
       derived: true,
+      sources: d.sources,
       base: options.reduce((s, o) => s + o.count, 0),
       options,
       average: null,

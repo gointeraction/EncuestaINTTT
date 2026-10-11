@@ -133,7 +133,7 @@ interface ChartVm {
                 <ds-chart-card
                   type="donut"
                   [title]="q.label"
-                  [subtitle]="baseLabel()"
+                  [subtitle]="metaLabel(q)"
                   [total]="chart().total ?? 0"
                   totalLabel="RESPUESTAS"
                   [segments]="chart().segments ?? []"
@@ -143,7 +143,7 @@ interface ChartVm {
                 <ds-chart-card
                   type="hbars"
                   [title]="q.label"
-                  [subtitle]="baseLabel()"
+                  [subtitle]="metaLabel(q)"
                   [categories]="chart().categories ?? []"
                   [series]="chart().series ?? []"
                 />
@@ -162,7 +162,7 @@ interface ChartVm {
             <ds-container kind="section" name="tabla-pregunta">
               <ds-data-table-card
                 title="Detalle por categoría"
-                [subtitle]="q.label + ' · base ' + baseOf(q) + ' respuestas'"
+                [subtitle]="metaLabel(q)"
                 [columns]="tableColumns"
                 [rows]="tableRows()"
                 emptyTitle="Sin datos"
@@ -374,6 +374,33 @@ export class PanelEncuestaPage {
 
   fmt(n: number): string {
     return Number.isFinite(n) ? n.toFixed(2) : '—';
+  }
+
+  /** Tipo de respuesta + (si es derivada) su origen + base. */
+  metaLabel(q: QuestionAnalytics): string {
+    const types: Record<string, string> = {
+      single_choice: 'Opción única',
+      multi_choice: 'Opción múltiple',
+      scale: 'Escala',
+      rating: 'Escala',
+      number: 'Numérica',
+      text: 'Texto',
+      short_text: 'Texto',
+      long_text: 'Texto',
+      dropdown: 'Opción única',
+      radio: 'Opción única',
+      checkbox: 'Opción múltiple',
+    };
+    const parts = [types[q.type] ?? q.type];
+    if (q.derived) {
+      const all = this.state.dashboard()?.questions ?? [];
+      const src = (q.sources ?? [])
+        .map((id) => all.find((x) => x.id === id)?.label ?? id)
+        .join(', ');
+      parts.push('Autocontestada' + (src ? ` (de: ${src})` : ''));
+    }
+    parts.push(`Base: ${questionBase(q)} respuestas`);
+    return parts.join(' · ');
   }
 
   segmentLabel(): string {

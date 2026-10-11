@@ -27,6 +27,10 @@ export interface QuestionAnalytics {
   label: string;
   position?: number;
   kind: QuestionKind;
+  /** true si es autocontestada (derivada). */
+  derived?: boolean;
+  /** Preguntas de origen de una autocontestada. */
+  sources?: string[];
   /** Nº de cuestionarios que respondieron esta pregunta (base de cálculo). */
   base?: number;
   options?: OptionCount[];
