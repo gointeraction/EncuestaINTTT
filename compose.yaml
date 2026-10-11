@@ -1,10 +1,14 @@
 # =============================================================================
 # EncuestaINTTT — despliegue autocontenido en UN solo compose.
-#   docker compose up -d --build
+# DOS entornos por configuración (ver .akuri/00-manifest/environments.md):
+#   dev :  docker compose --env-file .env.development up -d --build
+#   prod:  docker compose --env-file .env.production  up -d --build
+# Diferencian base de datos (POSTGRES_DB), ruta de datos (APP_ENV) y proyecto.
 # Servicios: db · cache · migrate · app (captura) · api (back-office) · admin (consola) · proxy
-# Los datos viven COLOCALIZADOS en el repo, bajo ./.data/ (gitignored).
+#            (+ `seed`, perfil opcional: seeder de datos simulados, SOLO dev).
+# Los datos viven COLOCALIZADOS en el repo, bajo ./.data/<entorno>/ (gitignored).
 # =============================================================================
-name: encuesta-intt
+name: "${COMPOSE_PROJECT_NAME:-encuesta-intt}"
 
 x-database-url: &database_url
   DATABASE_URL: postgresql://${POSTGRES_USER:-intt_user}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}@db:5451/${POSTGRES_DB:-intt_encuesta}?schema=public
@@ -17,9 +21,9 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-intt_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}
       POSTGRES_DB: ${POSTGRES_DB:-intt_encuesta}
-    # PGDATA vive con el repo (bind mount, no named volume).
+    # PGDATA vive con el repo (bind mount, por ENTORNO: .data/development · .data/production).
     volumes:
-      - ./.data/postgres:/var/lib/postgresql/data
+      - "./.data/${APP_ENV:-development}/postgres:/var/lib/postgresql/data"
       - ./db/init:/docker-entrypoint-initdb.d:ro
     command: >
       postgres
@@ -41,7 +45,7 @@ services:
     restart: unless-stopped
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - ./.data/redis:/data
+      - "./.data/${APP_ENV:-development}/redis:/data"
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 10s
@@ -54,7 +58,7 @@ services:
     build:
       context: .
       target: migrator
-    env_file: [.env]
+    env_file: [".env.${APP_ENV:-development}"]
     environment:
       <<: *database_url
       DB_SYNC: ${DB_SYNC:-push}          # push | deploy
@@ -75,7 +79,7 @@ services:
         NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://encuesta.intt.gob.ve}
         NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
     restart: unless-stopped
-    env_file: [.env]
+    env_file: [".env.${APP_ENV:-development}"]
     environment:
       <<: *database_url
       REDIS_URL: redis://cache:6379
@@ -141,6 +145,25 @@ services:
       api:
         condition: service_started
     networks: [intt-internal, intt-edge]
+
+  # Seeder de datos simulados (NestJS standalone) — SOLO entorno development.
+  # NO arranca con `up` (perfil `seed`); se invoca a demanda:
+  #   docker compose run --rm seed seed --profile large --seed 42
+  seed:
+    profiles: [seed]
+    build:
+      context: analytics/seed
+    env_file: [".env.${APP_ENV:-development}"]
+    environment:
+      APP_ENV: ${APP_ENV:-development}
+      SEED_ALLOW: ${SEED_ALLOW:-0}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-intt_user}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}@db:5451/${POSTGRES_DB:-intt_encuesta}?schema=public
+      API_BASE_URL: http://api:3151
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [intt-internal]
+    restart: "no"
 
 networks:
   intt-internal: {}
