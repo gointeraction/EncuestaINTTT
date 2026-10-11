@@ -12,8 +12,8 @@ layer: frontend
 technology: angular
 instance: (PLANNED) Consola Angular de análisis y autenticación del personal (back-office).
 repo-location: /mnt/PROJECTS/GOINTERACTION/INTT/ENCUESTA/03-REPO/EncuestaINTTT
-path: apps/admin-web/
-entry-point: apps/admin-web/src/main.ts
+path: analytics/console/
+entry-point: analytics/console/src/main.ts
 status: planned
 ruleset: [encuestaintt-angular-admin]
 ---
@@ -61,14 +61,14 @@ WRITE INFO: > File: 02-instance-pool/frontend/encuestaintt-admin.md
 1. **instance** — la consola de análisis y autenticación del personal: login de staff,
    dashboards, reportes y exportación.
 
-2. **repo-location** — `EncuestaINTTT/apps/admin-web/` (monorepo aditivo).
+2. **repo-location** — `EncuestaINTTT/analytics/console/` (bounded context analítico).
 
-3. **entry-point** — `apps/admin-web/src/main.ts`.
+3. **entry-point** — `analytics/console/src/main.ts`.
 
-4. **naming** — app `admin-web`; páginas bajo `src/app/modules/` (login, dashboard, reports).
+4. **naming** — app `console`; páginas bajo `src/app/modules/` (login, dashboard, reports).
 
-5. **version-reality** — Angular (última estable, a fijar en el scaffold); declarado en
-   `01-tech-stack/frontend/angular/angular.md`.
+5. **version-reality** — Angular 22 (`@angular/core ^22.2.0`, scaffold real en
+   `analytics/console`); declarado en `01-tech-stack/frontend/angular/angular-22.md`.
 
 6. **independent-core** — núcleo independiente; NO consulta la base de datos. Habla con el
    back-office SOLO por `packages/api-sdk` (generado por orval desde el OpenAPI).

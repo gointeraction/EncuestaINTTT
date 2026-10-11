@@ -170,8 +170,8 @@ servicios de la capa analítica; la captura y su schema no cambian:
 | `cache` | Redis |
 | `migrate` | sincroniza `public` (captura, Prisma) y `analytics` (owner: back-office) |
 | `app` | **Captura** (Next.js) — sin cambios |
-| `api` | **Back-office** (NestJS) — nuevo |
-| `admin` | **Consola** (Angular, estáticos) — nuevo |
+| `api` | **Back-office** (NestJS, `analytics/api`) — nuevo |
+| `admin` | **Consola** (Angular `analytics/console`, estáticos) — nuevo |
 | `proxy` | Nginx: público → `app`; back-office → `api`/`admin` bajo Zero-Trust |
 
 ### SECTION 08-ENCAJE-AKURI-OMA
@@ -195,7 +195,7 @@ WRITE INFO: extracción **strangler** por fases; nada se hace big-bang y la capt
 | Fase | Alcance | Entregable | Criterio de paso |
 |------|---------|-----------|------------------|
 | **F0 — Declarar** | esta estrategia + tech-stack + instancias planned + rulesets | corpus A2 actualizado | gates A1 en PASS (hecho al cierre de este documento) |
-| **F1 — Cimiento** | monorepo (`apps/analytics-api`, `apps/admin-web`, `packages/api-sdk`); esquema `analytics` + rol `intt_analytics_ro`; esqueleto NestJS con health; `migrate` extendido | un `api` que arranca y lee `public` read-only | `docker compose up` levanta `api` sin tocar `app` |
+| **F1 — Cimiento** | monorepo (`analytics/api`, `analytics/console`, `analytics/api-sdk`); esquema `analytics` + rol `intt_analytics_ro`; esqueleto NestJS con health; `migrate` extendido | un `api` que arranca y lee `public` read-only | `docker compose up` levanta `api` sin tocar `app` |
 | **F2 — Identidad** | login de staff, roles `admin/analyst/auditor`, guards RBAC, `access_audit`; api-sdk (orval) + login en Angular | consola con login funcional | auditoría de acceso registrada |
 | **F3 — Read models** | mudar la sumarización CQRS a NestJS (jobs independientes); `report_*` en `analytics` | dashboard servido por el back-office | captura con carga 0 de sumarización |
 | **F4 — Reportería** | analítica por encuesta, tablas cruzadas, exportación CSV con enmascaramiento PII por rol | reportería completa en la consola | enmascaramiento verificado server-side |

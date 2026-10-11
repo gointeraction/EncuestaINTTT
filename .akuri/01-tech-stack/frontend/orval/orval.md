@@ -53,17 +53,17 @@ WRITE INFO: > File: 01-tech-stack/frontend/orval/orval.md
 
 1. **technology** — `library.orval` — generador del api-sdk desde OpenAPI.
 
-2. **major-version** — última estable — a fijar en el scaffold de `packages/api-sdk`.
+2. **major-version** — última estable — a fijar en el scaffold de `analytics/api-sdk`.
 
 3. **layer** — frontend (herramienta de contrato).
 
-4. **scope-role** — genera el cliente TypeScript tipado (`packages/api-sdk`) desde el OpenAPI del back-office NestJS; es el contrato SSOT entre el back-office y la consola Angular.
+4. **scope-role** — genera el cliente TypeScript tipado (`analytics/api-sdk`) desde el OpenAPI del back-office NestJS; es el contrato SSOT entre el back-office y la consola Angular.
 
 5. **capabilities** — generación de clientes tipados, modelos, mocks; regeneración determinista desde el contrato.
 
 6. **depends-on** — `backend.nestjs.analytics` (origen del OpenAPI); consumido por `frontend.angular.admin`.
 
-7. **canonical-files** — `packages/api-sdk/orval.config.ts`, `packages/api-sdk/src/**`.
+7. **canonical-files** — `analytics/api-sdk/orval.config.ts`, `analytics/api-sdk/src/**`.
 
 8. **compliance** — frontend: api-sdk-only (el frontend no escribe clientes a mano), contract-first.
 
@@ -75,7 +75,7 @@ WRITE INFO: > File: 01-tech-stack/frontend/orval/orval.md
 
 ### SECTION 01-EVALUATION
 
-WRITE INFO: el documento cierra cuando su gate pasa y `packages/api-sdk` se regenera sin errores.
+WRITE INFO: el documento cierra cuando su gate pasa y `analytics/api-sdk` se regenera sin errores.
 
 ### SECTION 02-REPORT
 

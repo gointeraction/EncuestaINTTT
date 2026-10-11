@@ -4,14 +4,14 @@ doc-type: SPEC
 level: L2
 area: A2
 position: 1
-title: ANGULAR
-summary: Angular (standalone) — el framework de la CONSOLA de análisis y autenticación
+title: ANGULAR_22
+summary: Angular 22 (standalone) — el framework de la CONSOLA de análisis y autenticación
   del personal (back-office). Consume la API NestJS solo por el api-sdk generado.
 category: angular
 scope: the angular specification
 ---
 
-# Tech-Stack — Angular (frontend analítico)
+# Tech-Stack — Angular 22 (frontend analítico)
 
 ## CHAPTER 1: PURPOSE & USE MODES
 
@@ -45,7 +45,7 @@ WRITE INFO: VISUAL_PATTERN=SINGLE_SOURCE_OF_TRUTH; VISUAL_PATTERN=SNAKE_CASE.
 
 ### SECTION 01-CONTENT
 
-WRITE INFO: > File: 01-tech-stack/frontend/angular/angular.md
+WRITE INFO: > File: 01-tech-stack/frontend/angular/angular-22.md
 > Produced by: how-to-write-a-tech-stack.template.md
 > Level: L3
 
@@ -53,7 +53,7 @@ WRITE INFO: > File: 01-tech-stack/frontend/angular/angular.md
 
 1. **technology** — `frontend.angular.admin` — Angular, el framework de la consola de análisis y autenticación del personal.
 
-2. **major-version** — a fijar en el scaffold (última estable; el precedente de invesnetwork usa Angular moderno standalone).
+2. **major-version** — 22 — `@angular/core ^22.2.0`, scaffold real con `@angular/cli@22` en `analytics/console`.
 
 3. **layer** — frontend.
 
@@ -61,9 +61,9 @@ WRITE INFO: > File: 01-tech-stack/frontend/angular/angular.md
 
 5. **capabilities** — componentes standalone, routing lazy por feature, guards de sesión, interceptor HTTP (token), signals/estado, design system propio, consumo de `api-sdk` tipado.
 
-6. **depends-on** — `backend.nestjs.analytics` (vía `library.orval` → `packages/api-sdk`).
+6. **depends-on** — `backend.nestjs.analytics` (vía `library.orval` → `analytics/api-sdk`).
 
-7. **canonical-files** — `apps/admin-web/package.json`, `apps/admin-web/src/main.ts`, `apps/admin-web/src/app/app.config.ts`, `apps/admin-web/src/app/{core,modules,shared}`.
+7. **canonical-files** — `analytics/console/package.json`, `analytics/console/src/main.ts`, `analytics/console/src/app/app.config.ts`, `analytics/console/src/app/{core,modules,shared}`.
 
 8. **compliance** — frontend: source-layout (core/modules/shared), api-sdk-only (no acceso directo a datos), session-guard, no-console-log, design-system-tokens.
 

@@ -4,15 +4,15 @@ doc-type: SPEC
 level: L2
 area: A2
 position: 1
-title: NESTJS_11
-summary: NestJS 11 — el backend del BACK-OFFICE analítico de EncuestaINTTT (API de
+title: NESTJS_12
+summary: NestJS 12 — el backend del BACK-OFFICE analítico de EncuestaINTTT (API de
   analítica, reportería y control de acceso restringido). Hexagonal, por supradominio;
   lee el esquema public en solo-lectura y escribe el esquema analytics.
 category: nestjs
 scope: the nestjs specification
 ---
 
-# Tech-Stack — NestJS 11 (backend analítico)
+# Tech-Stack — NestJS 12 (backend analítico)
 
 ## CHAPTER 1: PURPOSE & USE MODES
 
@@ -46,7 +46,7 @@ WRITE INFO: VISUAL_PATTERN=SINGLE_SOURCE_OF_TRUTH; VISUAL_PATTERN=SNAKE_CASE.
 
 ### SECTION 01-CONTENT
 
-WRITE INFO: > File: 01-tech-stack/backend/nestjs/nestjs-11.md
+WRITE INFO: > File: 01-tech-stack/backend/nestjs/nestjs-12.md
 > Produced by: how-to-write-a-tech-stack.template.md
 > Level: L3
 
@@ -54,7 +54,7 @@ WRITE INFO: > File: 01-tech-stack/backend/nestjs/nestjs-11.md
 
 1. **technology** — `backend.nestjs.analytics` — NestJS, el framework del backend del back-office (analítica, reportería, acceso restringido).
 
-2. **major-version** — 11 — a fijar en el scaffold (`@nestjs/core ^11`); precede el precedente de invesnetwork.
+2. **major-version** — 12 — `@nestjs/core ^12.0.1`, scaffold real con `@nestjs/cli@12` en `analytics/api`.
 
 3. **layer** — backend.
 
@@ -64,7 +64,7 @@ WRITE INFO: > File: 01-tech-stack/backend/nestjs/nestjs-11.md
 
 6. **depends-on** — `persistence.postgresql` (rol `intt_analytics_ro` sobre `public`; escritura en `analytics`), `persistence.prisma`; consumido por `frontend.angular.admin` vía `library.orval`.
 
-7. **canonical-files** — `apps/analytics-api/package.json`, `apps/analytics-api/src/main.ts`, `apps/analytics-api/src/app.module.ts`, `apps/analytics-api/src/{core,modules,shared}`.
+7. **canonical-files** — `analytics/api/package.json`, `analytics/api/src/main.ts`, `analytics/api/src/app.module.ts`, `analytics/api/src/{core,modules,shared}`.
 
 8. **compliance** — backend: source-layout (core/modules/shared), module-structure, controllers-endpoints, use-cases, domain-errors, cross-module-communication (puertos), owner-of-analytics-schema, no-write-to-public, pagination, audit-fields, no-console-log.
 

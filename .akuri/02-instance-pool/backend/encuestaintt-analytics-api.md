@@ -12,8 +12,8 @@ layer: backend
 technology: nestjs
 instance: (PLANNED) Back-office NestJS — analítica, reportería y control de acceso restringido de EncuestaINTTT.
 repo-location: /mnt/PROJECTS/GOINTERACTION/INTT/ENCUESTA/03-REPO/EncuestaINTTT
-path: apps/analytics-api/
-entry-point: apps/analytics-api/src/main.ts
+path: analytics/api/
+entry-point: analytics/api/src/main.ts
 status: planned
 ruleset: [encuestaintt-nestjs-analytics]
 ---
@@ -61,16 +61,16 @@ WRITE INFO: > File: 02-instance-pool/backend/encuestaintt-analytics-api.md
 1. **instance** — el back-office analítico de EncuestaINTTT: API de analítica, reportería y
    control de acceso restringido; dueño de la identidad del personal (admin/analista/auditor).
 
-2. **repo-location** — `EncuestaINTTT/apps/analytics-api/` (monorepo aditivo; ver
+2. **repo-location** — `EncuestaINTTT/analytics/api/` (bounded context analítico; ver
    `00-manifest/source-layout.md`).
 
-3. **entry-point** — `apps/analytics-api/src/main.ts`.
+3. **entry-point** — `analytics/api/src/main.ts`.
 
 4. **naming** — módulos por supradominio (`platform`, `analytics`); endpoints bajo `/api`
    (back-office), expuestos SOLO a la consola y bajo Zero-Trust.
 
-5. **version-reality** — NestJS 11 (a fijar en el scaffold); declarado en
-   `01-tech-stack/backend/nestjs/nestjs-11.md`.
+5. **version-reality** — NestJS 12 (`@nestjs/core ^12.0.1`, scaffold real en `analytics/api`);
+   declarado en `01-tech-stack/backend/nestjs/nestjs-12.md`.
 
 6. **independent-core** — núcleo independiente de la captura. Comparte PostgreSQL pero con
    **dueño de esquema distinto**: lee `public` con el rol `intt_analytics_ro` (solo-lectura) y

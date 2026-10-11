@@ -133,34 +133,34 @@ la captura:
 
 ```
 EncuestaINTTT/
-├── (captura, sin cambios)     # Next.js: src/, prisma/, compose.yaml
-├── apps/
-│   ├── analytics-api/         # NESTJS (hexagonal): src/{core,modules,shared}
-│   └── admin-web/             # ANGULAR (standalone): src/app/{core,modules,shared}
-└── packages/
-    └── api-sdk/               # cliente generado (orval) desde el OpenAPI del back-office
+├── (captura, sin cambios)     # Next.js: src/, prisma/, db/, compose.yaml en la raíz
+├── analytics/                 # BOUNDED CONTEXT analítico (back-office)
+│   ├── api/                   # NESTJS (hexagonal): src/{core,modules,shared}
+│   ├── console/               # ANGULAR (standalone): src/app/{core,modules,shared}
+│   └── api-sdk/               # cliente generado (orval) desde el OpenAPI de api/
+└── deploy/  Dockerfile        # (compartidos)
 ```
 
 WRITE INFO: la app NestJS sigue el layout canónico `core / modules / shared` del método
-(ver invesnetwork como precedente):
+(ver invesnetwork como precedente); la consola Angular, `src/app/{core,modules,shared}`:
 
 | Root | Place here | Do NOT place here |
 |------|-----------|-------------------|
-| `apps/analytics-api/src/core/` | arranque, config, cliente Prisma (read-only sobre `public`, escritura en `analytics`), scheduling | módulos de negocio |
-| `apps/analytics-api/src/modules/` | slices hexagonales por supradominio (`platform`, `analytics`): entity → use-cases → port → adapter → controller | bootstrap, plumbing |
-| `apps/analytics-api/src/shared/` | contratos, DTOs, filtros, guards, políticas | negocio de un módulo |
-| `apps/admin-web/src/app/core/` | singletons: config, http interceptor, guard de sesión, api base URL | páginas, design system |
-| `apps/admin-web/src/app/modules/` | páginas de staff (login, dashboards, reportes) | api-sdk, design system |
-| `apps/admin-web/src/app/shared/` | `api-sdk` (cliente orval) + design system | lógica de negocio |
-| `packages/api-sdk/` | el cliente tipado generado | código escrito a mano |
+| `analytics/api/src/core/` | arranque, config, cliente Prisma (read-only sobre `public`, escritura en `analytics`), scheduling | módulos de negocio |
+| `analytics/api/src/modules/` | slices hexagonales por supradominio (`platform`, `analytics`): entity → use-cases → port → adapter → controller | bootstrap, plumbing |
+| `analytics/api/src/shared/` | contratos, DTOs, filtros, guards, políticas | negocio de un módulo |
+| `analytics/console/src/app/core/` | singletons: config, http interceptor, guard de sesión, api base URL | páginas, design system |
+| `analytics/console/src/app/modules/` | páginas de staff (login, dashboards, reportes) | api-sdk, design system |
+| `analytics/console/src/app/shared/` | design system + reexport del `api-sdk` | lógica de negocio |
+| `analytics/api-sdk/` | el cliente tipado generado (orval) | código escrito a mano |
 
 WRITE RULE: el back-office NO accede a la base de datos desde los controladores; pasa por
 use-cases → puertos → adaptadores. — MUST
 
-WRITE RULE: `admin-web` accede a datos SOLO por `packages/api-sdk`. — MUST
+WRITE RULE: `analytics/console` accede a datos SOLO por `analytics/api-sdk`. — MUST
 
-WRITE RULE: la captura NO importa nada de `apps/analytics-api` ni de `packages/api-sdk`, y
-viceversa; el único acoplamiento es la base de datos (esquema/rol). — MUST
+WRITE RULE: la captura NO importa nada de `analytics/**`, y viceversa; el único acoplamiento es
+la base de datos (esquema/rol). — MUST
 
 ## CHAPTER 4: EVALUATION & CLOSING
 
