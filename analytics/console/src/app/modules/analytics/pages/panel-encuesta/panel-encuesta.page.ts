@@ -141,6 +141,7 @@ interface ChartVm {
               }
               @case ('grouped') {
                 <ds-chart-card
+                  type="hbars"
                   [title]="q.label"
                   [subtitle]="baseLabel()"
                   [categories]="chart().categories ?? []"

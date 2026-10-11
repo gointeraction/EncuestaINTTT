@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
 
-export type DsChartType = 'grouped' | 'donut' | 'bar';
+export type DsChartType = 'grouped' | 'donut' | 'bar' | 'hbars';
 
 export interface DsChartSeries {
   name: string;
@@ -113,6 +113,21 @@ export interface BarChartData {
           </svg>
         </div>
       </div>
+    } @else if (type() === 'hbars') {
+      <!-- Barras HORIZONTALES: etiqueta a la izquierda, barra a la derecha (no se sale). -->
+      <div class="ds-chart ds-chart--hbars" role="img" [attr.aria-label]="ariaLabel()">
+        @for (c of categories(); track $index; let ci = $index) {
+          <div class="ds-hb">
+            <span class="ds-hb__label" [title]="c">{{ c }}</span>
+            <span class="ds-hb__track">
+              <span class="ds-hb__fill"
+                    [style.width]="barHeight(series()[0]?.data[ci] ?? 0) + '%'"
+                    [style.background]="swatch(0)"></span>
+            </span>
+            <span class="ds-hb__value">{{ series()[0]?.data[ci] ?? 0 }}</span>
+          </div>
+        }
+      </div>
     } @else {
       <div class="ds-chart" role="img" [attr.aria-label]="ariaLabel()">
         @for (s of series(); track s.name) {
@@ -171,6 +186,13 @@ export interface BarChartData {
       margin-bottom: 3px; font-size: var(--ds-text-caption); font-weight: 600;
       color: var(--ds-viz-tick); white-space: nowrap; line-height: 1;
     }
+    /* ── Barras horizontales: etiqueta izquierda, barra derecha, valor. ── */
+    .ds-chart--hbars { display: flex; flex-direction: column; gap: var(--ds-space-2); width: 100%; }
+    .ds-hb { display: grid; grid-template-columns: minmax(90px, 36%) 1fr auto; align-items: center; gap: var(--ds-space-3); }
+    .ds-hb__label { font-size: var(--ds-text-caption); color: var(--ds-viz-label); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .ds-hb__track { height: 14px; background: var(--ds-surface-body); border-radius: var(--ds-radius-sm); overflow: hidden; }
+    .ds-hb__fill { display: block; height: 100%; border-radius: var(--ds-radius-sm); min-width: 2px; transition: width var(--ds-duration-normal) var(--ds-ease-standard); }
+    .ds-hb__value { font-size: var(--ds-text-caption); font-weight: 600; color: var(--ds-viz-tick); font-variant-numeric: tabular-nums; }
     .ds-chart__cat { font-size: var(--ds-text-caption); color: var(--ds-viz-tick); white-space: nowrap; }
     .ds-chart__shell {
       display: flex; flex-direction: column; gap: var(--ds-gap-md); height: 100%;

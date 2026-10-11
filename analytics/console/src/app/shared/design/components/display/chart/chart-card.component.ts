@@ -65,6 +65,26 @@ import { DsEmptyStateComponent } from '../empty-state/empty-state.component';
           <div class="ds-cc__body"><ds-empty-state [title]="emptyTitle()" [body]="emptyBody()"/></div>
         }
       }
+      @case ('hbars') {
+        <header class="ds-cc__header">
+          <div class="ds-cc__titles">
+            <h3 class="ds-cc__title">{{ title() }}</h3>
+            @if (subtitle()) { <p class="ds-cc__subtitle">{{ subtitle() }}</p> }
+          </div>
+          <div class="ds-cc__actions">
+            <ng-content select="[header]"/>
+          </div>
+        </header>
+        <div class="ds-cc__body">
+          @if (series().length > 0) {
+            <ds-chart type="hbars" [categories]="categories()" [series]="series()" [ariaLabel]="ariaLabel()"/>
+          } @else if (emptyTitle()) {
+            <ds-empty-state [title]="emptyTitle()" [body]="emptyBody()"/>
+          } @else {
+            <ng-content/>
+          }
+        </div>
+      }
       @default {
         <header class="ds-cc__header">
           <div class="ds-cc__titles">
