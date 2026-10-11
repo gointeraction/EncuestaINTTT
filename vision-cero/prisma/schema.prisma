@@ -221,6 +221,8 @@ model SurveyResponse {
   codigoSorteo    String?
   // Canal de captura: public (autoservicio general) | kiosk | surveyor
   channel         String   @default("public")
+  // Idempotencia: id generado por el cliente por entrevista (reintentos no duplican)
+  clientSubmissionId String? @unique @map("client_submission_id")
 
   @@index([driverType])
   @@index([completedAt])

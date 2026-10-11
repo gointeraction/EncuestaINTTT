@@ -7,8 +7,18 @@ import {
 } from "@/lib/sorteo";
 import { verifyTurnstileToken } from "@/lib/turnstile";
 import { rateLimit, getClientIp } from "@/lib/rate-limit";
+import {
+  isDriverTypeId,
+  validateVisionCeroAnswers,
+  MAX_ANSWERS_BYTES,
+} from "@/lib/validation/vision-cero";
 
-// POST /api/survey/submit — guardar una respuesta de encuesta
+const CHANNELS = ["public", "kiosk", "surveyor"] as const;
+
+/**
+ * POST /api/survey/submit — guardar una entrevista COMPLETA y VERIFICADA.
+ * Orden: rate-limit → honeypot → IDEMPOTENCIA → Turnstile → validación server-side → sorteo → create.
+ */
 export async function POST(req: NextRequest) {
   try {
     // ====== 1) Rate limiting por IP (anti-spam de bots) ======
@@ -28,7 +38,8 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { driverType, answers, sorteo, turnstileToken, website } = body ?? {};
+    const { driverType, answers, sorteo, turnstileToken, website, clientSubmissionId, channel } =
+      body ?? {};
 
     // ====== 2) Honeypot: campo oculto que solo los bots rellenan ======
     if (website && typeof website === "string" && website.trim() !== "") {
@@ -36,7 +47,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ id: "hp-blocked", ok: true });
     }
 
-    // ====== 3) Cloudflare Turnstile: verifica que sea humano ======
+    // ====== 3) IDEMPOTENCIA: si ya se procesó este clientSubmissionId, devolver el MISMO ======
+    const subId = typeof clientSubmissionId === "string" && clientSubmissionId ? clientSubmissionId : null;
+    if (subId) {
+      const existing = await db.surveyResponse.findUnique({ where: { clientSubmissionId: subId } });
+      if (existing) {
+        return NextResponse.json({
+          id: existing.id,
+          ok: true,
+          codigoSorteo: existing.codigoSorteo,
+          participaSorteo: existing.participaSorteo,
+          duplicate: true,
+        });
+      }
+    }
+
+    // ====== 4) Cloudflare Turnstile: verifica que sea humano ======
     const ts = await verifyTurnstileToken(turnstileToken, ip);
     if (!ts.ok) {
       return NextResponse.json(
@@ -45,20 +71,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (!driverType || typeof driverType !== "string") {
-      return NextResponse.json(
-        { error: "driverType es requerido" },
-        { status: 400 }
-      );
+    // ====== 5) Validación server-side (AUTORIDAD: la captura no confía en el cliente) ======
+    if (!isDriverTypeId(driverType)) {
+      return NextResponse.json({ error: "driverType inválido." }, { status: 400 });
     }
-    if (!answers || typeof answers !== "object") {
+    if (!answers || typeof answers !== "object" || Array.isArray(answers)) {
+      return NextResponse.json({ error: "answers es requerido." }, { status: 400 });
+    }
+    if (Buffer.byteLength(JSON.stringify(answers)) > MAX_ANSWERS_BYTES) {
+      return NextResponse.json({ error: "Respuestas demasiado grandes." }, { status: 413 });
+    }
+    const validation = validateVisionCeroAnswers(driverType, answers);
+    if (!validation.ok) {
       return NextResponse.json(
-        { error: "answers es requerido" },
-        { status: 400 }
+        { error: "Cuestionario incompleto o inválido.", errors: validation.errors },
+        { status: 422 }
       );
     }
 
-    // --- Datos del sorteo (opcionales) ---
+    // ====== 6) Datos del sorteo (opcionales) ======
     let participaSorteo = false;
     let nombre: string | null = null;
     let cedula: string | null = null;
@@ -77,7 +108,6 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         );
       }
-      // Verificar que la cédula no haya participado ya
       const ya = await cedulaYaParticipa(v.normalized.cedula);
       if (ya) {
         return NextResponse.json(
@@ -95,24 +125,56 @@ export async function POST(req: NextRequest) {
       codigoSorteo = generateSorteoCode();
     }
 
-    const saved = await db.surveyResponse.create({
-      data: {
-        driverType,
-        answers: JSON.stringify(answers),
-        participaSorteo,
-        nombre,
-        cedula,
-        telefono,
-        codigoSorteo,
-      },
-    });
+    // ====== 7) Persistencia (idempotente + canal) ======
+    const chan = typeof channel === "string" && (CHANNELS as readonly string[]).includes(channel) ? channel : "public";
+    try {
+      const saved = await db.surveyResponse.create({
+        data: {
+          driverType,
+          answers: JSON.stringify(answers),
+          participaSorteo,
+          nombre,
+          cedula,
+          telefono,
+          codigoSorteo,
+          channel: chan,
+          clientSubmissionId: subId,
+        },
+      });
 
-    return NextResponse.json({
-      id: saved.id,
-      ok: true,
-      codigoSorteo,
-      participaSorteo,
-    });
+      return NextResponse.json({
+        id: saved.id,
+        ok: true,
+        codigoSorteo,
+        participaSorteo,
+      });
+    } catch (e) {
+      const code = (e as { code?: string }).code;
+      const target = JSON.stringify((e as { meta?: unknown }).meta ?? "");
+      if (code === "P2002") {
+        // Colisión de clientSubmissionId (carrera) → devolver el existente.
+        if (subId && (target.includes("client_submission_id") || target.includes("clientSubmissionId"))) {
+          const existing = await db.surveyResponse.findUnique({ where: { clientSubmissionId: subId } });
+          if (existing) {
+            return NextResponse.json({
+              id: existing.id,
+              ok: true,
+              codigoSorteo: existing.codigoSorteo,
+              participaSorteo: existing.participaSorteo,
+              duplicate: true,
+            });
+          }
+        }
+        // Cédula duplicada en el sorteo (índice único parcial).
+        if (target.includes("cedula")) {
+          return NextResponse.json(
+            { error: "Esta cédula ya está registrada en el sorteo." },
+            { status: 409 }
+          );
+        }
+      }
+      throw e;
+    }
   } catch (e) {
     console.error("[survey/submit] error", e);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });

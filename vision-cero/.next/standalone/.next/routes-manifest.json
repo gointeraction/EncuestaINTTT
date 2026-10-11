@@ -1,0 +1,213 @@
+{
+  "version": 3,
+  "pages404": true,
+  "appType": "app",
+  "caseSensitive": false,
+  "basePath": "",
+  "redirects": [
+    {
+      "source": "/:path+/",
+      "destination": "/:path+",
+      "internal": true,
+      "priority": true,
+      "statusCode": 308,
+      "regex": "^(?:/((?:[^/]+?)(?:/(?:[^/]+?))*))/$"
+    }
+  ],
+  "headers": [],
+  "onMatchHeaders": [],
+  "rewrites": {
+    "beforeFiles": [],
+    "afterFiles": [],
+    "fallback": []
+  },
+  "dynamicRoutes": [
+    {
+      "page": "/api/v1/public/surveys/[slug]",
+      "regex": "^/api/v1/public/surveys/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/api/v1/public/surveys/(?<nxtPslug>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/v1/public/surveys/[slug]/responses",
+      "regex": "^/api/v1/public/surveys/([^/]+?)/responses(?:/)?$",
+      "routeKeys": {
+        "nxtPslug": "nxtPslug"
+      },
+      "namedRegex": "^/api/v1/public/surveys/(?<nxtPslug>[^/]+?)/responses(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]",
+      "regex": "^/api/v1/surveys/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/analytics",
+      "regex": "^/api/v1/surveys/([^/]+?)/analytics(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/analytics(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/archive",
+      "regex": "^/api/v1/surveys/([^/]+?)/archive(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/archive(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/close",
+      "regex": "^/api/v1/surveys/([^/]+?)/close(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/close(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/exports",
+      "regex": "^/api/v1/surveys/([^/]+?)/exports(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/exports(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/publish",
+      "regex": "^/api/v1/surveys/([^/]+?)/publish(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/publish(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/qr",
+      "regex": "^/api/v1/surveys/([^/]+?)/qr(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/qr(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/questions",
+      "regex": "^/api/v1/surveys/([^/]+?)/questions(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/questions(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys/[id]/questions/[questionId]",
+      "regex": "^/api/v1/surveys/([^/]+?)/questions/([^/]+?)(?:/)?$",
+      "routeKeys": {
+        "nxtPid": "nxtPid",
+        "nxtPquestionId": "nxtPquestionId"
+      },
+      "namedRegex": "^/api/v1/surveys/(?<nxtPid>[^/]+?)/questions/(?<nxtPquestionId>[^/]+?)(?:/)?$"
+    }
+  ],
+  "staticRoutes": [
+    {
+      "page": "/",
+      "regex": "^/(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/(?:/)?$"
+    },
+    {
+      "page": "/_global-error",
+      "regex": "^/_global\\-error(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_global\\-error(?:/)?$"
+    },
+    {
+      "page": "/_not-found",
+      "regex": "^/_not\\-found(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/_not\\-found(?:/)?$"
+    },
+    {
+      "page": "/admin",
+      "regex": "^/admin(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/admin(?:/)?$"
+    },
+    {
+      "page": "/api",
+      "regex": "^/api(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api(?:/)?$"
+    },
+    {
+      "page": "/api/admin/login",
+      "regex": "^/api/admin/login(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/login(?:/)?$"
+    },
+    {
+      "page": "/api/admin/logout",
+      "regex": "^/api/admin/logout(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/logout(?:/)?$"
+    },
+    {
+      "page": "/api/admin/session",
+      "regex": "^/api/admin/session(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/admin/session(?:/)?$"
+    },
+    {
+      "page": "/api/survey/participants",
+      "regex": "^/api/survey/participants(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/survey/participants(?:/)?$"
+    },
+    {
+      "page": "/api/survey/seed",
+      "regex": "^/api/survey/seed(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/survey/seed(?:/)?$"
+    },
+    {
+      "page": "/api/survey/stats",
+      "regex": "^/api/survey/stats(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/survey/stats(?:/)?$"
+    },
+    {
+      "page": "/api/survey/submit",
+      "regex": "^/api/survey/submit(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/survey/submit(?:/)?$"
+    },
+    {
+      "page": "/api/v1/surveys",
+      "regex": "^/api/v1/surveys(?:/)?$",
+      "routeKeys": {},
+      "namedRegex": "^/api/v1/surveys(?:/)?$"
+    }
+  ],
+  "dataRoutes": [],
+  "rsc": {
+    "header": "rsc",
+    "varyHeader": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch",
+    "prefetchHeader": "next-router-prefetch",
+    "didPostponeHeader": "x-nextjs-postponed",
+    "contentTypeHeader": "text/x-component",
+    "suffix": ".rsc",
+    "prefetchSegmentHeader": "next-router-segment-prefetch",
+    "prefetchSegmentSuffix": ".segment.rsc",
+    "prefetchSegmentDirSuffix": ".segments",
+    "clientParamParsing": false,
+    "dynamicRSCPrerender": false
+  },
+  "rewriteHeaders": {
+    "pathHeader": "x-nextjs-rewritten-path",
+    "queryHeader": "x-nextjs-rewritten-query"
+  }
+}

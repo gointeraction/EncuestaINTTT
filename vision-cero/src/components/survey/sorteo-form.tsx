@@ -24,6 +24,12 @@ export function SorteoForm() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   // honeypot: campo oculto (los bots lo rellenan, los humanos no)
   const [website, setWebsite] = useState("");
+  // Idempotencia: id estable por entrevista (reintentos no duplican).
+  const [submissionId] = useState(() =>
+    typeof crypto !== "undefined" && "randomUUID" in crypto
+      ? crypto.randomUUID()
+      : `sub-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  );
 
   const handleTurnstileToken = useCallback((token: string | null) => {
     setTurnstileToken(token);
@@ -77,6 +83,8 @@ export function SorteoForm() {
           : { participa: false },
         turnstileToken,
         website, // honeypot
+        clientSubmissionId: submissionId, // idempotencia
+        channel: "public",
       };
       const res = await fetch("/api/survey/submit", {
         method: "POST",
@@ -91,6 +99,12 @@ export function SorteoForm() {
           setServerError(data.error ?? "Demasiados envíos. Intenta más tarde.");
         } else if (res.status === 403) {
           setServerError(data.error ?? "Verificación de seguridad fallida. Recarga e intenta de nuevo.");
+        } else if (res.status === 422) {
+          setServerError(
+            Array.isArray(data.errors) && data.errors.length
+              ? data.errors.slice(0, 3).join(" ")
+              : "El cuestionario está incompleto o inválido."
+          );
         } else if (data.fieldErrors) {
           // errores de validación del servidor
           toast({
