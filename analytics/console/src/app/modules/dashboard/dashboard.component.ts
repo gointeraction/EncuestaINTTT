@@ -1,53 +1,66 @@
-import { Component, inject, signal } from '@angular/core';
-import { JsonPipe } from '@angular/common';
+import { Component, computed, inject, signal } from '@angular/core';
+import { DsKpiGridComponent, type DsKpiItem } from '@cifraflow/design';
 import { firstValueFrom } from 'rxjs';
 import { EncuestaINTTTBackOfficeAnalíticoService } from '../../shared/api-sdk';
 import { SessionService } from '../../core/session.service';
 
+interface GlobalPayload {
+  totalSurveys: number;
+  totalResponses: number;
+  completed: number;
+  abandoned: number;
+  bySurvey: Array<{ id: string; title: string; responses: number }>;
+}
+
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [JsonPipe],
+  imports: [DsKpiGridComponent],
   template: `
-    <h1>Consola analítica</h1>
-    <p>Usuario: {{ session.user()?.email }} — rol {{ session.user()?.role }}</p>
-
+    <h1>Panel global</h1>
     <p>
-      <button type="button" (click)="loadSources()">Fuentes</button>
-      <button type="button" (click)="loadGlobal()">Panel global</button>
       <button type="button" (click)="summarize()">Recalcular sumarización</button>
       <a href="/panel">Panel por encuesta</a>
-      <button type="button" (click)="logout()">Salir</button>
     </p>
 
-    @if (run(); as r) { <p>Corrida: {{ r }}</p> }
-    @if (global()) { <h2>Panel global</h2><pre>{{ global() | json }}</pre> }
-    @if (fuentes()) { <h2>Fuentes</h2><pre>{{ fuentes() | json }}</pre> }
+    @if (kpis().length) {
+      <ds-kpi-grid [items]="kpis()" />
+    } @else {
+      <p>Sin datos. Pulse «Recalcular sumarización».</p>
+    }
+    @if (run(); as r) { <p>{{ r }}</p> }
   `,
 })
 export class DashboardComponent {
   readonly session = inject(SessionService);
   private readonly api = inject(EncuestaINTTTBackOfficeAnalíticoService);
 
-  readonly global = signal<unknown>(null);
-  readonly fuentes = signal<unknown>(null);
+  readonly global = signal<GlobalPayload | null>(null);
   readonly run = signal<string | null>(null);
 
-  async loadSources(): Promise<void> {
-    this.fuentes.set(await firstValueFrom(this.api.publicReadControllerListSurveys()));
+  readonly kpis = computed<DsKpiItem[]>(() => {
+    const g = this.global();
+    if (!g) return [];
+    return [
+      { label: 'Encuestas', value: g.totalSurveys, icon: 'database', tone: 'info' },
+      { label: 'Respuestas', value: g.totalResponses, icon: 'file-text', tone: 'neutral' },
+      { label: 'Completadas', value: g.completed, icon: 'check', tone: 'success' },
+      { label: 'Abandonadas', value: g.abandoned, icon: 'alert-circle', tone: 'danger' },
+    ];
+  });
+
+  constructor() {
+    void this.loadGlobal();
   }
 
   async loadGlobal(): Promise<void> {
-    this.global.set(await firstValueFrom(this.api.reportingControllerGlobal()));
+    const res = await firstValueFrom(this.api.reportingControllerGlobal());
+    this.global.set((res as unknown as GlobalPayload) ?? null);
   }
 
   async summarize(): Promise<void> {
     const res = await firstValueFrom(this.api.summarizationControllerSummarize());
-    this.run.set(JSON.stringify(res));
+    this.run.set('Sumarización: ' + JSON.stringify(res));
     await this.loadGlobal();
-  }
-
-  async logout(): Promise<void> {
-    await this.session.logout();
   }
 }
