@@ -122,7 +122,7 @@ WRITE RULE: la captura es el ÚNICO escritor del esquema `public`; el back-offic
 en `public`. — MUST
 
 WRITE RULE: el back-office accede a `public` con un rol PostgreSQL de SOLO LECTURA
-(`intt_analytics_ro`); sus escrituras ocurren únicamente en `analytics`. — MUST
+(`intt_analytics`); sus escrituras ocurren únicamente en `analytics`. — MUST
 
 WRITE RULE: ningún read model derivado (`report_*`, sumarizaciones) es fuente de verdad; se
 recomputan desde `public`. — MUST
@@ -197,7 +197,7 @@ WRITE INFO: extracción **strangler** por fases; nada se hace big-bang y la capt
 | Fase | Alcance | Entregable | Criterio de paso |
 |------|---------|-----------|------------------|
 | **F0 — Declarar** | esta estrategia + tech-stack + instancias planned + rulesets | corpus A2 actualizado | gates A1 en PASS (hecho al cierre de este documento) |
-| **F1 — Cimiento** | monorepo (`analytics/api`, `analytics/console`, `analytics/api-sdk`); esquema `analytics` + rol `intt_analytics_ro`; esqueleto NestJS con health; `migrate` extendido | un `api` que arranca y lee `public` read-only | `docker compose up` levanta `api` sin tocar `app` |
+| **F1 — Cimiento** | monorepo (`analytics/api`, `analytics/console`, `analytics/api-sdk`); esquema `analytics` + rol `intt_analytics`; esqueleto NestJS con health; `migrate` extendido | un `api` que arranca y lee `public` read-only | **hecho**: `docker compose up` levanta `api` sin tocar `app` |
 | **F2 — Identidad** | login de staff, roles `admin/analyst/auditor`, guards RBAC, `access_audit`; api-sdk (orval) + login en Angular | consola con login funcional | auditoría de acceso registrada |
 | **F3 — Read models** | mudar la sumarización CQRS a NestJS (jobs independientes); `report_*` en `analytics` | dashboard servido por el back-office | captura con carga 0 de sumarización |
 | **F4 — Reportería** | analítica por encuesta, tablas cruzadas, exportación CSV con enmascaramiento PII por rol | reportería completa en la consola | enmascaramiento verificado server-side |

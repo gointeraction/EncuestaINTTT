@@ -14,7 +14,7 @@ instance: (PLANNED) Back-office NestJS — analítica, reportería y control de 
 repo-location: /mnt/PROJECTS/GOINTERACTION/INTT/ENCUESTA/03-REPO/EncuestaINTTT
 path: analytics/api/
 entry-point: analytics/api/src/main.ts
-status: planned
+status: declared
 ruleset: [encuestaintt-nestjs-analytics]
 ---
 
@@ -54,7 +54,12 @@ WRITE INFO: VISUAL_PATTERN=SINGLE_SOURCE_OF_TRUTH; VISUAL_PATTERN=SNAKE_CASE.
 
 WRITE INFO: > File: 02-instance-pool/backend/encuestaintt-analytics-api.md
 > Produced by: how-to-write-a-instance-pool.template.md
-> Level: L4 · status: PLANNED (F1 del plan en `00-manifest/analytics-platform.md`)
+> Level: L4 · status: DECLARED (F1 del plan en `00-manifest/analytics-platform.md`)
+
+WRITE INFO: **Estado F1 (hecho)**: esqueleto en `analytics/api` (`core/modules/shared`) con
+`platform/health` y `integration/public-read` (Prisma read-only sobre `public`); esquema
+`analytics` (9 tablas) + rol `intt_analytics` (SELECT en `public`); verificado con `docker compose`
+(migrate + api). Layout `analytics/{api,console}`.
 
 ## Fields
 
@@ -73,14 +78,14 @@ WRITE INFO: > File: 02-instance-pool/backend/encuestaintt-analytics-api.md
    declarado en `01-tech-stack/backend/nestjs/nestjs-12.md`.
 
 6. **independent-core** — núcleo independiente de la captura. Comparte PostgreSQL pero con
-   **dueño de esquema distinto**: lee `public` con el rol `intt_analytics_ro` (solo-lectura) y
+   **dueño de esquema distinto**: lee `public` con el rol `intt_analytics` (solo-lectura) y
    escribe exclusivamente en `analytics`. Nunca importa código de la captura.
 
 ## boundaries (ver `00-manifest/analytics-platform.md`)
 
 - **Escribe**: esquema `analytics` (read models `report_*`, estado de sumarización, identidad de
   staff, `access_audit`).
-- **Lee**: esquema `public` (rol `intt_analytics_ro`).
+- **Lee**: esquema `public` (rol `intt_analytics`).
 - **Nunca**: escribe `public`; ejecuta lógica de captura; expone datos sin autorizar.
 
 ## Deterministic gate

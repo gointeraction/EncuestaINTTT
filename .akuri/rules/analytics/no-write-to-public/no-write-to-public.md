@@ -35,7 +35,7 @@ WRITE INFO: CATEGORY=analytics; SCOPE=analytics/api/src (Prisma/TypeScript).
 
 ### SECTION 02-ARCHITECTURE-PATTERNS
 
-WRITE INFO: ARCH_PATTERN=READ_ONLY_PUBLIC (rol `intt_analytics_ro`).
+WRITE INFO: ARCH_PATTERN=READ_ONLY_PUBLIC (rol `intt_analytics`).
 
 ### SECTION 03-DESIGN-PATTERNS
 

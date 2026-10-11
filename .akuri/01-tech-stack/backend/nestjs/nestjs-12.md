@@ -62,7 +62,7 @@ WRITE INFO: > File: 01-tech-stack/backend/nestjs/nestjs-12.md
 
 5. **capabilities** — endpoints REST (extensibles por feature), orquestación de use-cases, errores de dominio, guards de authN/authZ (RBAC/ABAC), jobs de sumarización (scheduler), exportación con enmascaramiento PII, auditoría de acceso, OpenAPI.
 
-6. **depends-on** — `persistence.postgresql` (rol `intt_analytics_ro` sobre `public`; escritura en `analytics`), `persistence.prisma`; consumido por `frontend.angular.admin` vía `library.orval`.
+6. **depends-on** — `persistence.postgresql` (rol `intt_analytics` sobre `public`; escritura en `analytics`), `persistence.prisma`; consumido por `frontend.angular.admin` vía `library.orval`.
 
 7. **canonical-files** — `analytics/api/package.json`, `analytics/api/src/main.ts`, `analytics/api/src/app.module.ts`, `analytics/api/src/{core,modules,shared}`.
 

@@ -52,7 +52,7 @@ WRITE INFO: this ruleset adds, by reference, the gates:
   - Technology: `no-console-log`, `source-layout`, `module-structure`, `controllers-endpoints`,
     `use-cases`, `domain-errors`, `cross-module-communication`, `pagination`, `audit-fields`.
   - Ownership: `owner-of-analytics-schema` (solo escribe `analytics`), `no-write-to-public`,
-    `read-only-on-public` (rol `intt_analytics_ro`).
+    `read-only-on-public` (rol `intt_analytics`).
   - Access: `rbac-before-data`, `pii-masking-server-side`, `access-audit` (registrar lecturas
     sensibles).
 
