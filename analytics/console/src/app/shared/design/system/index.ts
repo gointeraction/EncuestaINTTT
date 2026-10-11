@@ -3,8 +3,8 @@
    Services are providedIn:'root', self-contained, token-driven. */
 
 export { ThemeService } from './services/theme.service';
-export { SettingsService } from '../../core/settings/settings.service';
-export type { SettingsShape } from '../../core/settings/settings.service';
+export { SettingsService } from '../../../core/settings/settings.service';
+export type { SettingsShape } from '../../../core/settings/settings.service';
 export { ViewportService } from './services/viewport.service';
 export { DsNotificationService } from './services/notification.service';
 export { DsToastService } from './services/toast.service';

@@ -5,7 +5,7 @@ import { ThemeMode, CSSVarMap } from '../themes/theme.model';
 import { THEMES } from '../../themes';
 import { DsPageBannerService } from './ds-page-banner.service';
 import { FontLoaderService } from './font-loader.service';
-import { SettingsService } from '../../../core/settings/settings.service';
+import { SettingsService } from '../../../../core/settings/settings.service';
 
 @Injectable({ providedIn: 'root' })
 export class ThemeService {
