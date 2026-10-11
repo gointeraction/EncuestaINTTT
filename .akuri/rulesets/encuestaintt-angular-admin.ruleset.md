@@ -9,7 +9,7 @@ summary: EncuestaINTTT extra gates for the Angular staff console (back-office) â
   ON TOP of the technology ruleset. Not a procedure.
 technology: angular
 applies-to: admin-console
-rules: [no-console-log, source-layout, api-sdk-only, session-guard, no-db-in-page, design-system-tokens, design-system-containers]
+rules: [no-console-log, source-layout, api-sdk-only, session-guard, no-db-in-page, design-system-tokens, design-system-containers, component-filename-kebab-case, no-http-client-in-page, page-descriptor-declared, logic-no-design-import, business-layer-structure, state-contract-required, mock-switch-isolated, page-container-single, container-kind-declared, area-role-named, page-composition, page-section-layout, page-architecture-declared, page-conformance-declared, ds-tokens-only, no-raw-img]
 ---
 
 # RULESET â€” encuestaintt angular admin (consola de staff)

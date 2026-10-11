@@ -13,6 +13,14 @@ scope: the angular specification
 
 # Tech-Stack — Angular 22 (frontend analítico)
 
+WRITE INFO: esta tecnología se construye según el **pack de tecnología `angular`**
+(`akuri-packs/angular`, v1.3.0), referenciado por A2 en `02-technologies/angular/pack.yaml`:
+sus principios (`01-principles/{04-routing,05-modules,06-pages,07-naming}.md`), sus constructores
+(`angular-akuri-oma-page`, `angular-akuri-oma-module`) y sus rulesets (`angular-page`,
+`angular-naming`, `angular-instance`). Este proyecto los **compone por referencia** en
+`rulesets/encuestaintt-angular-admin.ruleset.md`. Gate: `oma_context(technology=angular,
+applies-to=page)`.
+
 ## CHAPTER 1: PURPOSE & USE MODES
 
 ### SECTION 01-PURPOSE
