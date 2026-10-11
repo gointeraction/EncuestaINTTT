@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { DsContainerComponent } from '@cifraflow/design';
+import { DsContainerComponent, DsHeaderComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
 import {
   ConsoleAccountSection,
@@ -11,12 +11,14 @@ import {
 
 /**
  * ConsoleLayout — an app SHELL (the LAYOUT plane).
- *   area shell-header (sections: header + nav + account) — CHROME, its own height.
- *   display (the canvas): holds the <router-outlet/> + the FAB; it fills EXACTLY the space
- *                        between the header and the footer (flex:1 of the host column).
- *   area shell-footer (section: footer) — CHROME, its own height.
- * The header, the display and the footer are siblings, stacked one after the other.
- * The routed PAGE embeds INSIDE the display (its canvas).
+ *   area header — ONE row with two sections:
+ *                   left  → INTT logo + "Visión Cero - Analítica"
+ *                   right → the main navigation (ds-nav) + the account/logout.
+ *   display     — the canvas: holds the <router-outlet/> + FAB; fills EXACTLY the space
+ *                 between the header and the footer (flex:1 of the host column).
+ *   area footer — chrome.
+ * Header, display and footer are siblings stacked one after the other.
+ * The routed PAGE embeds INSIDE the display (its canvas). Only this layout owns the outlet.
  */
 @Component({
   selector: 'app-console-layout',
@@ -24,6 +26,7 @@ import {
   imports: [
     RouterOutlet,
     DsContainerComponent,
+    DsHeaderComponent,
     DsFabComponent,
     ConsoleHeaderSection,
     ConsoleNavSection,
@@ -32,15 +35,23 @@ import {
   ],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
-    <ds-container
-      kind="area"
-      name="header"
-      class="flex-row flex-wrap items-center gap-x-6 gap-y-1 px-4 py-2"
-      style="background: var(--ds-color-brand-primary); color: var(--ds-color-white)"
-    >
-      <app-console-header-section />
-      <app-console-nav-section />
-      <app-console-account-section />
+    <ds-container kind="area" name="header">
+      <ds-header>
+        <div
+          class="ds-h__row"
+          style="background: var(--ds-color-brand-primary); color: var(--ds-color-white); padding: var(--ds-space-2) var(--ds-space-4)"
+        >
+          <div class="ds-h__section ds-h__section--grow">
+            <app-console-header-section />
+          </div>
+          <div class="ds-h__section ds-h__section--end">
+            <div class="flex items-center gap-6">
+              <app-console-nav-section />
+              <app-console-account-section />
+            </div>
+          </div>
+        </div>
+      </ds-header>
     </ds-container>
 
     <ds-container kind="display" name="content">
@@ -51,8 +62,7 @@ import {
     <ds-container
       kind="area"
       name="footer"
-      class="px-4 py-1"
-      style="background: var(--ds-color-brand-dark); color: var(--ds-color-white)"
+      style="background: var(--ds-color-brand-dark); color: var(--ds-color-white); padding: var(--ds-space-1) var(--ds-space-4)"
     >
       <app-console-footer-section />
     </ds-container>

@@ -1,23 +1,21 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { DsContainerComponent, DsNavComponent, type DsNavItem } from '@cifraflow/design';
+import { DsNavComponent, type DsNavItem } from '@cifraflow/design';
 
-/** Layout section (nav): the console main menu (ds-nav, on the shell header). */
+/** Layout section (header, right): the console main menu (ds-nav). */
 @Component({
   selector: 'app-console-nav-section',
   standalone: true,
-  imports: [DsContainerComponent, DsNavComponent],
+  imports: [DsNavComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block min-w-0' },
+  host: { class: 'block' },
   template: `
-    <ds-container kind="section" name="console-nav" class="flex items-center">
-      <ds-nav
-        name="console"
-        [items]="items"
-        variant="underline"
-        textColor="var(--ds-color-white)"
-        activeColor="var(--ds-color-brand-accent)"
-      />
-    </ds-container>
+    <ds-nav
+      name="console"
+      [items]="items"
+      variant="underline"
+      textColor="var(--ds-color-white)"
+      activeColor="var(--ds-color-brand-accent)"
+    />
   `,
 })
 export class ConsoleNavSection {

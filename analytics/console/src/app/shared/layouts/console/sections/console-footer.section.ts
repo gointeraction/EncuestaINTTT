@@ -1,23 +1,19 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import { DsContainerComponent } from '@cifraflow/design';
 
 /** Layout section (footer): the shell footer. Chrome only, never page data. */
 @Component({
   selector: 'app-console-footer-section',
   standalone: true,
-  imports: [DsContainerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  host: { class: 'block' },
+  host: { class: 'block w-full' },
   template: `
-    <ds-container
-      kind="section"
-      name="console-footer"
+    <div
       class="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between"
-      style="color: var(--ds-color-white); font-size: var(--ds-text-caption)"
+      style="font-size: var(--ds-text-caption)"
     >
       <span>INTT · Visión Cero · Analítica</span>
       <span>© {{ year }} Instituto Nacional de Transporte Terrestre</span>
-    </ds-container>
+    </div>
   `,
 })
 export class ConsoleFooterSection {
