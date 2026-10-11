@@ -65,7 +65,7 @@ model AccessAudit {
 
 model SurveySummaryReport {
   id           String   @id @default(uuid())
-  surveyId     String   @map("survey_id")
+  surveyId     String   @unique @map("survey_id")
   calculatedAt DateTime @default(now()) @map("calculated_at")
   totalCount   Int      @default(0) @map("total_count")
   summaryData  String   @map("summary_data") @db.Text
