@@ -13,12 +13,12 @@ export class ReportesDataService {
     return (res as unknown as ReportSurveySource[]) ?? [];
   }
 
-  /** Preguntas categóricas (choice) del resumen materializado del cuestionario. */
+  /** Todas las preguntas del resumen (originales + autocontestadas) para cruzar. */
   async questions(surveyId: string): Promise<ReportQuestion[]> {
     const res = (await firstValueFrom(
       this.api.reportingControllerSurvey(surveyId),
     )) as unknown as { questions?: ReportQuestion[] };
-    return (res?.questions ?? []).filter((q) => !q.kind || q.kind === 'choice');
+    return res?.questions ?? [];
   }
 
   async crossTab(surveyId: string, q1: string, q2: string): Promise<CrossTabResult | null> {

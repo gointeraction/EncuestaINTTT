@@ -241,6 +241,7 @@ export class PanelEncuestaPage {
           { label: 'Opción única', value: 'single_choice' },
           { label: 'Opción múltiple', value: 'multi_choice' },
           { label: 'Escala', value: 'scale' },
+          { label: 'Numérica', value: 'number' },
           { label: 'Texto', value: 'short_text' },
         ],
       },
