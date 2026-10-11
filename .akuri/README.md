@@ -52,7 +52,7 @@ WRITE INFO: las carpetas del corpus son:
 
 | Carpeta | Contenido | Consumidor |
 |---|---|---|
-| `00-manifest/` | manifiesto del proyecto, organization, source-layout, data-model | engine OMA |
+| `00-manifest/` | manifiesto del proyecto, source-layout, supradomains, data-model, analytics-platform (estrategia de desacoplamiento captura/analítica) | engine OMA |
 | `01-tech-stack/` | tecnologías declaradas por capa | `oma_select` / `oma_context` |
 | `02-instance-pool/` | instancias declaradas | `oma_instances` |
 | `03-real-value/` | capacidades reales del backend Next.js | documentación técnica |
