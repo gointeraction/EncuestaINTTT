@@ -4,6 +4,8 @@ import { PgService } from '../core/pg.service.js';
 import { SeedCommand, type SeedOptions } from '../commands/seed.command.js';
 import { ResetCommand } from '../commands/reset.command.js';
 import { SummarizeCommand } from '../commands/summarize.command.js';
+import { FixturesCommand } from '../commands/fixtures.command.js';
+import { LoadCommand } from '../commands/load.command.js';
 
 interface StatusRow {
   surveys: number;
@@ -20,6 +22,8 @@ export class SeedController {
     private readonly seed: SeedCommand,
     private readonly reset: ResetCommand,
     private readonly summarize: SummarizeCommand,
+    private readonly fixtures: FixturesCommand,
+    private readonly load: LoadCommand,
     @Inject(SEED_CONFIG) private readonly config: SeedConfig,
   ) {}
 
@@ -54,6 +58,21 @@ export class SeedController {
 
   @Post('summarize')
   async runSummarize() {
+    await this.summarize.run();
+    return this.status();
+  }
+
+  /** Genera los CSV (uno por tipo de conductor). */
+  @Post('fixtures')
+  async runFixtures(@Body() body: { perType?: number } = {}) {
+    await this.fixtures.run({ perType: body?.perType });
+    return this.status();
+  }
+
+  /** Carga los CSV de fixtures a la tabla real (misma estrategia que la captura). */
+  @Post('load')
+  async runLoad() {
+    await this.load.run({});
     await this.summarize.run();
     return this.status();
   }

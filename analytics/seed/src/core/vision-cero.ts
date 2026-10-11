@@ -25,6 +25,27 @@ export const LEGACY_COLUMNS = [
   '"cedula"',
   '"telefono"',
   '"codigoSorteo"',
+  '"channel"',
+];
+
+export const DRIVER_TYPE_IDS = [
+  'motociclista_activo',
+  'delivery',
+  'mototaxista',
+  'ex_motociclista',
+  'familiar',
+  'otro_conductor',
+] as const;
+export type DriverType = (typeof DRIVER_TYPE_IDS)[number];
+
+/** Canales de captura (A2: capture-offline-and-integrity.md). */
+export const CHANNELS = ['public', 'kiosk', 'surveyor'] as const;
+export type Channel = (typeof CHANNELS)[number];
+
+const CHANNEL_WEIGHTS: ReadonlyArray<readonly [Channel, number]> = [
+  ['public', 50],
+  ['kiosk', 25],
+  ['surveyor', 25],
 ];
 
 const ESTADOS = [
@@ -103,23 +124,42 @@ export function answersFor(r: Rng, driverType: DriverTypeId): Record<string, unk
   return answers;
 }
 
-/** Genera las filas de `public.legacy_survey_responses` (emula la encuesta real). */
+/** Una fila de `legacy_survey_responses` (emula una entrevista real). */
+function legacyRow(r: Rng, id: string, driverType: DriverTypeId, seq: number, cedulaSeq: number): Cell[] {
+  const channel = r.weighted(CHANNEL_WEIGHTS);
+  const participa = r.float() < 0.65;
+  return [
+    id,
+    driverType,
+    JSON.stringify(answersFor(r, driverType)),
+    ISO(seq),
+    participa,
+    participa ? `Participante ${seq + 1}` : null,
+    participa ? `V-${10_000_000 + cedulaSeq}` : null,
+    participa ? `+58 412-${1_000_000 + (cedulaSeq % 900_000)}` : null,
+    participa ? `COD-${cedulaSeq.toString().padStart(6, '0')}` : null,
+    channel,
+  ];
+}
+
+/** Dataset aleatorio (mezcla de tipos y canales) — usado por el comando `seed`. */
 export function* legacyRows(seed: number, n: number): Iterable<Cell[]> {
-  const driverIds = ['motociclista_activo', 'delivery', 'mototaxista', 'ex_motociclista', 'familiar', 'otro_conductor'] as DriverTypeId[];
   for (let i = 0; i < n; i++) {
     const r = rowRng(seed, 11, i);
-    const driverType = r.pick(driverIds);
-    const participa = r.float() < 0.65;
-    yield [
-      `seedlegacy${i}`,
-      driverType,
-      JSON.stringify(answersFor(r, driverType)),
-      ISO(i),
-      participa,
-      participa ? `Participante ${i + 1}` : null,
-      participa ? `V-${10_000_000 + i}` : null,
-      participa ? `+58 412-${1_000_000 + (i % 900_000)}` : null,
-      participa ? `COD-${(i % 100000).toString().padStart(5, '0')}` : null,
-    ];
+    yield legacyRow(r, `seedlegacy${i}`, r.pick(DRIVER_TYPE_IDS), i, i);
+  }
+}
+
+/** Filas de UN tipo de conductor (para los CSV de fixtures). Cédulas únicas entre tipos. */
+export function* legacyRowsForDriver(
+  seed: number,
+  typeIndex: number,
+  driverType: DriverType,
+  n: number,
+): Iterable<Cell[]> {
+  for (let i = 0; i < n; i++) {
+    const r = rowRng(seed, 41 + typeIndex, i);
+    const cedulaSeq = typeIndex * 100_000 + i;
+    yield legacyRow(r, `seed-${driverType}-${i}`, driverType, typeIndex * 100_000 + i, cedulaSeq);
   }
 }

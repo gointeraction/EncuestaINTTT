@@ -6,6 +6,8 @@ import { SeedCommand } from './commands/seed.command.js';
 import { ResetCommand } from './commands/reset.command.js';
 import { GenerateCommand } from './commands/generate.command.js';
 import { SummarizeCommand } from './commands/summarize.command.js';
+import { FixturesCommand } from './commands/fixtures.command.js';
+import { LoadCommand } from './commands/load.command.js';
 
 const USAGE =
   'uso: seed <seed|reset|generate|summarize> [--profile …] [--surveys N] [--responses N] [--questions N] [--legacy N] [--seed N]\n' +
@@ -29,6 +31,8 @@ function parseArgs(argv: string[]): CliFlags {
     questions: flags.questions,
     responses: flags.responses,
     legacy: flags.legacy,
+    perType: flags['per-type'],
+    dir: flags.dir,
   };
 }
 
@@ -79,6 +83,16 @@ async function main(): Promise<void> {
         break;
       case 'summarize':
         await ctx.get(SummarizeCommand).run();
+        break;
+      case 'fixtures':
+        await ctx.get(FixturesCommand).run({
+          perType: flags.perType ? Number(flags.perType) : undefined,
+          seed: flags.seed ? Number(flags.seed) : undefined,
+          dir: flags.dir,
+        });
+        break;
+      case 'load':
+        await ctx.get(LoadCommand).run({ dir: flags.dir });
         break;
       default:
         console.error(USAGE);

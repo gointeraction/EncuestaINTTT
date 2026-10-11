@@ -3,7 +3,7 @@ import { Pool, type PoolClient } from 'pg';
 import { from as copyFrom } from 'pg-copy-streams';
 import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
-import { createWriteStream } from 'node:fs';
+import { createWriteStream, createReadStream } from 'node:fs';
 import { csvLine, type Cell } from './csv.js';
 
 /** Acceso a PostgreSQL: consultas + carga masiva por COPY (streaming). */
@@ -66,6 +66,27 @@ export class PgService implements OnModuleDestroy {
       return count;
     } finally {
       if (file) await new Promise<void>((res) => file.end(() => res()));
+      client.release();
+    }
+  }
+
+  /** Carga un CSV local a una tabla vía COPY (HEADER opcional). */
+  async copyFromFile(
+    table: string,
+    columns: string[],
+    filePath: string,
+    header = false,
+  ): Promise<number> {
+    const client: PoolClient = await this.pool.connect();
+    try {
+      const opts = header ? 'FORMAT csv, HEADER true' : 'FORMAT csv';
+      const sql = `COPY ${table} (${columns.join(', ')}) FROM STDIN WITH (${opts})`;
+      const sink = client.query(copyFrom(sql));
+      await pipeline(createReadStream(filePath), sink);
+      const count = (sink as unknown as { rowCount?: number }).rowCount ?? 0;
+      this.log.log(`COPY ${table} <- ${filePath}: ${count} filas`);
+      return count;
+    } finally {
       client.release();
     }
   }

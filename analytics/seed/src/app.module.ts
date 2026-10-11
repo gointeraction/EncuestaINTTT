@@ -5,6 +5,8 @@ import { SeedCommand } from './commands/seed.command.js';
 import { ResetCommand } from './commands/reset.command.js';
 import { GenerateCommand } from './commands/generate.command.js';
 import { SummarizeCommand } from './commands/summarize.command.js';
+import { FixturesCommand } from './commands/fixtures.command.js';
+import { LoadCommand } from './commands/load.command.js';
 import { SeedController } from './http/seed.controller.js';
 
 @Module({})
@@ -21,6 +23,8 @@ export class AppModule {
         ResetCommand,
         GenerateCommand,
         SummarizeCommand,
+        FixturesCommand,
+        LoadCommand,
       ],
     };
   }

@@ -17,12 +17,20 @@ Aplicación **NestJS standalone** (sin HTTP) que siembra datos simulados en la b
 
 | Comando | Efecto |
 |---------|--------|
-| `seed` | `TRUNCATE` acotado + carga del dataset (por `COPY`) |
+| `seed` | `TRUNCATE` acotado + carga del dataset aleatorio (por `COPY`) |
 | `reset` | `TRUNCATE` de las tablas sembradas |
-| `generate` | escribe los CSV en `data/` (inspección / pruebas de volumen) |
+| `generate` | escribe los CSV del dataset a `data/` |
 | `summarize` | login staff + `POST /analytics/jobs/summarize` (puebla los read models) |
+| `fixtures` | escribe **un CSV por tipo de conductor** (30 entrevistas c/u por defecto) en `data/fixtures/`, con la MISMA forma que una entrevista hecha a mano + **canal** |
+| `load` | `TRUNCATE` + carga los CSV de `data/fixtures/` a la tabla real (incluye `channel`) |
 
-Flags: `--profile small|medium|large|xl` (filas), `--seed <n>` (semilla RNG, reproducible).
+Flags: `--profile small|medium|large|xl` (filas), `--seed <n>` (semilla RNG, reproducible),
+`--responses <n>`, `--per-type <n>` (fixtures), `--dir <ruta>`.
+
+## Canales
+
+Cada fila lleva `channel` (`public` = autoservicio general · `kiosk` · `surveyor`) para que el
+sistema aplique las validaciones del caso (ver `.akuri/00-manifest/capture-offline-and-integrity.md`).
 
 ## Uso (vía compose, entorno dev)
 
