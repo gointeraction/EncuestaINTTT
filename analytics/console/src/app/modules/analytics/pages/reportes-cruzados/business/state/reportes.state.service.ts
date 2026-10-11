@@ -18,7 +18,12 @@ export class ReportesStateService implements ReportesStateContract {
 
   async loadSources(): Promise<void> {
     try {
-      this.sources.set(await this.data.sources());
+      const sources = await this.data.sources();
+      this.sources.set(sources);
+      // Auto-selecciona la primera fuente (hoy hay una: Visión Cero) para no salir en blanco.
+      if (sources.length > 0 && !this.surveyId()) {
+        await this.setSurvey(sources[0].id);
+      }
     } catch {
       this.error.set('No se pudieron cargar las encuestas.');
     }

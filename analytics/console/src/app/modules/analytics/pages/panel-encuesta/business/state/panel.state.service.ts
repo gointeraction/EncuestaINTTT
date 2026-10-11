@@ -47,7 +47,12 @@ export class PanelStateService implements PanelStateContract {
   });
 
   async loadSources(): Promise<void> {
-    this.sources.set(await this.data.loadSources());
+    const sources = await this.data.loadSources();
+    this.sources.set(sources);
+    // Auto-selecciona la primera fuente (hoy hay una: Visión Cero) para no salir en blanco.
+    if (sources.length > 0 && !this._surveyId()) {
+      await this.selectSurvey(sources[0].id);
+    }
   }
 
   async selectSurvey(id: string): Promise<void> {
