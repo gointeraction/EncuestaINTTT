@@ -1,0 +1,6 @@
+node_modules
+dist
+# CSV generados (no versionar volúmenes grandes; sí fixtures)
+data/*
+!data/.gitkeep
+!data/fixtures/
