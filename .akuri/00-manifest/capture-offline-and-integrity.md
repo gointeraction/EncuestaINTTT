@@ -154,8 +154,15 @@ WRITE INFO:
     id (`vision-cero/src/components/survey/sorteo-form.tsx`); un reintento devuelve el MISMO resultado.
   - Sorteo: índice único parcial `vision-cero/deploy/sql/02-capture-unique-cedula.sql` → 409.
   - Pendiente de F1: **persistencia de progreso + outbox** (se materializa en F2).
-- **F2 (offline real, PWA)**: service worker + IndexedDB + flush al reconectar; **PoW** offline +
-  Turnstile online; `surveyVersion`; persistencia de borrador + **outbox**.
+- **F2 (offline real, PWA) — HECHO (2026-10-11, A3)**: borrador persistido (IndexedDB) +
+  **outbox** + flush al reconectar; **PWA** (service worker app-shell + manifest); **PoW** offline +
+  Turnstile online; `clientSubmissionId` estable por entrevista. Implementación:
+  - Persistencia/outbox/PoW: `vision-cero/src/lib/offline/{idb-storage,outbox,pow}.ts`; borrador en
+    `vision-cero/src/store/survey-store.ts`; verificación de PoW en `vision-cero/src/lib/pow.ts`.
+  - PWA: `vision-cero/public/sw.js` + `manifest.webmanifest` (registro en `vision-cero/src/app/page.tsx`).
+  - El cliente encola la entrevista completa en fallo de red; `flushOutbox()` la transmite al reconectar.
+  - Anti-bot servidor: acepta **Turnstile** (online) **o PoW** válido por `clientSubmissionId` (offline).
+  - Pendiente de F2: `surveyVersion` (definición usada por un cliente offline antiguo).
 - **F3 (canales confiables + anti-fraude)**: registro/firma de dispositivos kiosco/encuestador,
   cuotas y **panel de anomalías**.
 

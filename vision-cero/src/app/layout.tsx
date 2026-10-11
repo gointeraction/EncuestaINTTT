@@ -26,6 +26,7 @@ export const metadata: Metadata = {
   description: "Encuesta interactiva del Instituto Nacional de Tránsito y Transporte (INTT) con preguntas adaptadas al tipo de conductor y dashboard de resultados para avanzar hacia una Visión Cero en siniestros de motocicletas.",
   keywords: ["INTT", "visión cero", "motocicletas", "siniestros", "encuesta vial", "seguridad vial", "dashboard", "tránsito", "transporte"],
   authors: [{ name: "Instituto Nacional de Tránsito y Transporte" }],
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: "https://z-cdn.chatglm.cn/z-ai/static/logo.svg",
   },

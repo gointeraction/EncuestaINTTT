@@ -13,9 +13,11 @@ import { useToast } from "@/hooks/use-toast";
 import { useSurveyStore } from "@/store/survey-store";
 import { validatePersonalData, VE_MOBILE_PREFIXES, type PersonalData } from "@/lib/sorteo";
 import { TurnstileWidget } from "./turnstile-widget";
+import { useOutbox } from "@/lib/offline/outbox";
+import { computePow } from "@/lib/offline/pow";
 
 export function SorteoForm() {
-  const { sorteo, setSorteo, answers, driverType, setView, setSavedId, setSorteoResult, clearAnswers } =
+  const { sorteo, setSorteo, answers, driverType, setView, setSavedId, setSorteoResult, clearAnswers, ensureSubmissionId } =
     useSurveyStore();
   const { toast } = useToast();
   const [touched, setTouched] = useState(false);
@@ -24,12 +26,6 @@ export function SorteoForm() {
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   // honeypot: campo oculto (los bots lo rellenan, los humanos no)
   const [website, setWebsite] = useState("");
-  // Idempotencia: id estable por entrevista (reintentos no duplican).
-  const [submissionId] = useState(() =>
-    typeof crypto !== "undefined" && "randomUUID" in crypto
-      ? crypto.randomUUID()
-      : `sub-${Date.now()}-${Math.random().toString(36).slice(2)}`
-  );
 
   const handleTurnstileToken = useCallback((token: string | null) => {
     setTurnstileToken(token);
@@ -68,24 +64,26 @@ export function SorteoForm() {
       return;
     }
 
+    const clientSubmissionId = ensureSubmissionId();
+    const payload: Record<string, unknown> = {
+      driverType,
+      answers,
+      sorteo: sorteo.participa
+        ? {
+            participa: true,
+            nombre: validation.normalized!.nombre,
+            cedula: validation.normalized!.cedula,
+            telefono: validation.normalized!.telefono,
+          }
+        : { participa: false },
+      turnstileToken,
+      website, // honeypot
+      clientSubmissionId, // idempotencia
+      channel: "public",
+    };
+
     setSubmitting(true);
     try {
-      const payload: Record<string, unknown> = {
-        driverType,
-        answers,
-        sorteo: sorteo.participa
-          ? {
-              participa: true,
-              nombre: validation.normalized!.nombre,
-              cedula: validation.normalized!.cedula,
-              telefono: validation.normalized!.telefono,
-            }
-          : { participa: false },
-        turnstileToken,
-        website, // honeypot
-        clientSubmissionId: submissionId, // idempotencia
-        channel: "public",
-      };
       const res = await fetch("/api/survey/submit", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -128,6 +126,26 @@ export function SorteoForm() {
       });
       setView("thanks");
     } catch (e) {
+      if (e instanceof TypeError) {
+        // Sin red: computar PoW (anti-bot offline) y encolar la entrevista COMPLETA.
+        try {
+          const nonce = await computePow(clientSubmissionId);
+          useOutbox.getState().enqueue({
+            clientSubmissionId,
+            payload: { ...payload, botProof: { nonce, difficulty: 4 } },
+            createdAt: new Date().toISOString(),
+          });
+          setView("thanks");
+          toast({
+            title: "Sin conexión",
+            description:
+              "Tu entrevista quedó guardada y se enviará automáticamente al recuperar la conexión.",
+          });
+          return;
+        } catch {
+          setServerError("No se pudo guardar la entrevista sin conexión.");
+        }
+      }
       setServerError(e instanceof Error ? e.message : "Error al enviar. Intenta de nuevo.");
     } finally {
       setSubmitting(false);

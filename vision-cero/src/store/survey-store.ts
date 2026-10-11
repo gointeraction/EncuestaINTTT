@@ -1,4 +1,6 @@
 import { create } from "zustand";
+import { createJSONStorage, persist } from "zustand/middleware";
+import { idbStorage } from "@/lib/offline/idb-storage";
 import type { DriverTypeId } from "@/lib/survey-data";
 
 export type AnswerValue = string | string[] | number;
@@ -26,6 +28,8 @@ interface SurveyState {
   codigoSorteo: string | null;
   participaSorteo: boolean;
   sorteo: SorteoData;
+  /** Idempotencia: id estable por entrevista (se conserva en el borrador). */
+  clientSubmissionId: string | null;
 
   setView: (v: View) => void;
   setMode: (m: AppMode) => void;
@@ -38,6 +42,7 @@ interface SurveyState {
   setSavedId: (id: string) => void;
   setSorteoResult: (codigo: string | null, participa: boolean) => void;
   setSorteo: (s: Partial<SorteoData>) => void;
+  ensureSubmissionId: () => string;
 }
 
 const emptySorteo: SorteoData = {
@@ -47,31 +52,68 @@ const emptySorteo: SorteoData = {
   telefono: "",
 };
 
-export const useSurveyStore = create<SurveyState>((set) => ({
-  view: "welcome",
-  mode: "public",
-  adminAuthed: false,
-  adminChecking: true,
-  driverType: null,
-  answers: {},
-  savedId: null,
-  codigoSorteo: null,
-  participaSorteo: false,
-  sorteo: { ...emptySorteo },
+function newId(): string {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) return crypto.randomUUID();
+  return `sub-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+}
 
-  setView: (v) => set({ view: v }),
-  setMode: (m) => set({ mode: m }),
-  setAdminAuthed: (a) => set({ adminAuthed: a }),
-  setAdminChecking: (c) => set({ adminChecking: c }),
-  setDriverType: (d) => set({ driverType: d }),
-  setAnswer: (id, v) =>
-    set((s) => ({ answers: { ...s.answers, [id]: v } })),
-  setMultiAnswer: (updates) =>
-    set((s) => ({ answers: { ...s.answers, ...updates } })),
-  clearAnswers: () =>
-    set({ answers: {}, savedId: null, codigoSorteo: null, participaSorteo: false, sorteo: { ...emptySorteo } }),
-  setSavedId: (id) => set({ savedId: id }),
-  setSorteoResult: (codigo, participa) =>
-    set({ codigoSorteo: codigo, participaSorteo: participa }),
-  setSorteo: (s) => set((state) => ({ sorteo: { ...state.sorteo, ...s } })),
-}));
+export const useSurveyStore = create<SurveyState>()(
+  persist(
+    (set, get) => ({
+      view: "welcome",
+      mode: "public",
+      adminAuthed: false,
+      adminChecking: true,
+      driverType: null,
+      answers: {},
+      savedId: null,
+      codigoSorteo: null,
+      participaSorteo: false,
+      sorteo: { ...emptySorteo },
+      clientSubmissionId: null,
+
+      setView: (v) => set({ view: v }),
+      setMode: (m) => set({ mode: m }),
+      setAdminAuthed: (a) => set({ adminAuthed: a }),
+      setAdminChecking: (c) => set({ adminChecking: c }),
+      setDriverType: (d) => set({ driverType: d }),
+      setAnswer: (id, v) => set((s) => ({ answers: { ...s.answers, [id]: v } })),
+      setMultiAnswer: (updates) => set((s) => ({ answers: { ...s.answers, ...updates } })),
+      clearAnswers: () =>
+        set({
+          answers: {},
+          savedId: null,
+          codigoSorteo: null,
+          participaSorteo: false,
+          sorteo: { ...emptySorteo },
+          clientSubmissionId: null,
+        }),
+      setSavedId: (id) => set({ savedId: id }),
+      setSorteoResult: (codigo, participa) => set({ codigoSorteo: codigo, participaSorteo: participa }),
+      setSorteo: (s) => set((state) => ({ sorteo: { ...state.sorteo, ...s } })),
+      ensureSubmissionId: () => {
+        const current = get().clientSubmissionId;
+        if (current) return current;
+        const id = newId();
+        set({ clientSubmissionId: id });
+        return id;
+      },
+    }),
+    {
+      name: "encuesta-vision-cero",
+      storage: createJSONStorage(() => idbStorage),
+      // Solo el borrador de la entrevista (no los flags de admin).
+      partialize: (s) => ({
+        view: s.view,
+        mode: s.mode,
+        driverType: s.driverType,
+        answers: s.answers,
+        savedId: s.savedId,
+        codigoSorteo: s.codigoSorteo,
+        participaSorteo: s.participaSorteo,
+        sorteo: s.sorteo,
+        clientSubmissionId: s.clientSubmissionId,
+      }),
+    },
+  ),
+);

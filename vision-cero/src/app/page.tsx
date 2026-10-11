@@ -14,6 +14,7 @@ import { ClipboardList, ExternalLink, Loader2, BarChart3, FilePlus2 } from "luci
 import { Button } from "@/components/ui/button";
 import { InstitutionLogo } from "@/components/institution-logo";
 import { INSTITUTION } from "@/lib/institution";
+import { flushOutbox } from "@/lib/offline/outbox";
 
 export default function Home() {
   const [adminSection, setAdminSection] = useState<"dashboard" | "surveys">("dashboard");
@@ -62,6 +63,20 @@ export default function Home() {
       setMode("public");
       setAdminChecking(false);
     }
+  }, []);
+
+  // Outbox offline: transmite las entrevistas pendientes al abrir y al recuperar conexión.
+  useEffect(() => {
+    void flushOutbox();
+    const onOnline = () => void flushOutbox();
+    window.addEventListener("online", onOnline);
+    // PWA: registra el service worker (app-shell offline). Solo en contexto seguro.
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").catch(() => {
+        /* ignore */
+      });
+    }
+    return () => window.removeEventListener("online", onOnline);
   }, []);
 
   // ===================== MODO ADMIN (URL privada) =====================

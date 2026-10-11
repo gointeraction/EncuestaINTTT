@@ -1,0 +1,10 @@
+{
+  "name": "Encuesta Visión Cero — INTT",
+  "short_name": "Visión Cero",
+  "description": "Encuesta de siniestros de motocicletas — Visión Cero (INTT).",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#1c2454",
+  "theme_color": "#1c2454"
+}

@@ -12,6 +12,7 @@ import {
   validateVisionCeroAnswers,
   MAX_ANSWERS_BYTES,
 } from "@/lib/validation/vision-cero";
+import { verifyPow, POW_DIFFICULTY } from "@/lib/pow";
 
 const CHANNELS = ["public", "kiosk", "surveyor"] as const;
 
@@ -38,7 +39,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { driverType, answers, sorteo, turnstileToken, website, clientSubmissionId, channel } =
+    const { driverType, answers, sorteo, turnstileToken, website, clientSubmissionId, channel, botProof } =
       body ?? {};
 
     // ====== 2) Honeypot: campo oculto que solo los bots rellenan ======
@@ -62,9 +63,19 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ====== 4) Cloudflare Turnstile: verifica que sea humano ======
+    // ====== 4) Anti-bot: Turnstile (online) o PoW (offline, sin red) ======
     const ts = await verifyTurnstileToken(turnstileToken, ip);
-    if (!ts.ok) {
+    const powOk =
+      !ts.ok &&
+      !!subId &&
+      !!botProof &&
+      typeof botProof === "object" &&
+      verifyPow(
+        subId,
+        (botProof as { nonce?: unknown }).nonce,
+        Number((botProof as { difficulty?: unknown }).difficulty ?? POW_DIFFICULTY)
+      );
+    if (!ts.ok && !powOk) {
       return NextResponse.json(
         { error: ts.error ?? "Verificación de seguridad fallida." },
         { status: 403 }
