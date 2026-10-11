@@ -122,7 +122,11 @@ export class ReportingService {
     );
     const categoriesA = [...new Set(cells.map((c) => c.v1))];
     const categoriesB = [...new Set(cells.map((c) => c.v2))];
-    return { surveyId, questionA, questionB, categoriesA, categoriesB, cells };
+    // Base por pregunta (cuestionarios que respondieron cada una) y base del cruce.
+    const baseA = cells.filter((c) => c.v1 !== '').reduce((s, c) => s + c.n, 0);
+    const baseB = cells.filter((c) => c.v2 !== '').reduce((s, c) => s + c.n, 0);
+    const baseBoth = cells.filter((c) => c.v1 !== '' && c.v2 !== '').reduce((s, c) => s + c.n, 0);
+    return { surveyId, questionA, questionB, baseA, baseB, baseBoth, categoriesA, categoriesB, cells };
   }
 
   /** Lista paginada de participantes del sorteo (read-only); PII enmascarada por rol. */

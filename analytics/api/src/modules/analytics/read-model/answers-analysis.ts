@@ -5,6 +5,8 @@ export interface QuestionAgg {
   type: string;
   label: string;
   kind: 'choice' | 'numeric' | 'text';
+  /** Nº de cuestionarios que respondieron ESTA pregunta (la base de cálculo). */
+  base: number;
   options: Array<{ value: string; count: number }>;
   average: number | null;
 }
@@ -64,6 +66,7 @@ export function aggregateAnswers(
   const cats = new Map<string, Map<string, number>>();
   const multi = new Set<string>();
   const nums = new Map<string, { sum: number; count: number }>();
+  const rowsByKey = new Map<string, number>(); // base por pregunta (cuestionarios que la respondieron)
   let total = 0;
   for (const row of rows) {
     let obj: Record<string, unknown>;
@@ -75,16 +78,20 @@ export function aggregateAnswers(
     total++;
     for (const [k, v] of Object.entries(obj)) {
       if (Array.isArray(v)) {
+        if (v.length === 0) continue;
+        rowsByKey.set(k, (rowsByKey.get(k) ?? 0) + 1);
         multi.add(k);
         const m = cats.get(k) ?? new Map<string, number>();
         for (const x of v) m.set(String(x), (m.get(String(x)) ?? 0) + 1);
         cats.set(k, m);
       } else if (typeof v === 'number') {
+        rowsByKey.set(k, (rowsByKey.get(k) ?? 0) + 1);
         const n = nums.get(k) ?? { sum: 0, count: 0 };
         n.sum += v;
         n.count++;
         nums.set(k, n);
       } else if (v !== null && v !== undefined && v !== '') {
+        rowsByKey.set(k, (rowsByKey.get(k) ?? 0) + 1);
         const m = cats.get(k) ?? new Map<string, number>();
         m.set(String(v), (m.get(String(v)) ?? 0) + 1);
         cats.set(k, m);
@@ -98,6 +105,7 @@ export function aggregateAnswers(
       type: multi.has(k) ? 'multi_choice' : 'single_choice',
       label: q.labels[k] ?? k,
       kind: 'choice',
+      base: rowsByKey.get(k) ?? 0,
       options: [...m.entries()]
         .map(([value, count]) => ({ value, count }))
         .sort((a, b) => b.count - a.count)
@@ -111,6 +119,7 @@ export function aggregateAnswers(
       type: 'number',
       label: q.labels[k] ?? k,
       kind: 'numeric',
+      base: rowsByKey.get(k) ?? 0,
       options: [],
       average: n.count ? n.sum / n.count : null,
     });
