@@ -15,11 +15,15 @@ import { validatePersonalData, VE_MOBILE_PREFIXES, type PersonalData } from "@/l
 import { TurnstileWidget } from "./turnstile-widget";
 import { useOutbox } from "@/lib/offline/outbox";
 import { computePow } from "@/lib/offline/pow";
+import { getDevice } from "@/lib/offline/device-config";
+import { signDevice } from "@/lib/offline/device-sign";
 
 export function SorteoForm() {
   const { sorteo, setSorteo, answers, driverType, setView, setSavedId, setSorteoResult, clearAnswers, ensureSubmissionId } =
     useSurveyStore();
   const { toast } = useToast();
+  // Dispositivo (kiosco/encuestador) enrolado localmente; si existe, firma el envío.
+  const device = useMemo(() => getDevice(), []);
   const [touched, setTouched] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -55,7 +59,7 @@ export function SorteoForm() {
       return;
     }
 
-    if (!turnstileToken) {
+    if (!device && !turnstileToken) {
       toast({
         title: "Verificación pendiente",
         description: "Completa la verificación de seguridad para enviar.",
@@ -65,6 +69,7 @@ export function SorteoForm() {
     }
 
     const clientSubmissionId = ensureSubmissionId();
+    const chan = device?.channel ?? "public";
     const payload: Record<string, unknown> = {
       driverType,
       answers,
@@ -79,8 +84,18 @@ export function SorteoForm() {
       turnstileToken,
       website, // honeypot
       clientSubmissionId, // idempotencia
-      channel: "public",
+      channel: chan,
     };
+    // Canales confiables (kiosco/encuestador): firma el envío con la clave del dispositivo.
+    if (device) {
+      payload.deviceId = device.id;
+      payload.signature = await signDevice(device.secret, {
+        clientSubmissionId,
+        channel: chan,
+        driverType,
+        answers,
+      });
+    }
 
     setSubmitting(true);
     try {
@@ -319,7 +334,7 @@ export function SorteoForm() {
 
             {/* --- verificación anti-bot (Cloudflare Turnstile) --- */}
             <div className="rounded-lg border border-[var(--intt-gris-200)] bg-[var(--intt-electric-50)]/40 p-4">
-              <TurnstileWidget onToken={handleTurnstileToken} />
+              {!device && <TurnstileWidget onToken={handleTurnstileToken} />}
             </div>
 
             {/* honeypot: campo oculto para bots (no visible para humanos) */}

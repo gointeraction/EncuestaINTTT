@@ -13,6 +13,7 @@ import {
   MAX_ANSWERS_BYTES,
 } from "@/lib/validation/vision-cero";
 import { verifyPow, POW_DIFFICULTY } from "@/lib/pow";
+import { verifyDeviceSignature } from "@/lib/device-sign";
 
 const CHANNELS = ["public", "kiosk", "surveyor"] as const;
 
@@ -39,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { driverType, answers, sorteo, turnstileToken, website, clientSubmissionId, channel, botProof } =
+    const { driverType, answers, sorteo, turnstileToken, website, clientSubmissionId, channel, botProof, deviceId: deviceIdField, signature } =
       body ?? {};
 
     // ====== 2) Honeypot: campo oculto que solo los bots rellenan ======
@@ -100,7 +101,34 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // ====== 6) Datos del sorteo (opcionales) ======
+    // ====== 6) Canales confiables (kiosco/encuestador): firma de dispositivo + cuota ======
+    const chan =
+      typeof channel === "string" && (CHANNELS as readonly string[]).includes(channel)
+        ? channel
+        : "public";
+    let deviceId: string | null = null;
+    if (chan !== "public") {
+      deviceId = typeof deviceIdField === "string" && deviceIdField ? deviceIdField : null;
+      if (!deviceId) {
+        return NextResponse.json({ error: "Dispositivo requerido." }, { status: 401 });
+      }
+      const device = await db.captureDevice.findUnique({ where: { id: deviceId } });
+      if (!device || !device.active || device.channel !== chan) {
+        return NextResponse.json({ error: "Dispositivo no autorizado." }, { status: 401 });
+      }
+      const signPayload = { clientSubmissionId: subId, channel: chan, driverType, answers };
+      if (!verifyDeviceSignature(device.secret, signPayload, signature)) {
+        return NextResponse.json({ error: "Firma de dispositivo inválida." }, { status: 401 });
+      }
+      const since = new Date();
+      since.setHours(0, 0, 0, 0);
+      const used = await db.surveyResponse.count({ where: { deviceId, completedAt: { gte: since } } });
+      if (used >= device.dailyQuota) {
+        return NextResponse.json({ error: "Cuota diaria del dispositivo alcanzada." }, { status: 429 });
+      }
+    }
+
+    // ====== 7) Datos del sorteo (opcionales) ======
     let participaSorteo = false;
     let nombre: string | null = null;
     let cedula: string | null = null;
@@ -136,8 +164,7 @@ export async function POST(req: NextRequest) {
       codigoSorteo = generateSorteoCode();
     }
 
-    // ====== 7) Persistencia (idempotente + canal) ======
-    const chan = typeof channel === "string" && (CHANNELS as readonly string[]).includes(channel) ? channel : "public";
+    // ====== 8) Persistencia (idempotente + canal + dispositivo) ======
     try {
       const saved = await db.surveyResponse.create({
         data: {
@@ -150,6 +177,7 @@ export async function POST(req: NextRequest) {
           codigoSorteo,
           channel: chan,
           clientSubmissionId: subId,
+          deviceId,
         },
       });
 

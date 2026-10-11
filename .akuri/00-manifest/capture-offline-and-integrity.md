@@ -163,8 +163,15 @@ WRITE INFO:
   - El cliente encola la entrevista completa en fallo de red; `flushOutbox()` la transmite al reconectar.
   - Anti-bot servidor: acepta **Turnstile** (online) **o PoW** válido por `clientSubmissionId` (offline).
   - Pendiente de F2: `surveyVersion` (definición usada por un cliente offline antiguo).
-- **F3 (canales confiables + anti-fraude)**: registro/firma de dispositivos kiosco/encuestador,
-  cuotas y **panel de anomalías**.
+- **F3 (canales confiables + anti-fraude) — PARCIAL (2026-10-11, A3)**: **firma de dispositivo**
+  (HMAC) para canales `kiosk`/`surveyor` + **cuota diaria** por dispositivo. Implementación:
+  - Registro `capture_devices` (Prisma) + columna `device_id` en la captura.
+  - Canonical/firma: `vision-cero/src/lib/canonical.ts`, `vision-cero/src/lib/device-sign.ts`
+    (verificación servidor) y `vision-cero/src/lib/offline/device-sign.ts` (firma cliente).
+  - Enrolamiento: `vision-cero/src/lib/offline/device-config.ts` (`?device=&key=&channel=` una vez).
+  - `/api/survey/submit`: si `channel != public` exige `deviceId` + firma válida (**401**) y respeta
+    la **cuota diaria** (**429**); el cliente firma (`sorteo-form.tsx`).
+  - Pendiente de F3: **panel de anomalías** en la analítica.
 
 ### SECTION 09-DECISIONES-ABIERTAS
 

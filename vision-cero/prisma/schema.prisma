@@ -223,11 +223,14 @@ model SurveyResponse {
   channel         String   @default("public")
   // Idempotencia: id generado por el cliente por entrevista (reintentos no duplican)
   clientSubmissionId String? @unique @map("client_submission_id")
+  // Dispositivo de captura (canales confiables kiosco/encuestador)
+  deviceId        String?  @map("device_id")
 
   @@index([driverType])
   @@index([completedAt])
   @@index([participaSorteo])
   @@index([cedula])
+  @@index([deviceId, completedAt])
   @@map("legacy_survey_responses")
 }
 
@@ -239,4 +242,23 @@ model SurveySummary {
 
   @@index([calculatedAt])
   @@map("legacy_survey_summaries")
+}
+
+// ============================================================================
+// DISPOSITIVOS DE CAPTURA (canales confiables: kiosco / encuestador) — F3
+// El envío de canales no-públicos se firma con HMAC; el servidor lo verifica + cuota diaria.
+// ============================================================================
+
+model CaptureDevice {
+  id         String   @id                          // slug (p.ej. "kiosco-ccs-01")
+  name       String
+  channel    String                                // kiosk | surveyor
+  secret     String                                // clave HMAC del dispositivo
+  operatorId String?  @map("operator_id")
+  dailyQuota Int      @default(500) @map("daily_quota")
+  active     Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@index([channel])
+  @@map("capture_devices")
 }

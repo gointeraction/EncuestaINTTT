@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { InstitutionLogo } from "@/components/institution-logo";
 import { INSTITUTION } from "@/lib/institution";
 import { flushOutbox } from "@/lib/offline/outbox";
+import { enrollFromUrl } from "@/lib/offline/device-config";
 
 export default function Home() {
   const [adminSection, setAdminSection] = useState<"dashboard" | "surveys">("dashboard");
@@ -67,6 +68,7 @@ export default function Home() {
 
   // Outbox offline: transmite las entrevistas pendientes al abrir y al recuperar conexión.
   useEffect(() => {
+    enrollFromUrl(); // enrola el dispositivo (kiosco/encuestador) si viene ?device=&key=
     void flushOutbox();
     const onOnline = () => void flushOutbox();
     window.addEventListener("online", onOnline);
