@@ -1,19 +1,17 @@
 import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
 /**
- * AccessAuditService — registro de lecturas sensibles del personal (F1: en memoria;
- * en F2 persiste en el esquema `analytics`, modelo `AccessAudit`). Único punto para
- * la auditoría de acceso.
+ * AccessAuditService — auditoría de acceso persistida (esquema `analytics`,
+ * modelo `AccessAudit`). Registra cada lectura sensible del personal.
  */
 @Injectable()
 export class AccessAuditService {
-  private readonly events: Array<Record<string, unknown>> = [];
+  constructor(private readonly prisma: PrismaService) {}
 
-  registrarLectura(recurso: string, actor = 'anonymous'): void {
-    this.events.push({ recurso, actor, momento: new Date().toISOString() });
-  }
-
-  listar(): ReadonlyArray<Record<string, unknown>> {
-    return this.events;
+  async registrarLectura(recurso: string, actorId?: string): Promise<void> {
+    await this.prisma.accessAudit.create({
+      data: { recurso, accion: 'lectura', actorId: actorId ?? null },
+    });
   }
 }

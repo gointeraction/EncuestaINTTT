@@ -1,15 +1,15 @@
 import { Module } from '@nestjs/common';
+import { IdentityModule } from '../../platform/identity/identity.module.js';
 import { PublicReadController } from './public-read.controller.js';
 import { PublicReadService } from './public-read.service.js';
 import { PublicReadPrismaAdapter } from './public-read.prisma.adapter.js';
 import { PUBLIC_READ_PORT } from './public-read.port.js';
-import { AccessAuditService } from '../../platform/access-audit/access-audit.service.js';
 
 @Module({
+  imports: [IdentityModule],
   controllers: [PublicReadController],
   providers: [
     PublicReadService,
-    AccessAuditService,
     { provide: PUBLIC_READ_PORT, useClass: PublicReadPrismaAdapter },
   ],
 })

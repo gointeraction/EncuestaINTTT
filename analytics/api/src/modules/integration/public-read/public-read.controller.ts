@@ -1,6 +1,7 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { SessionGuard } from '../../../shared/guards/session.guard.js';
-import type { SurveySource } from '../../../shared/contracts/index.js';
+import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import type { Request } from 'express';
+import type { SurveySource, StaffSessionUser } from '../../../shared/contracts/index.js';
+import { SessionGuard } from '../../platform/identity/session.guard.js';
 import { AccessAuditService } from '../../platform/access-audit/access-audit.service.js';
 import { PublicReadService } from './public-read.service.js';
 
@@ -13,8 +14,10 @@ export class PublicReadController {
   ) {}
 
   @Get('surveys')
-  async listSurveys(): Promise<SurveySource[]> {
-    this.accessAudit.registrarLectura('analytics/sources/surveys');
+  async listSurveys(
+    @Req() req: Request & { staffUser?: StaffSessionUser },
+  ): Promise<SurveySource[]> {
+    await this.accessAudit.registrarLectura('analytics/sources/surveys', req.staffUser?.id);
     return this.publicRead.listSurveys();
   }
 }
