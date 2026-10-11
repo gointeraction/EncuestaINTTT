@@ -1,0 +1,16 @@
+# Page: reportes-cruzados — layout 'console'.
+PAGE reportes-cruzados
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION controles
+      COMPONENT preguntaA | use=select | bind=data.preguntaA
+      COMPONENT preguntaB | use=select | bind=data.preguntaB
+    END
+    SECTION cruce
+      COMPONENT tabla | use=table | bind=data.cruce
+      COMPONENT paginacion | use=pagination | bind=data.page
+      STATE | name=cargando|vacio|error
+    END
+  END
+END

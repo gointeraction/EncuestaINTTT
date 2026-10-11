@@ -1,0 +1,17 @@
+# Page: gestion-participantes — layout 'console'.
+PAGE gestion-participantes
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION filtros
+      COMPONENT estado | use=select | bind=data.filters.estado
+      COMPONENT buscar | use=input | bind=data.filters.buscar
+    END
+    SECTION lista
+      COMPONENT tabla | use=table | bind=data.participantes
+      COMPONENT paginacion | use=pagination | bind=data.page
+      COMPONENT exportar | use=button-secondary | bind=data.actions.exportar
+      STATE | name=cargando|vacio|error
+    END
+  END
+END
