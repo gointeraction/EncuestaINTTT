@@ -1,0 +1,6 @@
+/* ═══ THEMES barrel — brand identity (colors + typography) ═══════════════
+ * Importa el tema por defecto (brand anchors + font families). Un tema
+ * adicional se añade importando su themes/<id>/brand.css (o vía el registro
+ * TS de themes/index.ts y carga dinámica en runtime).
+ */
+@import './default/brand.css';

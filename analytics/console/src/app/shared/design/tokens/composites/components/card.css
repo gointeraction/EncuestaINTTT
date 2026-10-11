@@ -1,0 +1,11 @@
+/* ═══ Component Token Slots: Card (ds-tokens-domain-files) ═══ */
+
+/* ── Card ───────────────────────────────────────────────────────── */
+:root {
+  --ds-component-card-bg: var(--ds-surface-card);
+  --ds-component-card-on: var(--ds-surface-card-on);
+  --ds-component-card-border: var(--ds-border-subtle);
+  --ds-component-card-radius: var(--ds-radius-standard);
+  --ds-component-card-padding: var(--ds-space-6);
+  --ds-component-card-shadow: var(--ds-shadow-sm);
+}

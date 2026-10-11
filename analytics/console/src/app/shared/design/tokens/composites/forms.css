@@ -1,0 +1,63 @@
+/* ═══ Forms Domain — inputs, labels, focus states (ds-tokens-domain-files) ═══
+ * Semantic roles; contrast-paired. No literal colors — inherit from ./colors.css.
+ */
+
+:root {
+  /* Input surfaces */
+  --ds-form-input-bg: var(--ds-color-white);
+  --ds-form-input-bg-on: var(--ds-color-design-neutral-800);
+  --ds-form-input-bg-disabled: var(--ds-color-design-neutral-50);
+  --ds-form-input-bg-disabled-on: var(--ds-color-design-neutral-400);
+  --ds-form-input-bg-readonly: var(--ds-color-design-neutral-50);
+  --ds-form-input-bg-readonly-on: var(--ds-color-design-neutral-800);
+
+  /* Input borders */
+  --ds-form-input-border: var(--ds-color-design-neutral-300);
+  --ds-form-input-border-hover: var(--ds-color-design-neutral-400);
+  --ds-form-input-border-focus: var(--ds-status-info);
+  --ds-form-input-border-invalid: var(--ds-status-danger);
+  --ds-form-input-border-success: var(--ds-status-success);
+  --ds-form-input-border-warning: var(--ds-status-warning);
+  --ds-form-input-border-neutral: var(--ds-color-design-neutral-400);
+
+  /* Labels & help */
+  --ds-form-label: var(--ds-color-design-neutral-800);
+  --ds-form-label-on: var(--ds-color-white);
+  --ds-form-help: var(--ds-color-design-neutral);
+  --ds-form-placeholder: var(--ds-color-design-neutral-400);
+
+  /* Focus ring */
+  --ds-form-focus-ring: var(--ds-status-info);
+  --ds-form-focus-ring-error: var(--ds-status-danger);
+
+  /* Radii — inputs follow the 10px standard (§12) */
+  --ds-form-radius-sm: 0.25rem;
+  --ds-form-radius-standard: var(--ds-radius-standard);
+  --ds-form-radius-md: var(--ds-radius-standard);
+}
+
+/* ── DARK forms ────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --ds-form-input-bg: var(--ds-color-design-neutral-800);
+  --ds-form-input-bg-on: var(--ds-color-design-neutral-50);
+  --ds-form-input-bg-disabled: var(--ds-color-design-neutral-900);
+  --ds-form-input-bg-disabled-on: var(--ds-color-design-neutral);
+  --ds-form-input-bg-readonly: var(--ds-color-design-neutral-800);
+  --ds-form-input-bg-readonly-on: var(--ds-color-design-neutral-50);
+
+  --ds-form-input-border: var(--ds-color-design-neutral-700);
+  --ds-form-input-border-hover: var(--ds-color-design-neutral-600);
+  --ds-form-input-border-focus: var(--ds-color-state-info-400);
+  --ds-form-input-border-invalid: var(--ds-color-state-danger-400);
+  --ds-form-input-border-success: var(--ds-color-state-success-400);
+  --ds-form-input-border-warning: var(--ds-color-state-warning-400);
+  --ds-form-input-border-neutral: var(--ds-color-design-neutral-600);
+
+  --ds-form-label: var(--ds-color-design-neutral-200);
+  --ds-form-label-on: var(--ds-color-design-neutral-900);
+  --ds-form-help: var(--ds-color-design-neutral-400);
+  --ds-form-placeholder: var(--ds-color-design-neutral);
+
+  --ds-form-focus-ring: var(--ds-color-state-info-400);
+  --ds-form-focus-ring-error: var(--ds-color-state-danger-400);
+}

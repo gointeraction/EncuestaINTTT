@@ -1,0 +1,18 @@
+/* ═══ Components Domain — per-component token slots (ds-tokens-domain-files) ═══
+ * One file per element. Each consumes its slot tokens here; the slots reference
+ * the source domain tokens (colors/surfaces/status/shadows) so a component is
+ * themed by re-parameterizing those domains. No hardcoded values in components.
+ */
+
+@import './button.css';
+@import './card.css';
+@import './input.css';
+@import './badge.css';
+@import './alert.css';
+@import './empty-state.css';
+@import './icon.css';
+@import './table.css';
+@import './modal.css';
+@import './toast.css';
+@import './notification.css';
+@import './kpi-card.css';

@@ -1,0 +1,10 @@
+/* ═══ Component Token Slots: Alert (ds-tokens-domain-files) ═══ */
+
+/* ── Alert ──────────────────────────────────────────────────────── */
+:root {
+  --ds-component-alert-bg: var(--ds-status-surface-info);
+  --ds-component-alert-on: var(--ds-status-surface-info-on);
+  --ds-component-alert-border: transparent;
+  --ds-component-alert-radius: var(--ds-radius-standard);
+  --ds-component-alert-padding: var(--ds-space-4);
+}

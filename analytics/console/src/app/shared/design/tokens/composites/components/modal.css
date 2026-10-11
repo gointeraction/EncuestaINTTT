@@ -1,0 +1,13 @@
+/* ═══ Component Token Slots: Modal (ds-tokens-domain-files) ═══ */
+
+/* ── Modal ──────────────────────────────────────────────────────── */
+:root {
+  --ds-component-modal-bg: var(--ds-surface-elevated);
+  --ds-component-modal-on: var(--ds-surface-elevated-on);
+  --ds-component-modal-border: var(--ds-border-default);
+  --ds-component-modal-radius: var(--ds-radius-lg);
+  --ds-component-modal-shadow: var(--ds-shadow-xl);
+  --ds-component-modal-overlay-bg: color-mix(in oklab, var(--ds-color-black) 50%, transparent);
+  --ds-component-modal-padding: var(--ds-space-6);
+  --ds-component-modal-gap: var(--ds-space-4);
+}

@@ -1,1 +1,9 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+/* Design System de la consola (design + fab vendorizados, INTT-branded).
+   Orden según la guía del DS: Tailwind → theme (@theme) → tokens. */
+@import "./app/shared/design/theme.css";
+@import "./app/shared/design/tokens/index.css";
+
+/* Escaneo de templates del proyecto (Tailwind v4). */
+@source "./";

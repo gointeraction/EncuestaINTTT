@@ -1,0 +1,12 @@
+/* ═══ Component Token Slots: Badge (ds-tokens-domain-files) ═══ */
+
+/* ── Badge ──────────────────────────────────────────────────────── */
+:root {
+  --ds-component-badge-bg: var(--ds-status-surface-neutral);
+  --ds-component-badge-on: var(--ds-status-surface-neutral-on);
+  --ds-component-badge-border: transparent;
+  --ds-component-badge-radius: var(--ds-radius-full);
+  --ds-component-badge-size: var(--ds-text-caption);
+  --ds-component-badge-padding-x: var(--ds-space-2);
+  --ds-component-badge-padding-y: var(--ds-space-1);
+}

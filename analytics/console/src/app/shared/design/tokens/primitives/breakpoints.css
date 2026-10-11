@@ -1,0 +1,18 @@
+/* ═══ BREAKPOINTS — SINGLE SOURCE OF TRUTH for responsive tiers ═══════
+ * Defined in CSS so every consumer derives from here:
+ *   - TS (ViewportService / BreakpointObserverService): leen estos tokens en
+ *     runtime vía `readBreakpoints()` (system/themes/breakpoints.ts).
+ *   - Tailwind: theme.css `--breakpoint-*` MIRRORA estos valores (las media
+ *     queries de utilidades no pueden usar var(); mantenlas en sync).
+ *   - Media queries manuales de componentes usan estos valores canónicos.
+ *
+ * Tiers canónicos (anchura de viewport):
+ *   width < 640              → MOBILE
+ *   640 ≤ width < 1024       → TABLET   (768 es el sub-boundary "md")
+ *   width ≥ 1024             → DESKTOP
+ */
+:root {
+  --ds-breakpoint-mobile: 640px;
+  --ds-breakpoint-tablet: 768px;
+  --ds-breakpoint-desktop: 1024px;
+}

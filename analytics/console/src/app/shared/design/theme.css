@@ -1,0 +1,262 @@
+/* ═══ Tailwind-4 CSS-first theme — maps the single color source to utilities ═══
+ * Tailwind 4 reads CSS custom properties via this @theme block (no JS config).
+ * Single source: ./tokens/colors.css — every --color-* here inherits from it.
+ *
+ * ── What this gives you ──────────────────────────────────────────────────
+ * 1. Every color is named by USE (primary, accent, danger, info, page, ...)
+ *    and becomes utility-ready: bg-primary-500, text-danger-700, border-info-300,
+ *    ring-neutral-400, bg-page, text-container, divide-*, fill-*, placeholder-* ...
+ * 2. Change --ds-color-state-danger in colors.css → bg-danger-*, text-error-*,
+ *    --ds-status-danger* all update together. One alteration, whole system.
+ * 3. Legacy bridges (kept so existing markup keeps resolving):
+ *    - gray-*  → design-neutral ramp (the old bg-gray-800 utility usage)
+ *    - brand-* / sand-* → older showcase scales (primary / accent)
+ */
+
+@theme {
+  /* ── RESPONSIVE TIERS — MIRROR de tokens/primitives/breakpoints.css ──
+     Las media queries de las utilidades Tailwind NO pueden usar var(); por eso
+     se MIRRORAN aquí. Mantén en sync con --ds-breakpoint-* (misma fuente). */
+  --breakpoint-sm: 40rem;   /* 640px  = --ds-breakpoint-mobile  */
+  --breakpoint-md: 48rem;   /* 768px  = --ds-breakpoint-tablet  */
+  --breakpoint-lg: 64rem;   /* 1024px = --ds-breakpoint-desktop */
+  --breakpoint-xl: 80rem;   /* 1280px (extra, fuera de los 3 tiers) */
+
+  /* ── SPECIAL ── */
+  --color-white: var(--ds-color-white);
+  --color-black: var(--ds-color-black);
+
+  /* ── BRAND ── */
+  --color-primary-50: var(--ds-color-brand-primary-50);
+  --color-primary-100: var(--ds-color-brand-primary-100);
+  --color-primary-200: var(--ds-color-brand-primary-200);
+  --color-primary-300: var(--ds-color-brand-primary-300);
+  --color-primary-400: var(--ds-color-brand-primary-400);
+  --color-primary-500: var(--ds-color-brand-primary-500);
+  --color-primary-600: var(--ds-color-brand-primary-600);
+  --color-primary-700: var(--ds-color-brand-primary-700);
+  --color-primary-800: var(--ds-color-brand-primary-800);
+  --color-primary-900: var(--ds-color-brand-primary-900);
+  --color-primary-950: var(--ds-color-brand-primary-950);
+
+  --color-accent-50: var(--ds-color-brand-accent-50);
+  --color-accent-100: var(--ds-color-brand-accent-100);
+  --color-accent-200: var(--ds-color-brand-accent-200);
+  --color-accent-300: var(--ds-color-brand-accent-300);
+  --color-accent-400: var(--ds-color-brand-accent-400);
+  --color-accent-500: var(--ds-color-brand-accent-500);
+  --color-accent-600: var(--ds-color-brand-accent-600);
+  --color-accent-700: var(--ds-color-brand-accent-700);
+  --color-accent-800: var(--ds-color-brand-accent-800);
+  --color-accent-900: var(--ds-color-brand-accent-900);
+  --color-accent-950: var(--ds-color-brand-accent-950);
+
+  --color-contrast-50: var(--ds-color-brand-contrast-50);
+  --color-contrast-100: var(--ds-color-brand-contrast-100);
+  --color-contrast-200: var(--ds-color-brand-contrast-200);
+  --color-contrast-300: var(--ds-color-brand-contrast-300);
+  --color-contrast-400: var(--ds-color-brand-contrast-400);
+  --color-contrast-500: var(--ds-color-brand-contrast-500);
+  --color-contrast-600: var(--ds-color-brand-contrast-600);
+  --color-contrast-700: var(--ds-color-brand-contrast-700);
+  --color-contrast-800: var(--ds-color-brand-contrast-800);
+  --color-contrast-900: var(--ds-color-brand-contrast-900);
+  --color-contrast-950: var(--ds-color-brand-contrast-950);
+
+  --color-secondary-50: var(--ds-color-brand-secondary-50);
+  --color-secondary-100: var(--ds-color-brand-secondary-100);
+  --color-secondary-200: var(--ds-color-brand-secondary-200);
+  --color-secondary-300: var(--ds-color-brand-secondary-300);
+  --color-secondary-400: var(--ds-color-brand-secondary-400);
+  --color-secondary-500: var(--ds-color-brand-secondary-500);
+  --color-secondary-600: var(--ds-color-brand-secondary-600);
+  --color-secondary-700: var(--ds-color-brand-secondary-700);
+  --color-secondary-800: var(--ds-color-brand-secondary-800);
+  --color-secondary-900: var(--ds-color-brand-secondary-900);
+  --color-secondary-950: var(--ds-color-brand-secondary-950);
+
+  --color-dark-50: var(--ds-color-brand-dark-50);
+  --color-dark-100: var(--ds-color-brand-dark-100);
+  --color-dark-200: var(--ds-color-brand-dark-200);
+  --color-dark-300: var(--ds-color-brand-dark-300);
+  --color-dark-400: var(--ds-color-brand-dark-400);
+  --color-dark-500: var(--ds-color-brand-dark-500);
+  --color-dark-600: var(--ds-color-brand-dark-600);
+  --color-dark-700: var(--ds-color-brand-dark-700);
+  --color-dark-800: var(--ds-color-brand-dark-800);
+  --color-dark-900: var(--ds-color-brand-dark-900);
+  --color-dark-950: var(--ds-color-brand-dark-950);
+
+  /* ── DESIGN: neutral ramp (canonical) + gray older bridge ── */
+  --color-neutral-50: var(--ds-color-design-neutral-50);
+  --color-neutral-100: var(--ds-color-design-neutral-100);
+  --color-neutral-200: var(--ds-color-design-neutral-200);
+  --color-neutral-300: var(--ds-color-design-neutral-300);
+  --color-neutral-400: var(--ds-color-design-neutral-400);
+  --color-neutral-500: var(--ds-color-design-neutral-500);
+  --color-neutral-600: var(--ds-color-design-neutral-600);
+  --color-neutral-700: var(--ds-color-design-neutral-700);
+  --color-neutral-800: var(--ds-color-design-neutral-800);
+  --color-neutral-900: var(--ds-color-design-neutral-900);
+  --color-neutral-950: var(--ds-color-design-neutral-950);
+  --color-gray-50: var(--ds-color-design-neutral-50);
+  --color-gray-100: var(--ds-color-design-neutral-100);
+  --color-gray-200: var(--ds-color-design-neutral-200);
+  --color-gray-300: var(--ds-color-design-neutral-300);
+  --color-gray-400: var(--ds-color-design-neutral-400);
+  --color-gray-500: var(--ds-color-design-neutral-500);
+  --color-gray-600: var(--ds-color-design-neutral-600);
+  --color-gray-700: var(--ds-color-design-neutral-700);
+  --color-gray-800: var(--ds-color-design-neutral-800);
+  --color-gray-900: var(--ds-color-design-neutral-900);
+  --color-gray-950: var(--ds-color-design-neutral-950);
+
+  /* ── STATE: danger (destructive) ── */
+  --color-danger-50: var(--ds-color-state-danger-50);
+  --color-danger-100: var(--ds-color-state-danger-100);
+  --color-danger-200: var(--ds-color-state-danger-200);
+  --color-danger-300: var(--ds-color-state-danger-300);
+  --color-danger-400: var(--ds-color-state-danger-400);
+  --color-danger-500: var(--ds-color-state-danger-500);
+  --color-danger-600: var(--ds-color-state-danger-600);
+  --color-danger-700: var(--ds-color-state-danger-700);
+  --color-danger-800: var(--ds-color-state-danger-800);
+  --color-danger-900: var(--ds-color-state-danger-900);
+  --color-danger-950: var(--ds-color-state-danger-950);
+
+  /* ── STATE: error (alias of danger — same family, separate intent) ── */
+  --color-error-50: var(--ds-color-state-danger-50);
+  --color-error-100: var(--ds-color-state-danger-100);
+  --color-error-200: var(--ds-color-state-danger-200);
+  --color-error-300: var(--ds-color-state-danger-300);
+  --color-error-400: var(--ds-color-state-danger-400);
+  --color-error-500: var(--ds-color-state-danger-500);
+  --color-error-600: var(--ds-color-state-danger-600);
+  --color-error-700: var(--ds-color-state-danger-700);
+  --color-error-800: var(--ds-color-state-danger-800);
+  --color-error-900: var(--ds-color-state-danger-900);
+  --color-error-950: var(--ds-color-state-danger-950);
+
+  /* ── STATE: success ── */
+  --color-success-50: var(--ds-color-state-success-50);
+  --color-success-100: var(--ds-color-state-success-100);
+  --color-success-200: var(--ds-color-state-success-200);
+  --color-success-300: var(--ds-color-state-success-300);
+  --color-success-400: var(--ds-color-state-success-400);
+  --color-success-500: var(--ds-color-state-success-500);
+  --color-success-600: var(--ds-color-state-success-600);
+  --color-success-700: var(--ds-color-state-success-700);
+  --color-success-800: var(--ds-color-state-success-800);
+  --color-success-900: var(--ds-color-state-success-900);
+  --color-success-950: var(--ds-color-state-success-950);
+
+  /* ── STATE: warning ── */
+  --color-warning-50: var(--ds-color-state-warning-50);
+  --color-warning-100: var(--ds-color-state-warning-100);
+  --color-warning-200: var(--ds-color-state-warning-200);
+  --color-warning-300: var(--ds-color-state-warning-300);
+  --color-warning-400: var(--ds-color-state-warning-400);
+  --color-warning-500: var(--ds-color-state-warning-500);
+  --color-warning-600: var(--ds-color-state-warning-600);
+  --color-warning-700: var(--ds-color-state-warning-700);
+  --color-warning-800: var(--ds-color-state-warning-800);
+  --color-warning-900: var(--ds-color-state-warning-900);
+  --color-warning-950: var(--ds-color-state-warning-950);
+
+  /* ── STATE: info ── */
+  --color-info-50: var(--ds-color-state-info-50);
+  --color-info-100: var(--ds-color-state-info-100);
+  --color-info-200: var(--ds-color-state-info-200);
+  --color-info-300: var(--ds-color-state-info-300);
+  --color-info-400: var(--ds-color-state-info-400);
+  --color-info-500: var(--ds-color-state-info-500);
+  --color-info-600: var(--ds-color-state-info-600);
+  --color-info-700: var(--ds-color-state-info-700);
+  --color-info-800: var(--ds-color-state-info-800);
+  --color-info-900: var(--ds-color-state-info-900);
+  --color-info-950: var(--ds-color-state-info-950);
+
+  /* ── TOOLING semantic roles (use, not color) → bg-page, text-container, ring-section … ── */
+  --color-page: var(--ds-color-tooling-page);
+  --color-container: var(--ds-color-tooling-area);
+  --color-row: var(--ds-color-tooling-row);
+  --color-section: var(--ds-color-tooling-section);
+  --color-subsection: var(--ds-color-tooling-subsection);
+
+  /* ── Semantic: foreground / surface / border (role → tonality) ── */
+  --color-surface: var(--ds-surface-body);
+  --color-surface-on: var(--ds-surface-body-on);
+  --color-surface-muted: var(--ds-surface-muted);
+  --color-surface-muted-on: var(--ds-surface-muted-on);
+  --color-border: var(--ds-border-default);
+
+  /* Foreground text — FIXED: previously pointed at font-size tokens. */
+  --color-fg: var(--ds-surface-body-on);
+  --color-fg-muted: var(--ds-text-muted);
+
+  /* ── Data-viz series ── */
+  --color-series-1: var(--ds-color-brand-primary);
+  --color-series-2: var(--ds-color-brand-accent);
+  --color-series-3: var(--ds-color-state-info);
+  --color-series-4: var(--ds-color-state-success);
+  --color-series-5: var(--ds-color-state-warning);
+  --color-series-6: var(--ds-color-state-danger);
+
+  /* ── Legacy showcase aliases (brand-* → primary scale, sand-* → accent) ── */
+  --color-brand-25: var(--ds-color-brand-primary-50);
+  --color-brand-50: var(--ds-color-brand-primary-100);
+  --color-brand-100: var(--ds-color-brand-primary-200);
+  --color-brand-200: var(--ds-color-brand-primary-300);
+  --color-brand-300: var(--ds-color-brand-primary-400);
+  --color-brand-400: var(--ds-color-brand-primary-400);
+  --color-brand-500: var(--ds-color-brand-primary-500);
+  --color-brand-600: var(--ds-color-brand-primary-600);
+  --color-brand-700: var(--ds-color-brand-primary-700);
+  --color-brand-800: var(--ds-color-brand-primary-800);
+  --color-brand-900: var(--ds-color-brand-primary-900);
+  --color-brand-950: var(--ds-color-brand-primary-950);
+  --color-sand-50: var(--ds-color-brand-accent-100);
+  --color-sand-100: var(--ds-color-brand-accent-200);
+  --color-sand-200: var(--ds-color-brand-accent-500);
+  --color-sand-300: var(--ds-color-brand-accent-600);
+
+  /* ── Base semantic aliases (no step) ── */
+  --color-primary: var(--ds-color-brand-primary);
+  --color-primary-on: var(--ds-color-white);
+  --color-accent: var(--ds-color-brand-accent);
+  --color-accent-on: var(--ds-color-brand-dark);
+  --color-contrast: var(--ds-color-brand-contrast);
+  --color-contrast-on: var(--ds-color-white);
+  --color-neutral: var(--ds-color-design-neutral-100);
+  --color-neutral-on: var(--ds-color-brand-contrast);
+  --color-success: var(--ds-color-state-success);
+  --color-success-on: var(--ds-color-white);
+  --color-warning: var(--ds-color-state-warning);
+  --color-warning-on: var(--ds-color-white);
+  --color-danger: var(--ds-color-state-danger);
+  --color-danger-on: var(--ds-color-white);
+  --color-info: var(--ds-color-state-info);
+  --color-info-on: var(--ds-color-white);
+
+  /* ── Non-color tokens ── */
+  --font-sans: var(--ds-font-sans);
+  --font-mono: var(--ds-font-mono);
+
+  --grid-cols: var(--ds-grid-columns);
+  --grid-gutter: var(--ds-grid-gutter);
+  --grid-margin: var(--ds-grid-margin);
+
+  --radius-sm: var(--ds-radius-sm);
+  --radius-md: var(--ds-radius-md);
+  --radius-lg: var(--ds-radius-lg);
+  --radius-xl: var(--ds-radius-xl);
+
+  --shadow-sm: var(--ds-shadow-sm);
+  --shadow-md: var(--ds-shadow-md);
+  --shadow-lg: var(--ds-shadow-lg);
+  --shadow-focus-ring: 0 0 0 3px var(--ds-color-state-info);
+
+  --ease-standard: var(--ds-ease-standard);
+  --duration-fast: var(--ds-duration-fast);
+  --duration-normal: var(--ds-duration-normal);
+}

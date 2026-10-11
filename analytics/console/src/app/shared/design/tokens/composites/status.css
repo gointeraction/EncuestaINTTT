@@ -1,0 +1,106 @@
+/* ═══ Status Domain — feedback/operation tokens (ds-tokens-domain-files) ═══
+ * Semantic roles; each is contrast-paired (-on). Status/operation tokens are
+ * NEVER mixed with brand or surfaces (no domain mixing).
+ * Every color value inherits from ./colors.css (single source of truth).
+ * Note: a status tone is ONE color family expressed in several tonalities —
+ * base = -500, surface = -100 (light) / -800..-900 (dark), text = -700/-200.
+ */
+
+:root {
+  --ds-status-success: var(--ds-color-state-success);
+  --ds-status-success-on: var(--ds-color-white);
+
+  --ds-status-warning: var(--ds-color-state-warning);
+  --ds-status-warning-on: var(--ds-color-white);
+
+  --ds-status-danger: var(--ds-color-state-danger);
+  --ds-status-danger-on: var(--ds-color-white);
+
+  --ds-status-error: var(--ds-color-state-danger);
+  --ds-status-error-on: var(--ds-color-white);
+
+  --ds-status-info: var(--ds-color-state-info);
+  --ds-status-info-on: var(--ds-color-white);
+
+  --ds-status-neutral: var(--ds-color-state-neutral);
+  --ds-status-neutral-on: var(--ds-color-white);
+
+  /* R3 (2026-09-08): operational states §13 — locked / awaiting / blocked / offline. */
+  --ds-status-locked: var(--ds-color-state-locked);
+  --ds-status-locked-on: var(--ds-color-white);
+
+  --ds-status-awaiting: var(--ds-color-state-awaiting);
+  --ds-status-awaiting-on: var(--ds-color-white);
+
+  --ds-status-blocked: var(--ds-color-state-blocked);
+  --ds-status-blocked-on: var(--ds-color-white);
+
+  --ds-status-offline: var(--ds-color-state-offline);
+  --ds-status-offline-on: var(--ds-color-white);
+}
+
+/* ── Status surfaces (soft backgrounds for banners/alerts) ────────── */
+:root {
+  --ds-status-surface-success: var(--ds-color-state-success-100);
+  --ds-status-surface-success-on: var(--ds-color-state-success-700);
+
+  --ds-status-surface-warning: var(--ds-color-state-warning-100);
+  --ds-status-surface-warning-on: var(--ds-color-state-warning-700);
+
+  --ds-status-surface-danger: var(--ds-color-state-danger-100);
+  --ds-status-surface-danger-on: var(--ds-color-state-danger-700);
+
+  --ds-status-surface-error: var(--ds-color-state-danger-100);
+  --ds-status-surface-error-on: var(--ds-color-state-danger-700);
+
+  --ds-status-surface-info: var(--ds-color-state-info-100);
+  --ds-status-surface-info-on: var(--ds-color-state-info-700);
+
+  --ds-status-surface-neutral: var(--ds-color-state-neutral-100);
+  --ds-status-surface-neutral-on: var(--ds-color-state-neutral-700);
+
+  --ds-status-surface-locked: var(--ds-color-state-locked-100);
+  --ds-status-surface-locked-on: var(--ds-color-state-locked-700);
+
+  --ds-status-surface-awaiting: var(--ds-color-state-awaiting-100);
+  --ds-status-surface-awaiting-on: var(--ds-color-state-awaiting-700);
+
+  --ds-status-surface-blocked: var(--ds-color-state-blocked-100);
+  --ds-status-surface-blocked-on: var(--ds-color-state-blocked-700);
+
+  --ds-status-surface-offline: var(--ds-color-state-offline-100);
+  --ds-status-surface-offline-on: var(--ds-color-state-offline-700);
+}
+
+/* ── DARK status surfaces (low-emphasis dark tints) ─────────────── */
+[data-theme="dark"] {
+  --ds-status-surface-success: var(--ds-color-state-success-800);
+  --ds-status-surface-success-on: var(--ds-color-state-success-300);
+
+  --ds-status-surface-warning: var(--ds-color-state-warning-900);
+  --ds-status-surface-warning-on: var(--ds-color-state-warning-400);
+
+  --ds-status-surface-danger: var(--ds-color-state-danger-900);
+  --ds-status-surface-danger-on: var(--ds-color-state-danger-200);
+
+  --ds-status-surface-error: var(--ds-color-state-danger-900);
+  --ds-status-surface-error-on: var(--ds-color-state-danger-200);
+
+  --ds-status-surface-info: var(--ds-color-state-info-900);
+  --ds-status-surface-info-on: var(--ds-color-state-info-200);
+
+  --ds-status-surface-neutral: var(--ds-color-state-neutral-800);
+  --ds-status-surface-neutral-on: var(--ds-color-state-neutral-200);
+
+  --ds-status-surface-locked: var(--ds-color-state-locked-900);
+  --ds-status-surface-locked-on: var(--ds-color-state-locked-300);
+
+  --ds-status-surface-awaiting: var(--ds-color-state-awaiting-900);
+  --ds-status-surface-awaiting-on: var(--ds-color-state-awaiting-300);
+
+  --ds-status-surface-blocked: var(--ds-color-state-blocked-900);
+  --ds-status-surface-blocked-on: var(--ds-color-state-blocked-300);
+
+  --ds-status-surface-offline: var(--ds-color-state-offline-900);
+  --ds-status-surface-offline-on: var(--ds-color-state-offline-300);
+}

@@ -1,0 +1,35 @@
+/* ═══ THEME · default — brand identity (colors + typography) ═════════════
+ * The DEFAULT brand theme. This is the ONLY place where brand identity lives:
+ *
+ *   BRAND COLORS     — the --ds-color-brand-* ANCHORS. The derived 50–950
+ *                      scales (tokens/primitives/colors.css) re-derive from
+ *                      these anchors via color-mix() at runtime.
+ *   BRAND TYPOGRAPHY — --ds-font-sans / --ds-font-brand families.
+ *
+ * Swapping a theme = load another themes/<id>/brand.css scoped under
+ * :root[data-theme-name="<id>"] (this default is the plain :root baseline).
+ * Layer rule: PRIMITIVE-tier override — it only defines anchors, never
+ * composites, and contains the ONLY brand literals allowed outside colors.css.
+ */
+:root {
+  /* ── BRAND COLORS ─────────────────────────────────────────────────── */
+  /* primary — cian eléctrico de identidad */
+  --ds-color-brand-primary: #00c0f3;
+
+  /* accent — magenta/fucsia neón (CTAs, polo derecho del lazo) */
+  --ds-color-brand-accent: #d81e8a;
+
+  /* contrast — azul cobalto profundo (texto legible en fondos claros) */
+  --ds-color-brand-contrast: #006ec1;
+
+  /* secondary — violeta/índigo (tono de transición) */
+  --ds-color-brand-secondary: #5844e0;
+
+  /* dark — pizarra profundo / azul noche (superficies oscuras) */
+  --ds-color-brand-dark: #0f172a;
+
+  /* ── BRAND TYPOGRAPHY ─────────────────────────────────────────────── */
+  /* Self-hosted variable font (Montserrat, wght 100–900) — fonts/font-faces.css */
+  --ds-font-sans: "Montserrat", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --ds-font-brand: "Montserrat", system-ui, sans-serif;
+}

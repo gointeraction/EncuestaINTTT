@@ -1,0 +1,14 @@
+/* ═══ Component Token Slots: Input (ds-tokens-domain-files) ═══ */
+
+/* ── Input ──────────────────────────────────────────────────────── */
+:root {
+  --ds-component-input-bg: var(--ds-form-input-bg);
+  --ds-component-input-on: var(--ds-form-input-bg-on);
+  --ds-component-input-border: var(--ds-form-input-border);
+  --ds-component-input-focus: var(--ds-form-focus-ring);
+  --ds-component-input-radius: var(--ds-form-radius-md);
+  --ds-component-input-padding-x: var(--ds-space-3);
+  --ds-component-input-padding-y: var(--ds-space-2);
+  --ds-component-input-font: var(--ds-font-sans);
+  --ds-component-input-size: var(--ds-text-input);
+}

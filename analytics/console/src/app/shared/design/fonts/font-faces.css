@@ -1,0 +1,17 @@
+/* ═══ Font Faces — InvesNetwork brand font family (frontend-lient-specification-ui.md §12) ═══
+ * Montserrat = document/body + display/brand  →  --ds-font-sans  (D1 approved: unify on Montserrat)
+ * Self-hosted VARIABLE font (wght 100–900) → a single @font-face covers every weight.
+ * Asset: ./assets/Montserrat-Variable.ttf (OFL, sourced from the google/fonts repository).
+ * Consumido por typography.css (--ds-font-sans, --ds-font-brand).
+ */
+
+/* ── Montserrat — body/sans + display/brand (variable) ───────────── */
+@font-face {
+  font-family: "Montserrat";
+  /* URL pública: cada app sirve el asset en /assets/ (federación) — la ruta
+     relativa no resuelve al re-basearse postcss desde el consumidor. */
+  src: url("/assets/Montserrat-Variable.ttf") format("truetype");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}

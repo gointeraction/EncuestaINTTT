@@ -1,0 +1,68 @@
+/* ═══ Gradients Domain — color‑to‑color transitions (ds-tokens-domain-files) ═══
+ * Semantic roles; every stop is a var(--ds-color-*) reference from ./colors.css
+ * (single source of truth — NO literals here). Two shapes under one naming rule
+ * `--ds-gradient-<from>-to-<to>`:
+ *
+ *   1. Across colors   — primary → accent, danger → warning …
+ *   2. Same family     — primary-700 → 400 (tonality → tonality)
+ *
+ * `<from>`/`<to>` use the color vocabulary (primary, accent, dark, contrast,
+ * danger, success, info, neutral-200, transparent, …). Direction defaults to
+ * `to right`; suffix `-v` makes it vertical (`to bottom`) for tall shells
+ * (asides, cards, hero stacks).
+ *
+ * Naming by USE, never by hue: change an anchor in colors.css and every
+ * gradient re-derives at runtime. Consumed by composites (surfaces, …) and
+ * directly by markup through `background: var(--ds-gradient-*)`.
+ */
+
+:root {
+  /* ─── ACROSS COLORS ────────────────────────────────────────────────────── */
+  /* CTA / hero: teal → gold */
+  --ds-gradient-primary-to-accent: linear-gradient(to right, var(--ds-color-brand-primary), var(--ds-color-brand-accent));
+  /* Deep hero: teal → navy */
+  --ds-gradient-primary-to-dark: linear-gradient(to right, var(--ds-color-brand-primary), var(--ds-color-brand-dark));
+  /* Premium deep: navy → gold */
+  --ds-gradient-dark-to-accent: linear-gradient(to right, var(--ds-color-brand-dark), var(--ds-color-brand-accent));
+  /* Focus glow: navy → teal (headers over dark) */
+  --ds-gradient-dark-to-primary: linear-gradient(to right, var(--ds-color-brand-dark), var(--ds-color-brand-primary));
+  /* State alert ramp: danger → warning */
+  --ds-gradient-danger-to-warning: linear-gradient(to right, var(--ds-color-state-danger), var(--ds-color-state-warning));
+  /* Success → info (healthy flow) */
+  --ds-gradient-success-to-info: linear-gradient(to right, var(--ds-color-state-success), var(--ds-color-state-info));
+  /* Fade-outs — ambient section backgrounds */
+  --ds-gradient-primary-to-transparent: linear-gradient(to right, var(--ds-color-brand-primary), transparent);
+  --ds-gradient-neutral-to-transparent: linear-gradient(to right, var(--ds-color-design-neutral-200), transparent);
+  --ds-gradient-dark-to-transparent: linear-gradient(to right, var(--ds-color-brand-dark), transparent);
+
+  /* ─── SAME FAMILY, tonality → tonality ─── */
+  /* Header shell: primary 700 → 400 (light) */
+  --ds-gradient-primary-700-to-400: linear-gradient(to right, var(--ds-color-brand-primary-700), var(--ds-color-brand-primary-400));
+  /* Shell surfaces: violeta degradado, de tono oscuro a uno ligeramente menos oscuro */
+  --ds-gradient-secondary-800-to-700: linear-gradient(to right, var(--ds-color-brand-secondary-800), var(--ds-color-brand-secondary-700));
+  /* Header shell vertical (asides) */
+  --ds-gradient-primary-700-to-400-v: linear-gradient(to bottom, var(--ds-color-brand-primary-700), var(--ds-color-brand-primary-400));
+  /* Header shell dark: primary 950 → 500 */
+  --ds-gradient-primary-950-to-500: linear-gradient(to right, var(--ds-color-brand-primary-950), var(--ds-color-brand-primary-500));
+  /* Header shell dark vertical (asides) */
+  --ds-gradient-primary-950-to-500-v: linear-gradient(to bottom, var(--ds-color-brand-primary-950), var(--ds-color-brand-primary-500));
+  /* Subtle primary lift for hover bulbs / active tiles */
+  --ds-gradient-primary-600-to-400: linear-gradient(to right, var(--ds-color-brand-primary-600), var(--ds-color-brand-primary-400));
+  /* Gold shine for badges / premium accents */
+  --ds-gradient-accent-300-to-500: linear-gradient(to right, var(--ds-color-brand-accent-300), var(--ds-color-brand-accent-500));
+  /* Forest tint (premium text surfaces) */
+  --ds-gradient-contrast-200-to-400: linear-gradient(to right, var(--ds-color-brand-contrast-200), var(--ds-color-brand-contrast-400));
+  /* Silver surface lift */
+  --ds-gradient-neutral-100-to-300: linear-gradient(to right, var(--ds-color-design-neutral-100), var(--ds-color-design-neutral-300));
+  /* State depth ramps */
+  --ds-gradient-danger-700-to-400: linear-gradient(to right, var(--ds-color-state-danger-700), var(--ds-color-state-danger-400));
+  --ds-gradient-success-600-to-400: linear-gradient(to right, var(--ds-color-state-success-600), var(--ds-color-state-success-400));
+  --ds-gradient-info-600-to-400: linear-gradient(to right, var(--ds-color-state-info-600), var(--ds-color-state-info-400));
+}
+
+/* ── DARK — same violet ribbon, darker stops ─────────────────────
+ * In dark mode the same two secondary stops keep white text contrast;
+ * only the steps shift deeper (900 → 700) so the ribbon does not glare. */
+[data-theme="dark"] {
+  --ds-gradient-secondary-800-to-700: linear-gradient(to right, var(--ds-color-brand-secondary-900), var(--ds-color-brand-secondary-700));
+}

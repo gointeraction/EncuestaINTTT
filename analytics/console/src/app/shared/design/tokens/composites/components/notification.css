@@ -1,0 +1,23 @@
+/* ═══ Component Token Slots: Notification (ds-tokens-domain-files) ═══
+ * Persistent notification — stays visible until explicitly replaced or
+ * dismissed (NO auto-dismiss, unlike the transient alert/toast). */
+
+/* ── Notification ───────────────────────────────────────────────── */
+:root {
+  --ds-component-notification-bg: var(--ds-surface-elevated);
+  --ds-component-notification-on: var(--ds-surface-elevated-on);
+  --ds-component-notification-border: var(--ds-border-default);
+  --ds-component-notification-radius: var(--ds-radius-standard);
+  --ds-component-notification-padding-x: var(--ds-space-4);
+  --ds-component-notification-padding-y: var(--ds-space-2);
+
+  /* tone surfaces */
+  --ds-component-notification-info-bg: var(--ds-status-surface-info);
+  --ds-component-notification-info-on: var(--ds-status-surface-info-on);
+  --ds-component-notification-success-bg: var(--ds-status-surface-success);
+  --ds-component-notification-success-on: var(--ds-status-surface-success-on);
+  --ds-component-notification-warning-bg: var(--ds-status-surface-warning);
+  --ds-component-notification-warning-on: var(--ds-status-surface-warning-on);
+  --ds-component-notification-danger-bg: var(--ds-status-surface-danger);
+  --ds-component-notification-danger-on: var(--ds-status-surface-danger-on);
+}

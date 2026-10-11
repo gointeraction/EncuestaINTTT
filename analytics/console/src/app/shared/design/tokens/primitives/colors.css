@@ -1,0 +1,270 @@
+/* ═══ COLORS — SINGLE SOURCE OF TRUTH for every color in the system ═══════
+ * The core source of literal colors (hex / named / rgb) for every NON-brand
+ * token. The ONLY other file allowed to hold literals is the brand identity:
+ * themes/<theme>/brand.css (the --ds-color-brand-* anchors).
+ * Every other file must reference var(--ds-color-*) and derive from here.
+ *
+ * ── Naming: use, never hue ─────────────────────────────────────────────
+ *   --ds-color-<category>-<role>[-<step>]
+ *   category: brand · design · state · tooling
+ *   role:     what the color IS FOR (primary, accent, danger, page, ...)
+ *   step:     optional tonality 50→950 (derived — do not edit)
+ *
+ *   You never write --ds-color-teal-*; you write --ds-color-brand-primary.
+ *   The hue is an implementation detail. Change an anchor (the <role>
+ *   token) and the whole scale + every semantic token + every Tailwind
+ *   utility re-derives at runtime. Brand anchors come from themes/.
+ *
+ * ── How it works ────────────────────────────────────────────────────────
+ * 1. ANCHORS: one hex per role (the <role> token, e.g. --ds-color-brand-primary).
+ * 2. SCALES: steps 50→950 derive from the anchor with color-mix(in oklab).
+ *    Each <role>-500 is an alias of the anchor; 50..950 derive from it.
+ * 3. TAILWIND: theme.css maps these roles into @theme, so every utility
+ *    (bg-primary-500, text-danger-700, border-neutral-300, bg-page, ...)
+ *    inherits from this single file.
+ *
+ * ── Neutral ramp ────────────────────────────────────────────────────────
+ * Hand-tuned slate ramp (the one curated exception): its anchor still drives
+ * every reference to design-neutral-500, and any step can be tuned here.
+ */
+
+:root {
+  /* ── SPECIAL ──────────────────────────────────────────────────────── */
+  --ds-color-white: #ffffff;
+  --ds-color-black: #000000;
+
+/* ── BRAND ────────────────────────────────────────────────────────── */
+  /* Brand color ANCHORS (--ds-color-brand-primary/accent/contrast/secondary/dark)
+     NO viven aquí: son la identidad de MARCA y se declaran por TEMA en
+     themes/<theme>/brand.css (default: themes/default/brand.css). Las escalas
+     50–950 de abajo derivan de los anclas vía color-mix() en runtime: re-declarar
+     el ancla en otro tema re-vincula todo sin tocar este archivo. */
+
+  /* ── DESIGN ───────────────────────────────────────────────────────── */
+  /* neutral — supporting gray / premium surfaces (slate) */
+  --ds-color-design-neutral: #64748b;
+
+  /* ── STATE ────────────────────────────────────────────────────────── */
+  --ds-color-state-danger: #dc2626;
+  --ds-color-state-success: #16a34a;
+  --ds-color-state-warning: #d97706;
+  --ds-color-state-info: #2563eb;
+  /* neutral — immutable / disabled / readonly (grey, same tone as design-neutral) */
+  --ds-color-state-neutral: var(--ds-color-design-neutral);
+  /* operational states (§13) — locked / awaiting / blocked / offline */
+  --ds-color-state-locked: #8b5cf6;
+  --ds-color-state-awaiting: #38bdf8;
+  --ds-color-state-blocked: #ec4899;
+  --ds-color-state-offline: #64748b;
+
+  /* ═════════════════════ DERIVED SCALES ═════════════════════════════
+     Do NOT edit below this line. Each step derives from its <role> anchor
+     via color-mix. Change the anchor → everything re-derives.           */
+
+  /* ── DESIGN: neutral (curated slate ramp — exception, editable) ── */
+  --ds-color-design-neutral-50:  #f8fafc;
+  --ds-color-design-neutral-100: #f1f5f9;
+  --ds-color-design-neutral-200: #e2e8f0;
+  --ds-color-design-neutral-300: #cbd5e1;
+  --ds-color-design-neutral-400: #94a3b8;
+  --ds-color-design-neutral-500: var(--ds-color-design-neutral);
+  --ds-color-design-neutral-600: #475569;
+  --ds-color-design-neutral-700: #334155;
+  --ds-color-design-neutral-800: #1e293b;
+  --ds-color-design-neutral-900: #0f172a;
+  --ds-color-design-neutral-950: #020617;
+
+  /* ── BRAND: primary ── */
+  --ds-color-brand-primary-50:  color-mix(in oklab, var(--ds-color-brand-primary) 3%, white);
+  --ds-color-brand-primary-100: color-mix(in oklab, var(--ds-color-brand-primary) 12%, white);
+  --ds-color-brand-primary-200: color-mix(in oklab, var(--ds-color-brand-primary) 25%, white);
+  --ds-color-brand-primary-300: color-mix(in oklab, var(--ds-color-brand-primary) 45%, white);
+  --ds-color-brand-primary-400: color-mix(in oklab, var(--ds-color-brand-primary) 65%, white);
+  --ds-color-brand-primary-500: var(--ds-color-brand-primary);
+  --ds-color-brand-primary-600: color-mix(in oklab, var(--ds-color-brand-primary) 80%, black);
+  --ds-color-brand-primary-700: color-mix(in oklab, var(--ds-color-brand-primary) 62%, black);
+  --ds-color-brand-primary-800: color-mix(in oklab, var(--ds-color-brand-primary) 45%, black);
+  --ds-color-brand-primary-900: color-mix(in oklab, var(--ds-color-brand-primary) 30%, black);
+  --ds-color-brand-primary-950: color-mix(in oklab, var(--ds-color-brand-primary) 18%, black);
+
+  /* ── BRAND: accent ── */
+  --ds-color-brand-accent-50:  color-mix(in oklab, var(--ds-color-brand-accent) 3%, white);
+  --ds-color-brand-accent-100: color-mix(in oklab, var(--ds-color-brand-accent) 12%, white);
+  --ds-color-brand-accent-200: color-mix(in oklab, var(--ds-color-brand-accent) 25%, white);
+  --ds-color-brand-accent-300: color-mix(in oklab, var(--ds-color-brand-accent) 45%, white);
+  --ds-color-brand-accent-400: color-mix(in oklab, var(--ds-color-brand-accent) 65%, white);
+  --ds-color-brand-accent-500: var(--ds-color-brand-accent);
+  --ds-color-brand-accent-600: color-mix(in oklab, var(--ds-color-brand-accent) 80%, black);
+  --ds-color-brand-accent-700: color-mix(in oklab, var(--ds-color-brand-accent) 62%, black);
+  --ds-color-brand-accent-800: color-mix(in oklab, var(--ds-color-brand-accent) 45%, black);
+  --ds-color-brand-accent-900: color-mix(in oklab, var(--ds-color-brand-accent) 30%, black);
+  --ds-color-brand-accent-950: color-mix(in oklab, var(--ds-color-brand-accent) 18%, black);
+
+  /* ── BRAND: contrast ── */
+  --ds-color-brand-contrast-50:  color-mix(in oklab, var(--ds-color-brand-contrast) 3%, white);
+  --ds-color-brand-contrast-100: color-mix(in oklab, var(--ds-color-brand-contrast) 12%, white);
+  --ds-color-brand-contrast-200: color-mix(in oklab, var(--ds-color-brand-contrast) 25%, white);
+  --ds-color-brand-contrast-300: color-mix(in oklab, var(--ds-color-brand-contrast) 45%, white);
+  --ds-color-brand-contrast-400: color-mix(in oklab, var(--ds-color-brand-contrast) 65%, white);
+  --ds-color-brand-contrast-500: var(--ds-color-brand-contrast);
+  --ds-color-brand-contrast-600: color-mix(in oklab, var(--ds-color-brand-contrast) 80%, black);
+  --ds-color-brand-contrast-700: color-mix(in oklab, var(--ds-color-brand-contrast) 62%, black);
+  --ds-color-brand-contrast-800: color-mix(in oklab, var(--ds-color-brand-contrast) 45%, black);
+  --ds-color-brand-contrast-900: color-mix(in oklab, var(--ds-color-brand-contrast) 30%, black);
+  --ds-color-brand-contrast-950: color-mix(in oklab, var(--ds-color-brand-contrast) 18%, black);
+
+  /* ── BRAND: secondary (indigo — supporting brand tone) ── */
+  --ds-color-brand-secondary-50:  color-mix(in oklab, var(--ds-color-brand-secondary) 3%, white);
+  --ds-color-brand-secondary-100: color-mix(in oklab, var(--ds-color-brand-secondary) 12%, white);
+  --ds-color-brand-secondary-200: color-mix(in oklab, var(--ds-color-brand-secondary) 25%, white);
+  --ds-color-brand-secondary-300: color-mix(in oklab, var(--ds-color-brand-secondary) 45%, white);
+  --ds-color-brand-secondary-400: color-mix(in oklab, var(--ds-color-brand-secondary) 65%, white);
+  --ds-color-brand-secondary-500: var(--ds-color-brand-secondary);
+  --ds-color-brand-secondary-600: color-mix(in oklab, var(--ds-color-brand-secondary) 80%, black);
+  --ds-color-brand-secondary-700: color-mix(in oklab, var(--ds-color-brand-secondary) 62%, black);
+  --ds-color-brand-secondary-800: color-mix(in oklab, var(--ds-color-brand-secondary) 45%, black);
+  --ds-color-brand-secondary-900: color-mix(in oklab, var(--ds-color-brand-secondary) 30%, black);
+  --ds-color-brand-secondary-950: color-mix(in oklab, var(--ds-color-brand-secondary) 18%, black);
+
+  /* ── BRAND: dark ── */
+  --ds-color-brand-dark-50:  color-mix(in oklab, var(--ds-color-brand-dark) 3%, white);
+  --ds-color-brand-dark-100: color-mix(in oklab, var(--ds-color-brand-dark) 12%, white);
+  --ds-color-brand-dark-200: color-mix(in oklab, var(--ds-color-brand-dark) 25%, white);
+  --ds-color-brand-dark-300: color-mix(in oklab, var(--ds-color-brand-dark) 45%, white);
+  --ds-color-brand-dark-400: color-mix(in oklab, var(--ds-color-brand-dark) 65%, white);
+  --ds-color-brand-dark-500: var(--ds-color-brand-dark);
+  --ds-color-brand-dark-600: color-mix(in oklab, var(--ds-color-brand-dark) 80%, black);
+  --ds-color-brand-dark-700: color-mix(in oklab, var(--ds-color-brand-dark) 62%, black);
+  --ds-color-brand-dark-800: color-mix(in oklab, var(--ds-color-brand-dark) 45%, black);
+  --ds-color-brand-dark-900: color-mix(in oklab, var(--ds-color-brand-dark) 30%, black);
+  --ds-color-brand-dark-950: color-mix(in oklab, var(--ds-color-brand-dark) 18%, black);
+
+  /* ── STATE: danger (destructive / errors) ── */
+  --ds-color-state-danger-50:  color-mix(in oklab, var(--ds-color-state-danger) 3%, white);
+  --ds-color-state-danger-100: color-mix(in oklab, var(--ds-color-state-danger) 12%, white);
+  --ds-color-state-danger-200: color-mix(in oklab, var(--ds-color-state-danger) 25%, white);
+  --ds-color-state-danger-300: color-mix(in oklab, var(--ds-color-state-danger) 45%, white);
+  --ds-color-state-danger-400: color-mix(in oklab, var(--ds-color-state-danger) 65%, white);
+  --ds-color-state-danger-500: var(--ds-color-state-danger);
+  --ds-color-state-danger-600: color-mix(in oklab, var(--ds-color-state-danger) 80%, black);
+  --ds-color-state-danger-700: color-mix(in oklab, var(--ds-color-state-danger) 62%, black);
+  --ds-color-state-danger-800: color-mix(in oklab, var(--ds-color-state-danger) 45%, black);
+  --ds-color-state-danger-900: color-mix(in oklab, var(--ds-color-state-danger) 30%, black);
+  --ds-color-state-danger-950: color-mix(in oklab, var(--ds-color-state-danger) 18%, black);
+
+  /* ── STATE: success ── */
+  --ds-color-state-success-50:  color-mix(in oklab, var(--ds-color-state-success) 3%, white);
+  --ds-color-state-success-100: color-mix(in oklab, var(--ds-color-state-success) 12%, white);
+  --ds-color-state-success-200: color-mix(in oklab, var(--ds-color-state-success) 25%, white);
+  --ds-color-state-success-300: color-mix(in oklab, var(--ds-color-state-success) 45%, white);
+  --ds-color-state-success-400: color-mix(in oklab, var(--ds-color-state-success) 65%, white);
+  --ds-color-state-success-500: var(--ds-color-state-success);
+  --ds-color-state-success-600: color-mix(in oklab, var(--ds-color-state-success) 80%, black);
+  --ds-color-state-success-700: color-mix(in oklab, var(--ds-color-state-success) 62%, black);
+  --ds-color-state-success-800: color-mix(in oklab, var(--ds-color-state-success) 45%, black);
+  --ds-color-state-success-900: color-mix(in oklab, var(--ds-color-state-success) 30%, black);
+  --ds-color-state-success-950: color-mix(in oklab, var(--ds-color-state-success) 18%, black);
+
+  /* ── STATE: warning ── */
+  --ds-color-state-warning-50:  color-mix(in oklab, var(--ds-color-state-warning) 3%, white);
+  --ds-color-state-warning-100: color-mix(in oklab, var(--ds-color-state-warning) 12%, white);
+  --ds-color-state-warning-200: color-mix(in oklab, var(--ds-color-state-warning) 25%, white);
+  --ds-color-state-warning-300: color-mix(in oklab, var(--ds-color-state-warning) 45%, white);
+  --ds-color-state-warning-400: color-mix(in oklab, var(--ds-color-state-warning) 65%, white);
+  --ds-color-state-warning-500: var(--ds-color-state-warning);
+  --ds-color-state-warning-600: color-mix(in oklab, var(--ds-color-state-warning) 80%, black);
+  --ds-color-state-warning-700: color-mix(in oklab, var(--ds-color-state-warning) 62%, black);
+  --ds-color-state-warning-800: color-mix(in oklab, var(--ds-color-state-warning) 45%, black);
+  --ds-color-state-warning-900: color-mix(in oklab, var(--ds-color-state-warning) 30%, black);
+  --ds-color-state-warning-950: color-mix(in oklab, var(--ds-color-state-warning) 18%, black);
+
+  /* ── STATE: info ── */
+  --ds-color-state-info-50:  color-mix(in oklab, var(--ds-color-state-info) 3%, white);
+  --ds-color-state-info-100: color-mix(in oklab, var(--ds-color-state-info) 12%, white);
+  --ds-color-state-info-200: color-mix(in oklab, var(--ds-color-state-info) 25%, white);
+  --ds-color-state-info-300: color-mix(in oklab, var(--ds-color-state-info) 45%, white);
+  --ds-color-state-info-400: color-mix(in oklab, var(--ds-color-state-info) 65%, white);
+  --ds-color-state-info-500: var(--ds-color-state-info);
+  --ds-color-state-info-600: color-mix(in oklab, var(--ds-color-state-info) 80%, black);
+  --ds-color-state-info-700: color-mix(in oklab, var(--ds-color-state-info) 62%, black);
+  --ds-color-state-info-800: color-mix(in oklab, var(--ds-color-state-info) 45%, black);
+  --ds-color-state-info-900: color-mix(in oklab, var(--ds-color-state-info) 30%, black);
+  --ds-color-state-info-950: color-mix(in oklab, var(--ds-color-state-info) 18%, black);
+
+  /* ── STATE: locked (permission-restricted) ── */
+  --ds-color-state-locked-50:  color-mix(in oklab, var(--ds-color-state-locked) 3%, white);
+  --ds-color-state-locked-100: color-mix(in oklab, var(--ds-color-state-locked) 12%, white);
+  --ds-color-state-locked-200: color-mix(in oklab, var(--ds-color-state-locked) 25%, white);
+  --ds-color-state-locked-300: color-mix(in oklab, var(--ds-color-state-locked) 45%, white);
+  --ds-color-state-locked-400: color-mix(in oklab, var(--ds-color-state-locked) 65%, white);
+  --ds-color-state-locked-500: var(--ds-color-state-locked);
+  --ds-color-state-locked-600: color-mix(in oklab, var(--ds-color-state-locked) 80%, black);
+  --ds-color-state-locked-700: color-mix(in oklab, var(--ds-color-state-locked) 62%, black);
+  --ds-color-state-locked-800: color-mix(in oklab, var(--ds-color-state-locked) 45%, black);
+  --ds-color-state-locked-900: color-mix(in oklab, var(--ds-color-state-locked) 30%, black);
+  --ds-color-state-locked-950: color-mix(in oklab, var(--ds-color-state-locked) 18%, black);
+  /* ── STATE: awaiting (pending decision) ── */
+  --ds-color-state-awaiting-50:  color-mix(in oklab, var(--ds-color-state-awaiting) 3%, white);
+  --ds-color-state-awaiting-100: color-mix(in oklab, var(--ds-color-state-awaiting) 12%, white);
+  --ds-color-state-awaiting-200: color-mix(in oklab, var(--ds-color-state-awaiting) 25%, white);
+  --ds-color-state-awaiting-300: color-mix(in oklab, var(--ds-color-state-awaiting) 45%, white);
+  --ds-color-state-awaiting-400: color-mix(in oklab, var(--ds-color-state-awaiting) 65%, white);
+  --ds-color-state-awaiting-500: var(--ds-color-state-awaiting);
+  --ds-color-state-awaiting-600: color-mix(in oklab, var(--ds-color-state-awaiting) 80%, black);
+  --ds-color-state-awaiting-700: color-mix(in oklab, var(--ds-color-state-awaiting) 62%, black);
+  --ds-color-state-awaiting-800: color-mix(in oklab, var(--ds-color-state-awaiting) 45%, black);
+  --ds-color-state-awaiting-900: color-mix(in oklab, var(--ds-color-state-awaiting) 30%, black);
+  --ds-color-state-awaiting-950: color-mix(in oklab, var(--ds-color-state-awaiting) 18%, black);
+  /* ── STATE: blocked (halted / cannot proceed) ── */
+  --ds-color-state-blocked-50:  color-mix(in oklab, var(--ds-color-state-blocked) 3%, white);
+  --ds-color-state-blocked-100: color-mix(in oklab, var(--ds-color-state-blocked) 12%, white);
+  --ds-color-state-blocked-200: color-mix(in oklab, var(--ds-color-state-blocked) 25%, white);
+  --ds-color-state-blocked-300: color-mix(in oklab, var(--ds-color-state-blocked) 45%, white);
+  --ds-color-state-blocked-400: color-mix(in oklab, var(--ds-color-state-blocked) 65%, white);
+  --ds-color-state-blocked-500: var(--ds-color-state-blocked);
+  --ds-color-state-blocked-600: color-mix(in oklab, var(--ds-color-state-blocked) 80%, black);
+  --ds-color-state-blocked-700: color-mix(in oklab, var(--ds-color-state-blocked) 62%, black);
+  --ds-color-state-blocked-800: color-mix(in oklab, var(--ds-color-state-blocked) 45%, black);
+  --ds-color-state-blocked-900: color-mix(in oklab, var(--ds-color-state-blocked) 30%, black);
+  --ds-color-state-blocked-950: color-mix(in oklab, var(--ds-color-state-blocked) 18%, black);
+  /* ── STATE: offline (disconnected / unavailable) ── */
+  --ds-color-state-offline-50:  color-mix(in oklab, var(--ds-color-state-offline) 3%, white);
+  --ds-color-state-offline-100: color-mix(in oklab, var(--ds-color-state-offline) 12%, white);
+  --ds-color-state-offline-200: color-mix(in oklab, var(--ds-color-state-offline) 25%, white);
+  --ds-color-state-offline-300: color-mix(in oklab, var(--ds-color-state-offline) 45%, white);
+  --ds-color-state-offline-400: color-mix(in oklab, var(--ds-color-state-offline) 65%, white);
+  --ds-color-state-offline-500: var(--ds-color-state-offline);
+  --ds-color-state-offline-600: color-mix(in oklab, var(--ds-color-state-offline) 80%, black);
+  --ds-color-state-offline-700: color-mix(in oklab, var(--ds-color-state-offline) 62%, black);
+  --ds-color-state-offline-800: color-mix(in oklab, var(--ds-color-state-offline) 45%, black);
+  --ds-color-state-offline-900: color-mix(in oklab, var(--ds-color-state-offline) 30%, black);
+  --ds-color-state-offline-950: color-mix(in oklab, var(--ds-color-state-offline) 18%, black);
+
+  /* ── STATE: neutral (immutable / readonly / disabled) ── */
+  --ds-color-state-neutral-50:  color-mix(in oklab, var(--ds-color-state-neutral) 3%, white);
+  --ds-color-state-neutral-100: color-mix(in oklab, var(--ds-color-state-neutral) 12%, white);
+  --ds-color-state-neutral-200: color-mix(in oklab, var(--ds-color-state-neutral) 25%, white);
+  --ds-color-state-neutral-300: color-mix(in oklab, var(--ds-color-state-neutral) 45%, white);
+  --ds-color-state-neutral-400: color-mix(in oklab, var(--ds-color-state-neutral) 65%, white);
+  --ds-color-state-neutral-500: var(--ds-color-state-neutral);
+  --ds-color-state-neutral-600: color-mix(in oklab, var(--ds-color-state-neutral) 80%, black);
+  --ds-color-state-neutral-700: color-mix(in oklab, var(--ds-color-state-neutral) 62%, black);
+  --ds-color-state-neutral-800: color-mix(in oklab, var(--ds-color-state-neutral) 45%, black);
+  --ds-color-state-neutral-900: color-mix(in oklab, var(--ds-color-state-neutral) 30%, black);
+  --ds-color-state-neutral-950: color-mix(in oklab, var(--ds-color-state-neutral) 18%, black);
+}
+
+/* ── DARK — re-derive the LIGHT accent steps as dark magenta ──────
+ * The derived scale above mixes -50..-400 with white (light tints). In dark
+ * mode those tints become blinding, so "light magenta" surfaces (auth cards on
+ * gradient accent-200 → accent-50) must re-derive as "dark magenta". Mixing
+ * against black mirrors the existing -600..-950 behaviour. `-contrast` was
+ * "deep sky blue" text over light fields; over dark accent it flips to white. */
+[data-theme="dark"] {
+  --ds-color-brand-accent-50:  color-mix(in oklab, var(--ds-color-brand-accent) 30%, black);
+  --ds-color-brand-accent-100: color-mix(in oklab, var(--ds-color-brand-accent) 40%, black);
+  --ds-color-brand-accent-200: color-mix(in oklab, var(--ds-color-brand-accent) 52%, black);
+  --ds-color-brand-accent-300: color-mix(in oklab, var(--ds-color-brand-accent) 65%, black);
+  --ds-color-brand-accent-400: color-mix(in oklab, var(--ds-color-brand-accent) 78%, black);
+  --ds-color-brand-contrast: var(--ds-color-white);
+}

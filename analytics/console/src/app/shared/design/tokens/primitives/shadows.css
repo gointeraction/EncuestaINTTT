@@ -1,0 +1,48 @@
+/* ═══ Shadows Domain — elevation, depth, z-index (ds-tokens-domain-files) ═══
+ * Semantic roles; shadow colors inherit from ./colors.css.
+ * Brand-tinted elevation lives here too (no separate "brand" domain —
+ * a shadow is a shadow regardless of which surface it elevates).
+ */
+
+:root {
+  /* Elevation / depth */
+  --ds-shadow-xs: 0 1px 2px color-mix(in oklab, var(--ds-color-black) 5%, transparent);
+  --ds-shadow-sm: 0 1px 3px color-mix(in oklab, var(--ds-color-black) 10%, transparent);
+  --ds-shadow-md: 0 4px 6px color-mix(in oklab, var(--ds-color-black) 7%, transparent), 0 1px 3px color-mix(in oklab, var(--ds-color-black) 6%, transparent);
+  --ds-shadow-lg: 0 10px 15px color-mix(in oklab, var(--ds-color-black) 10%, transparent), 0 4px 6px color-mix(in oklab, var(--ds-color-black) 5%, transparent);
+  --ds-shadow-xl: 0 20px 25px color-mix(in oklab, var(--ds-color-black) 10%, transparent), 0 10px 10px color-mix(in oklab, var(--ds-color-black) 4%, transparent);
+  --ds-shadow-focus: 0 0 0 3px color-mix(in oklab, var(--ds-color-state-info) 40%, transparent);
+  --ds-shadow-inset: inset 0 2px 4px color-mix(in oklab, var(--ds-color-black) 6%, transparent);
+
+  /* Brand-tinted elevation — warm, on-brand card/panel shadows */
+  --ds-shadow-brand-sm: 0 1px 2px color-mix(in oklab, var(--ds-color-brand-primary) 12%, transparent);
+  --ds-shadow-brand-md: 0 4px 12px color-mix(in oklab, var(--ds-color-brand-primary) 18%, transparent);
+  --ds-shadow-brand-lg: 0 10px 30px color-mix(in oklab, var(--ds-color-brand-primary) 24%, transparent);
+  --ds-shadow-brand-glow: 0 0 8px color-mix(in oklab, var(--ds-color-brand-accent) 35%, transparent);
+}
+
+/* ── DARK shadows (deeper — dark surfaces need stronger elevation) ─ */
+[data-theme="dark"] {
+  --ds-shadow-xs: 0 1px 2px color-mix(in oklab, var(--ds-color-black) 20%, transparent);
+  --ds-shadow-sm: 0 1px 3px color-mix(in oklab, var(--ds-color-black) 30%, transparent);
+  --ds-shadow-md: 0 4px 6px color-mix(in oklab, var(--ds-color-black) 25%, transparent), 0 1px 3px color-mix(in oklab, var(--ds-color-black) 20%, transparent);
+  --ds-shadow-lg: 0 10px 15px color-mix(in oklab, var(--ds-color-black) 30%, transparent), 0 4px 6px color-mix(in oklab, var(--ds-color-black) 15%, transparent);
+  --ds-shadow-xl: 0 20px 25px color-mix(in oklab, var(--ds-color-black) 30%, transparent), 0 10px 10px color-mix(in oklab, var(--ds-color-black) 12%, transparent);
+  --ds-shadow-focus: 0 0 0 3px color-mix(in oklab, var(--ds-color-state-info) 50%, transparent);
+  --ds-shadow-inset: inset 0 2px 4px color-mix(in oklab, var(--ds-color-black) 20%, transparent);
+
+  --ds-shadow-brand-sm: 0 1px 2px color-mix(in oklab, var(--ds-color-black) 30%, transparent);
+  --ds-shadow-brand-md: 0 4px 12px color-mix(in oklab, var(--ds-color-black) 35%, transparent);
+  --ds-shadow-brand-lg: 0 10px 30px color-mix(in oklab, var(--ds-color-black) 40%, transparent);
+  --ds-shadow-brand-glow: 0 0 8px color-mix(in oklab, var(--ds-color-brand-accent) 35%, transparent);
+}
+
+/* ── Z-index scale ──────────────────────────────────────────────── */
+:root {
+  --ds-z-base: 0;
+  --ds-z-sticky: 100;
+  --ds-z-overlay: 1000;
+  --ds-z-modal: 2000;
+  --ds-z-toast: 3000;
+  --ds-z-tooltip: 4000;
+}

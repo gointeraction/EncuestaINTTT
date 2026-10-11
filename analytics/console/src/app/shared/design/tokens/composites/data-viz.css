@@ -1,0 +1,28 @@
+/* ═══ Data-Viz Domain — charts, plots tokens (ds-tokens-domain-files) ═══
+ * Semantic roles. Only if the project uses data-viz. No literal colors —
+ * every series is a step (tonality) of a color family from ./colors.css.
+ */
+
+:root {
+  /* Chart series palette (semantic roles → color-family steps) */
+  --ds-viz-series-1: var(--ds-color-brand-primary);
+  --ds-viz-series-2: var(--ds-color-brand-accent);
+  --ds-viz-series-3: var(--ds-color-state-info);
+  --ds-viz-series-4: var(--ds-color-state-success);
+  --ds-viz-series-5: var(--ds-color-state-warning);
+  --ds-viz-series-6: var(--ds-color-state-danger);
+
+  /* Axis, grid, labels */
+  --ds-viz-axis-line: var(--ds-border-default);
+  --ds-viz-grid-line: var(--ds-border-subtle);
+  --ds-viz-label: var(--ds-surface-muted-on);
+  --ds-viz-tick: var(--ds-surface-muted-on);
+
+  /* Value states */
+  --ds-viz-positive: var(--ds-color-state-success);
+  --ds-viz-positive-on: var(--ds-color-white);
+  --ds-viz-negative: var(--ds-color-state-danger);
+  --ds-viz-negative-on: var(--ds-color-white);
+  --ds-viz-neutral: var(--ds-color-design-neutral);
+  --ds-viz-neutral-on: var(--ds-color-white);
+}

@@ -1,0 +1,12 @@
+/* ═══ Component Token Slots: KPI card (ds-tokens-domain-files) ═══ */
+
+/* ── KPI card ───────────────────────────────────────────────────── */
+:root {
+  --ds-component-kpi-bg: var(--ds-surface-card);
+  --ds-component-kpi-on: var(--ds-surface-card-on);
+  --ds-component-kpi-border: var(--ds-border-subtle);
+  --ds-component-kpi-radius: var(--ds-radius-standard);
+  --ds-component-kpi-value-size: var(--ds-text-heading-2);
+  --ds-component-kpi-label-size: var(--ds-text-caption);
+  --ds-component-kpi-padding: var(--ds-space-5);
+}

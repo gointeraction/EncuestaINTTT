@@ -1,0 +1,77 @@
+/* ═══ Layout Domain — spacing, sizing, gaps (ds-tokens-domain-files) ═══
+ * Semantic roles; no magic numbers.
+ */
+
+:root {
+  /* Spacing scale — 8-point base (§12); half-steps at 4px (½ unit) are valid.
+     Micro-steps 2px/6px (--ds-space-1 / --ds-space-2) removed: unused and
+     not multiples of the 8-point system. */
+  --ds-space-0: 0;
+  --ds-space-1: 0.25rem;
+  --ds-space-2: 0.5rem;
+  --ds-space-3: 0.75rem;
+  --ds-space-4: 1rem;
+  --ds-space-5: 1.25rem;
+  --ds-space-6: 1.5rem;
+  --ds-space-8: 2rem;
+  --ds-space-10: 2.5rem;
+  --ds-space-12: 3rem;
+  --ds-space-16: 4rem;
+  --ds-space-20: 5rem;
+  --ds-space-24: 6rem;
+  --ds-space-32: 8rem;
+}
+
+/* ── Sizing ──────────────────────────────────────────────────────── */
+:root {
+  --ds-size-1: 0.25rem;
+  --ds-size-1-5: 0.375rem;
+  --ds-size-2: 0.5rem;
+  --ds-size-3: 0.75rem;
+  --ds-size-4: 1rem;
+  --ds-size-5: 1.25rem;
+  --ds-size-6: 1.5rem;
+  --ds-size-7: 1.75rem;
+  --ds-size-8: 2rem;
+  --ds-size-9: 2.25rem;
+  --ds-size-10: 2.5rem;
+  --ds-size-11: 2.75rem;
+  --ds-size-12: 3rem;
+  --ds-size-14: 3.5rem;
+  --ds-size-16: 4rem;
+  --ds-size-20: 5rem;
+  --ds-size-24: 6rem;
+  --ds-size-32: 8rem;
+  --ds-size-40: 10rem;
+  --ds-size-48: 12rem;
+  --ds-size-64: 16rem;
+}
+
+/* ── Gutters / gaps ──────────────────────────────────────────────── */
+:root {
+  --ds-gap-xs: 0.25rem;
+  --ds-gap-sm: 0.5rem;
+  --ds-gap-md: 0.75rem;
+  --ds-gap-lg: 1rem;
+  --ds-gap-xl: 1.5rem;
+  --ds-gap-2xl: 2rem;
+  --ds-gap-3xl: 3rem;
+}
+
+/* ── Grid (desktop 12-column system, frontend-lient-specification-ui.md §12) ── */
+:root {
+  --ds-grid-columns: 12;
+  --ds-grid-gutter: var(--ds-space-6);
+  --ds-grid-margin: var(--ds-space-6);
+  --ds-grid-container-max: var(--ds-container-xl);
+}
+
+/* ── Container widths ────────────────────────────────────────────── */
+:root {
+  --ds-container-sm: 40rem;
+  --ds-container-md: 48rem;
+  --ds-container-lg: 64rem;
+  --ds-container-xl: 80rem;
+  --ds-container-2xl: 96rem;
+  --ds-container-full: 100%;
+}

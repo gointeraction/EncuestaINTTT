@@ -1,0 +1,60 @@
+/* ═══ Tokens barrel — two tiers, one file per domain ═══
+ *
+ * 1) PRIMITIVES (./primitives) — fundamental vocabulary.
+ *    Define WHAT exists. Only self- or colors.css-referenced.
+ *      colors.css     → single source of truth for every color (anchors + 50–950 scales)
+ *      gradients.css  → color-to-color transitions (across / same-family tonalities)
+ *      typography.css → fonts, sizes, weights, text roles
+ *      effects.css    → motion (durations, easing)
+ *      shadows.css    → elevation, brand-tinted shadows, z-index
+ *      spacing.css    → spacing scale, gaps, containers, grid constants
+ *      breakpoints.css→ responsive tiers (mobile/tablet/desktop) — única fuente
+ *      surfaces.css   → UI surfaces, borders, radii
+ *
+ * 2) COMPOSITES (./composites) — semantic implementations.
+ *    Define HOW the UI uses the primitives. May reference primitives + other composites.
+ *      status.css       → state roles (success/danger/info/warning surfaces)
+ *      forms.css        → form controls
+ *      components/      → per-component slot tokens, ONE FILE PER ELEMENT
+ *      data-viz.css     → chart/series roles
+ *
+ * 3) FAB design-tool theme (./../../fab/fab-theme.css) — the FAB is a DESIGN TOOL
+ *    and a PARTICULAR implementation: it lives OUTSIDE design/ (lib/fab/), not mixed here.
+ *
+ * Layer rule (enforced by tools/check-colors.mjs): a primitive NEVER references a
+ * composite; composites reference downward only.
+ */
+
+/* colors.css MUST stay first: single source of truth for every color. */
+@import './primitives/colors.css';
+@import './primitives/gradients.css';
+@import './primitives/typography.css';
+@import './primitives/effects.css';
+@import './primitives/shadows.css';
+@import './primitives/spacing.css';
+@import './primitives/breakpoints.css';
+@import './primitives/surfaces.css';
+
+@import './composites/status.css';
+@import './composites/forms.css';
+@import './composites/components/index.css';
+@import './composites/data-viz.css';
+
+/* FAB design-tool theme — su PROPIO CSS (tooling colors + design-mode tokens),
+   vive en lib/fab/. Se importa aquí para que estén disponibles globalmente (el
+   inspector y el section-designer los consumen). */
+@import './../../fab/fab-theme.css';
+
+/* Fuentes auto-alojadas (Montserrat variable) — se importan aquí para que las
+   URLs relativas se resuelvan dentro del design system (no desde el consumidor). */
+@import './../fonts/font-faces.css';
+
+/* Icon font (Material Icons) — fuente de iconos compartida del design system.
+   Importada aquí para que ningún frontend deba incluirla en su styles.css. */
+@import './../fonts/icons.css';
+
+/* Brand theme por defecto — brand colors + brand typography (identidad).
+   Se importa al FINAL para que los anclas --ds-color-brand-* y --ds-font-*
+   queden definidos tras las primitivas que los referencian. Cambiar de tema =
+   cargar otro themes/<id>/brand.css (ver docs/09-themes.md). */
+@import './../themes/index.css';

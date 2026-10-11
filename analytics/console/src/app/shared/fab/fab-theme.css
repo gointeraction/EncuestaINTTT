@@ -1,0 +1,142 @@
+/* ═══ FAB THEME — the design tool owns its colors (fab-theme.css) ═══
+ * The FAB is a DESIGN TOOL: its tooling palette + design-mode tokens live HERE,
+ * inside lib/fab/, NEVER mixed with the product tokens (brand/state/neutral).
+ * LIGHT surfaces + DARK text in BOTH themes: dark product mode must not flip
+ * the tool into dark-on-dark. The author edits hue from the ONE tooling block
+ * below and the whole tool re-themes. Loaded globally (via tokens/index.css)
+ * because the inspector + section-designer consume these tokens too.
+ */
+
+/* ── TOOLING palette (independent brand tone per level + FAB semantic block) ── */
+:root {
+  /* page — violet (page chrome / envelope) */
+  --ds-color-tooling-page: #7c3aed;
+  --ds-color-tooling-page-200: color-mix(in oklab, var(--ds-color-tooling-page) 25%, white);
+  /* container — yellow */
+  --ds-color-tooling-display: #eab308;
+  --ds-color-tooling-display-200: color-mix(in oklab, var(--ds-color-tooling-display) 25%, white);
+
+  --ds-color-tooling-area: #2563eb;
+  --ds-color-tooling-area-200: color-mix(in oklab, var(--ds-color-tooling-area) 25%, white);
+  /* row — green (independent, NOT state-success) */
+  --ds-color-tooling-row: #3fb950;
+  --ds-color-tooling-row-200: color-mix(in oklab, var(--ds-color-tooling-row) 25%, white);
+  /* section — orange */
+  --ds-color-tooling-section: #f97316;
+  --ds-color-tooling-section-200: color-mix(in oklab, var(--ds-color-tooling-section) 25%, white);
+  /* subsection — dark blue */
+  --ds-color-tooling-subsection: #1e40af;
+  --ds-color-tooling-subsection-200: color-mix(in oklab, var(--ds-color-tooling-subsection) 25%, white);
+  /* card — pink/magenta (grouper box, sibling of row) */
+  --ds-color-tooling-block: #db2777;
+  --ds-color-tooling-block-200: color-mix(in oklab, var(--ds-color-tooling-block) 25%, white);
+  /* content — teal (innermost block level) */
+  --ds-color-tooling-content: #0d9488;
+  --ds-color-tooling-content-200: color-mix(in oklab, var(--ds-color-tooling-content) 25%, white);
+  /* amber — design-mode FAB buttons / authoring controls */
+  --ds-color-tooling-amber: #f59e0b;
+  --ds-color-tooling-amber-200: color-mix(in oklab, var(--ds-color-tooling-amber) 25%, white);
+
+  /* ── FAB semantic palette — the design tool owns its colors here,
+     independent of brand / state / neutral. Edit this ONE block to
+     re-theme the whole floating action button.
+     LIGHT surfaces, DARK text: letters are always dark so they never
+     disappear over a same-tone background. ── */
+  --ds-color-tooling-fab: #f59e0b;                  /* trigger + active buttons (amber) */
+  --ds-color-tooling-fab-hover: #e08e00;            /* trigger hover (darker amber) */
+  --ds-color-tooling-fab-on: #1e40af;               /* text on amber (dark blue) */
+  --ds-color-tooling-fab-surface: #e9e4fb;          /* inspector panel bg (light violet) */
+  --ds-color-tooling-fab-surface-on: #1e40af;       /* panel text (dark blue) */
+  --ds-color-tooling-fab-surface-border: #7c3aed;   /* panel border (violet) */
+  --ds-color-tooling-fab-control: #d0c8f2;          /* control bg (light violet) */
+  --ds-color-tooling-fab-control-on: #1e40af;       /* control text (dark blue) */
+  --ds-color-tooling-fab-control-border: #7c3aed;   /* control border (violet) */
+  --ds-color-tooling-fab-stroke: #f59e0b;           /* inspector stroke (amber) */
+  --ds-color-tooling-fab-notif-info: #2563eb;       /* notification dot — info */
+  --ds-color-tooling-fab-notif-warning: #d97706;    /* notification dot — warning */
+  --ds-color-tooling-fab-notif-error: #dc2626;      /* notification dot — error */
+  --ds-color-tooling-fab-notif-success: #16a34a;    /* notification dot — success */
+  --ds-color-tooling-fab-error: #dc2626;            /* inspector errors */
+  --ds-color-tooling-fab-muted: #64748b;            /* inspector muted text/dots */
+
+  /* ══════════════ DESIGN-MODE TOKENS (semantic roles over the tooling block) ══════════════ */
+
+  /* FAB (floating action button — design mode entry) — tooling palette */
+  --ds-designmode-fab-bg: var(--ds-color-tooling-fab);
+  --ds-designmode-fab-on: var(--ds-color-tooling-fab-on);
+  --ds-designmode-fab-border: var(--ds-color-tooling-fab-on);
+  --ds-designmode-fab-hover: var(--ds-color-tooling-fab-hover);
+  --ds-designmode-fab-hover-on: var(--ds-color-tooling-fab-on);
+  /* Active buttons of the FAB panel — amber (original FAB look) */
+  --ds-designmode-fab-active: var(--ds-color-tooling-fab);
+  --ds-designmode-fab-active-on: var(--ds-color-tooling-fab-on);
+  --ds-designmode-fab-radius: var(--ds-radius-full);
+  --ds-designmode-fab-shadow: var(--ds-shadow-lg);
+  --ds-designmode-fab-z: 9998;
+  --ds-z-fab: var(--ds-designmode-fab-z);
+}
+
+/* ── Inspector ──────────────────────────────────────────────────── */
+:root {
+  --ds-designmode-inspector-bg: var(--ds-color-tooling-fab-surface);
+  --ds-designmode-inspector-on: var(--ds-color-tooling-fab-surface-on);
+  --ds-designmode-inspector-border: var(--ds-color-tooling-fab-surface-border);
+  --ds-designmode-inspector-stroke: var(--ds-color-tooling-fab-stroke);
+  --ds-designmode-inspector-width: 1px;
+  --ds-designmode-inspector-radius: var(--ds-radius-md);
+  /* FAB control surfaces — tooling palette (light surfaces, dark text) */
+  --ds-designmode-control-bg: var(--ds-color-tooling-fab-control);
+  --ds-designmode-control-on: var(--ds-color-tooling-fab-control-on);
+  --ds-designmode-control-border: var(--ds-color-tooling-fab-control-border);
+}
+
+/* ── Overlays / outlines ────────────────────────────────────────── */
+:root {
+  --ds-designmode-overlay: color-mix(in oklab, var(--ds-color-tooling-page) 12%, transparent);
+  --ds-designmode-overlay-strong: color-mix(in oklab, var(--ds-color-tooling-page) 25%, transparent);
+  --ds-designmode-outline: var(--ds-color-tooling-amber);
+  --ds-designmode-outline-selected: var(--ds-color-tooling-page);
+  --ds-designmode-outline-hover: var(--ds-color-tooling-row);
+  --ds-designmode-guideline: color-mix(in oklab, var(--ds-color-tooling-section) 40%, transparent);
+  --ds-designmode-page-border: var(--ds-color-tooling-page);
+  --ds-designmode-page-surface: var(--ds-color-tooling-page-200);
+  --ds-designmode-page-tag-bg: var(--ds-color-tooling-page);
+  --ds-designmode-page-tag-on: var(--ds-color-tooling-subsection);
+}
+
+/* ── Inspector levels ─────────────────────────────────────────────
+   Semantic roles (use, not color) from colors.css: each level is an
+   intent (page / container / row / section / subsection); the hue is
+   an implementation detail re-themed from ONE place. */
+:root {
+  --ds-designmode-level-display: var(--ds-color-tooling-display);
+  --ds-designmode-level-display-surface: var(--ds-color-tooling-display-200);
+  --ds-designmode-level-area: var(--ds-color-tooling-area);
+  --ds-designmode-level-area-surface: var(--ds-color-tooling-area-200);
+  --ds-designmode-level-row: var(--ds-color-tooling-row);
+  --ds-designmode-level-row-surface: var(--ds-color-tooling-row-200);
+  --ds-designmode-level-section: var(--ds-color-tooling-section);
+  --ds-designmode-level-section-surface: var(--ds-color-tooling-section-200);
+  --ds-designmode-level-subsection: var(--ds-color-tooling-subsection);
+  --ds-designmode-level-subsection-surface: var(--ds-color-tooling-subsection-200);
+  --ds-designmode-level-block: var(--ds-color-tooling-block);
+  --ds-designmode-level-block-surface: var(--ds-color-tooling-block-200);
+  --ds-designmode-level-content: var(--ds-color-tooling-content);
+  --ds-designmode-level-content-surface: var(--ds-color-tooling-content-200);
+  --ds-designmode-tag-on: var(--ds-color-white);
+  --ds-designmode-error: var(--ds-color-tooling-fab-error);
+  --ds-designmode-error-surface: color-mix(in oklab, var(--ds-color-tooling-fab-error) 10%, transparent);
+  --ds-designmode-muted: var(--ds-color-tooling-fab-muted);
+}
+
+/* ── DARK design-mode ─────────────────────────────────────────────
+ * The FAB is a tooling layer with LIGHT surfaces + DARK text in BOTH
+ * themes: dark product mode must not flip it to dark-on-dark. */
+[data-theme="dark"] {
+  --ds-designmode-inspector-bg: var(--ds-color-tooling-fab-surface);
+  --ds-designmode-inspector-on: var(--ds-color-tooling-fab-surface-on);
+  --ds-designmode-inspector-border: var(--ds-color-tooling-fab-surface-border);
+  --ds-designmode-overlay: color-mix(in oklab, var(--ds-color-tooling-page) 12%, transparent);
+  --ds-designmode-overlay-strong: color-mix(in oklab, var(--ds-color-tooling-page) 25%, transparent);
+  --ds-designmode-guideline: color-mix(in oklab, var(--ds-color-tooling-section) 55%, transparent);
+}

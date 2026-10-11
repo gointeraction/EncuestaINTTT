@@ -1,0 +1,5 @@
+/* ═══ Icon Font — Material Icons (shared icon font for the Design System) ═══
+ * Consumido por todos los frontends vía tokens/index.css (ya NO se importa
+ * por cada app en su styles.css). URL pública de Google Fonts: resuelve desde
+ * cualquier origen federado (host, remotes) sin re-basear assets.
+ */

@@ -1,0 +1,165 @@
+/* ═══ Surface Domain — non-brand UI surfaces, borders, radii (ds-tokens-domain-files) ═══
+ * Semantic roles; every surface is contrast-paired (-on): no light-on-light,
+ * no dark-on-dark. Theme-aware: LIGHT = :root, DARK = [data-theme="dark"].
+ * Every color value inherits from ./colors.css (single source of truth).
+ */
+
+/* ── LIGHT ──────────────────────────────────────────────────────── */
+:root {
+  --ds-surface-body: var(--ds-color-white);
+  --ds-surface-body-on: var(--ds-color-design-neutral-800);
+
+  /* PAGE — the default canvas surface of the whole layout and every page it
+     renders. The page-container sets it once; pages inherit it and only
+     override when they need a distinct surface. Contrast-paired. */
+  --ds-surface-page: var(--ds-color-white);
+  --ds-surface-page-on: var(--ds-color-design-neutral-800);
+
+  --ds-surface-elevated: var(--ds-color-white);
+  --ds-surface-elevated-on: var(--ds-color-design-neutral-800);
+
+  --ds-surface-muted: var(--ds-color-design-neutral-100);
+  --ds-surface-muted-on: var(--ds-color-design-neutral-800);
+
+  --ds-surface-overlay: var(--ds-color-design-neutral-900);
+  --ds-surface-overlay-on: var(--ds-color-design-neutral-50);
+
+  /* Surface media overlays (ds-surface) — legibility layers over image/video
+     backgrounds, by intensity. Token-driven, never hardcoded rgba. */
+  --ds-surface-overlay-soft: rgba(0, 0, 0, 0.25);
+  --ds-surface-overlay-medium: rgba(0, 0, 0, 0.45);
+  --ds-surface-overlay-strong: rgba(0, 0, 0, 0.65);
+
+  /* Header / aside — violeta degradado (secondary 800 → 700: de tono oscuro
+     a uno ligeramente menos oscuro). Client directive 2026-10-05: the shell
+     surfaces (header, footer, icon sidebar, menu sidebar) all carry the SAME
+     degradation L→R. Flat token keeps non-gradient consumers working on the
+     base tone; the gradient is a PRIMITIVE (./primitives/gradients.css), the
+     surface picks it by USE. */
+  --ds-surface-header: var(--ds-color-brand-secondary-800);
+  --ds-surface-header-bg: var(--ds-gradient-secondary-800-to-700);
+  --ds-surface-header-on: var(--ds-color-white);
+  --ds-surface-header-on-muted: color-mix(in oklab, var(--ds-color-white) 70%, transparent);
+  --ds-surface-header-border: var(--ds-color-design-neutral-200);
+
+  --ds-surface-footer: var(--ds-color-brand-secondary-800);
+  --ds-surface-footer-bg: var(--ds-gradient-secondary-800-to-700);
+  --ds-surface-footer-on: var(--ds-color-white);
+
+  --ds-surface-aside: var(--ds-color-brand-secondary-800);
+  --ds-surface-aside-bg: var(--ds-gradient-secondary-800-to-700);
+  --ds-surface-aside-on: var(--ds-color-white);
+  --ds-surface-aside-on-muted: color-mix(in oklab, var(--ds-color-white) 70%, transparent);
+
+  /* Sidebar shell — the navigation surfaces render in the SAME violet ribbon
+     as the header (secondary 800 → 700, L→R). menu and icon strip both pick
+     the ribbon; the flat --ds-bg-* names keep non-gradient consumers working
+     on the base tone. Anchored to --ds-surface-header-bg so they follow
+     theme/brand automatically. --ds-bg-* are the names the layout consumers
+     use. */
+  --ds-bg-header: var(--ds-surface-header-bg);
+  --ds-bg-sidebar: var(--ds-surface-header-bg);
+  --ds-bg-sidebar-bg: var(--ds-gradient-secondary-800-to-700);
+  --ds-bg-sidebar-icon: color-mix(in oklab, var(--ds-surface-header) 90%, black);
+  --ds-bg-sidebar-icon-bg: var(--ds-gradient-secondary-800-to-700);
+
+  --ds-surface-card: var(--ds-color-white);
+  --ds-surface-card-on: var(--ds-color-design-neutral-800);
+
+  --ds-surface-modal: var(--ds-color-white);
+  --ds-surface-modal-on: var(--ds-color-design-neutral-800);
+
+  --ds-surface-hover: var(--ds-color-design-neutral-100);
+  --ds-surface-hover-on: var(--ds-color-design-neutral-800);
+
+  --ds-surface-active: var(--ds-color-design-neutral-200);
+  --ds-surface-active-on: var(--ds-color-design-neutral-800);
+
+  --ds-surface-disabled: var(--ds-color-design-neutral-50);
+  --ds-surface-disabled-on: var(--ds-color-design-neutral-400);
+
+  /* Field (generic input surface) — orphan tokens formalized */
+  --ds-surface-field: var(--ds-color-white);
+  --ds-surface-field-on: var(--ds-color-design-neutral-800);
+}
+
+/* ── DARK ───────────────────────────────────────────────────────── */
+[data-theme="dark"] {
+  --ds-surface-body: var(--ds-color-design-neutral-900);
+  --ds-surface-body-on: var(--ds-color-design-neutral-50);
+
+  /* PAGE — default canvas surface in dark mode */
+  --ds-surface-page: var(--ds-color-design-neutral-900);
+  --ds-surface-page-on: var(--ds-color-design-neutral-50);
+
+  --ds-surface-elevated: var(--ds-color-design-neutral-800);
+  --ds-surface-elevated-on: var(--ds-color-design-neutral-50);
+
+  --ds-surface-muted: var(--ds-color-design-neutral-800);
+  --ds-surface-muted-on: var(--ds-color-design-neutral-200);
+
+  --ds-surface-overlay: var(--ds-color-design-neutral-950);
+  --ds-surface-overlay-on: var(--ds-color-design-neutral-50);
+
+  --ds-surface-header: var(--ds-color-brand-secondary-900);
+  --ds-surface-header-bg: var(--ds-gradient-secondary-800-to-700);
+  --ds-surface-header-on: var(--ds-color-white);
+  --ds-surface-header-on-muted: color-mix(in oklab, var(--ds-color-white) 70%, transparent);
+  --ds-surface-header-border: var(--ds-color-design-neutral-700);
+
+  --ds-surface-footer: var(--ds-color-brand-secondary-900);
+  --ds-surface-footer-bg: var(--ds-gradient-secondary-800-to-700);
+  --ds-surface-footer-on: var(--ds-color-white);
+
+  --ds-surface-aside: var(--ds-color-brand-secondary-900);
+  --ds-surface-aside-bg: var(--ds-gradient-secondary-800-to-700);
+  --ds-surface-aside-on: var(--ds-color-white);
+  --ds-surface-aside-on-muted: color-mix(in oklab, var(--ds-color-white) 70%, transparent);
+
+  --ds-surface-card: var(--ds-color-design-neutral-800);
+  --ds-surface-card-on: var(--ds-color-design-neutral-50);
+
+  --ds-surface-modal: var(--ds-color-design-neutral-800);
+  --ds-surface-modal-on: var(--ds-color-design-neutral-50);
+
+  --ds-surface-hover: var(--ds-color-design-neutral-700);
+  --ds-surface-hover-on: var(--ds-color-design-neutral-50);
+
+  --ds-surface-active: var(--ds-color-design-neutral-600);
+  --ds-surface-active-on: var(--ds-color-design-neutral-50);
+
+  --ds-surface-disabled: var(--ds-color-design-neutral-800);
+  --ds-surface-disabled-on: var(--ds-color-design-neutral);
+
+  --ds-surface-field: var(--ds-color-design-neutral-800);
+  --ds-surface-field-on: var(--ds-color-design-neutral-50);
+}
+
+/* ── Borders (theme-aware) ──────────────────────────────────────── */
+:root {
+  --ds-border-default: var(--ds-color-design-neutral-300);
+  --ds-border-strong: var(--ds-color-design-neutral-400);
+  --ds-border-subtle: var(--ds-color-design-neutral-200);
+  --ds-border-input: var(--ds-color-design-neutral-300);
+  --ds-border-divider: var(--ds-color-design-neutral-200);
+}
+
+[data-theme="dark"] {
+  --ds-border-default: var(--ds-color-design-neutral-700);
+  --ds-border-strong: var(--ds-color-design-neutral-600);
+  --ds-border-subtle: var(--ds-color-design-neutral-800);
+  --ds-border-input: var(--ds-color-design-neutral-700);
+  --ds-border-divider: var(--ds-color-design-neutral-800);
+}
+
+/* ── Radii (theme-invariant — same in both modes) ───────────────── */
+:root {
+  --ds-radius-none: 0;
+  --ds-radius-xs: 0.125rem;
+  --ds-radius-sm: 0.25rem;
+  --ds-radius-standard: 0.625rem;
+  --ds-radius-md: 0.5rem;
+  --ds-radius-lg: 0.75rem;
+  --ds-radius-xl: 1rem;
+  --ds-radius-full: 9999px;
+}

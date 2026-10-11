@@ -1,0 +1,4 @@
+/* ═══ Component Token Slots: Icon (ds-tokens-domain-files) ═══
+ * Icon SIZES are owned by icon.component.ts (DS_ICON_SIZE_PX) — pixel
+ * values are needed at runtime for the Lucide renderer, so the TS map is
+ * the single source of truth. This file intentionally defines no slots. */

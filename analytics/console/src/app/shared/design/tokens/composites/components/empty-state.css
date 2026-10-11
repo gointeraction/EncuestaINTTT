@@ -1,0 +1,10 @@
+/* ═══ Component Token Slots: Empty state (ds-tokens-domain-files) ═══ */
+
+/* ── Empty state ────────────────────────────────────────────────── */
+:root {
+  --ds-component-empty-icon-bg: var(--ds-surface-muted);
+  --ds-component-empty-icon-on: var(--ds-surface-muted-on);
+  --ds-component-empty-radius: var(--ds-radius-standard);
+  --ds-component-empty-padding-x: var(--ds-space-6);
+  --ds-component-empty-padding-y: var(--ds-space-16);
+}

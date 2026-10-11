@@ -1,0 +1,66 @@
+/* ═══ Component Token Slots: Button (ds-tokens-domain-files) ═══
+ * Per-component tokens; slots reference the source domain tokens
+ * (colors/surfaces/status/shadows) so a component is themed by
+ * re-parameterizing those domains. No hardcoded values in components.
+ */
+
+/* ── Button ──────────────────────────────────────────────────────── */
+:root {
+  --ds-component-button-primary-bg: var(--ds-color-brand-primary);
+  --ds-component-button-primary-on: var(--ds-color-white);
+  --ds-component-button-primary-border: var(--ds-color-brand-primary);
+  --ds-component-button-primary-hover: var(--ds-surface-hover);
+  --ds-component-button-primary-hover-on: var(--ds-color-brand-primary);
+
+  --ds-component-button-secondary-bg: var(--ds-surface-elevated);
+  --ds-component-button-secondary-on: var(--ds-surface-elevated-on);
+  /* D2 (2026-09-05): brand border — teal. Gold is reserved for Premium/intelligence. */
+  --ds-component-button-secondary-border: var(--ds-color-brand-primary);
+  --ds-component-button-secondary-hover: var(--ds-surface-hover);
+
+  --ds-component-button-accent-bg: var(--ds-color-brand-accent);
+  --ds-component-button-accent-on: var(--ds-color-brand-dark);
+
+  --ds-component-button-premium-bg: var(--ds-color-brand-accent);
+  --ds-component-button-premium-on: var(--ds-color-brand-dark);
+  --ds-component-button-premium-border: var(--ds-color-brand-accent);
+  --ds-component-button-premium-hover: var(--ds-color-brand-accent-600);
+  --ds-component-button-premium-hover-on: var(--ds-color-brand-dark);
+
+  --ds-component-button-outline-on: var(--ds-surface-body-on);
+
+  --ds-component-button-danger-bg: var(--ds-status-danger);
+  --ds-component-button-danger-on: var(--ds-status-danger-on);
+
+  /* destructive — canonical destructive action (visual alias of danger). */
+  --ds-component-button-destructive-bg: var(--ds-status-danger);
+  --ds-component-button-destructive-on: var(--ds-status-danger-on);
+  --ds-component-button-destructive-border: var(--ds-status-danger);
+
+  --ds-component-button-success-bg: var(--ds-color-state-success-600);
+  --ds-component-button-success-on: var(--ds-status-success-on);
+  --ds-component-button-success-hover: var(--ds-color-state-success-700);
+
+  --ds-component-button-warning-bg: var(--ds-status-warning);
+  --ds-component-button-warning-on: var(--ds-status-warning-on);
+  --ds-component-button-warning-hover: var(--ds-color-state-warning-600);
+
+  --ds-component-button-info-bg: var(--ds-status-info);
+  --ds-component-button-info-on: var(--ds-status-info-on);
+  --ds-component-button-info-hover: var(--ds-color-state-info-600);
+
+  --ds-component-button-radius: var(--ds-radius-standard);
+  --ds-component-button-font: var(--ds-font-sans);
+  --ds-component-button-size: var(--ds-text-button);
+  --ds-component-button-gap: var(--ds-gap-sm);
+  --ds-component-button-padding-x: var(--ds-space-4);
+  --ds-component-button-padding-y: var(--ds-space-2);
+
+  /* R2 (2026-09-08): a11y + multipurpose — targets ≥32px, focus ring, icon, loading. */
+  --ds-component-button-min-height-sm: 2rem;
+  --ds-component-button-min-height-md: 2.5rem;
+  --ds-component-button-min-height-lg: 3rem;
+  --ds-component-button-focus-ring: var(--ds-shadow-focus);
+  --ds-component-button-icon-gap: var(--ds-gap-sm);
+  --ds-component-button-loading-size: var(--ds-size-3);
+}

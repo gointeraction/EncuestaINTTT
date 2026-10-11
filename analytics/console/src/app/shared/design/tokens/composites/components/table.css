@@ -1,0 +1,12 @@
+/* ═══ Component Token Slots: Table (ds-tokens-domain-files) ═══ */
+
+/* ── Table ──────────────────────────────────────────────────────── */
+:root {
+  --ds-component-table-border: var(--ds-border-default);
+  --ds-component-table-header-bg: var(--ds-surface-muted);
+  --ds-component-table-header-on: var(--ds-surface-muted-on);
+  --ds-component-table-row-hover-bg: var(--ds-surface-hover);
+  --ds-component-table-radius: var(--ds-radius-standard);
+  --ds-component-table-padding-x: var(--ds-space-4);
+  --ds-component-table-padding-y: var(--ds-space-3);
+}
