@@ -4,8 +4,11 @@ Aplicación **NestJS standalone** (sin HTTP) que siembra datos simulados en la b
 **desarrollo** para probar el back-office (KPI, reportería, volumen). Borra y recarga a voluntad.
 
 > Emula la **forma REAL** de la encuesta Visión Cero: la tabla
-> **`public.legacy_survey_responses`** (`driverType` + `answers` JSON + sorteo). NO siembra el
-> esquema normalizado (`surveys/responses/answers`), que la encuesta real no usa.
+> **`public.legacy_survey_responses`** (`driverType` + `answers` JSON + sorteo). Las respuestas
+> se generan con la **definición REAL** de la encuesta (`src/core/survey-data.ts`, copia de
+> `src/lib/survey-data.ts`): por tipo de conductor (`appliesTo`) y con la lógica condicional
+> (`showIf`). Así cada respuesta contiene EXACTAMENTE las preguntas aplicables a su perfil
+> (p.ej. Delivery/Mototaxista ~42 activas de 51; Familiar ~21 de 24).
 
 > SOLO `development`. Las guardas abortan si `APP_ENV != development`, `SEED_ALLOW != 1` o la
 > base conectada no está en la allowlist `*dev*`. Ver `.akuri/00-manifest/environments.md`.
