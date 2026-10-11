@@ -119,6 +119,8 @@ services:
       DATABASE_URL: postgresql://intt_analytics:${ANALYTICS_DB_PASSWORD:?defina ANALYTICS_DB_PASSWORD en .env}@db:5432/${POSTGRES_DB:-intt_encuesta}?schema=analytics
       NODE_ENV: production
       PORT: "3000"
+      STAFF_ADMIN_EMAIL: ${STAFF_ADMIN_EMAIL:-admin@intt.gob.ve}
+      STAFF_ADMIN_PASSWORD: ${STAFF_ADMIN_PASSWORD:-VisionCero2026!}
     depends_on:
       db:
         condition: service_healthy
