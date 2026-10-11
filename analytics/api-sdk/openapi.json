@@ -233,6 +233,91 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "dimension",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "value",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/analytics/surveys/{id}/dimensions": {
+      "get": {
+        "operationId": "ReportingController_dimensions",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/analytics/surveys/{id}/timeline": {
+      "get": {
+        "operationId": "ReportingController_timeline",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/analytics/anomalies": {
+      "get": {
+        "operationId": "ReportingController_anomalies",
+        "parameters": [
+          {
+            "name": "survey",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {

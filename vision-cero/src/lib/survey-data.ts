@@ -774,3 +774,6 @@ export function countQuestionsForDriverType(driverType: DriverTypeId): number {
     0
   );
 }
+
+/** Versión de la definición del cuestionario Visión Cero (para clientes offline antiguos). */
+export const SURVEY_VERSION = 1;

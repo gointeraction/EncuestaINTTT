@@ -17,6 +17,7 @@ import { useOutbox } from "@/lib/offline/outbox";
 import { computePow } from "@/lib/offline/pow";
 import { getDevice } from "@/lib/offline/device-config";
 import { signDevice } from "@/lib/offline/device-sign";
+import { SURVEY_VERSION } from "@/lib/survey-data";
 
 export function SorteoForm() {
   const { sorteo, setSorteo, answers, driverType, setView, setSavedId, setSorteoResult, clearAnswers, ensureSubmissionId } =
@@ -85,6 +86,7 @@ export function SorteoForm() {
       website, // honeypot
       clientSubmissionId, // idempotencia
       channel: chan,
+      surveyVersion: SURVEY_VERSION,
     };
     // Canales confiables (kiosco/encuestador): firma el envío con la clave del dispositivo.
     if (device) {

@@ -13,6 +13,7 @@ export * from './identityControllerMe200';
 export * from './identityControllerMe200User';
 export * from './identityControllerSession200';
 export * from './identityControllerSession200User';
+export * from './reportingControllerAnomaliesParams';
 export * from './reportingControllerCrossTabParams';
 export * from './reportingControllerParticipantsParams';
 export * from './reportingControllerSurveyParams';

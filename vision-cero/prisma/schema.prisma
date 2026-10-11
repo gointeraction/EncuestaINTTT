@@ -225,6 +225,8 @@ model SurveyResponse {
   clientSubmissionId String? @unique @map("client_submission_id")
   // Dispositivo de captura (canales confiables kiosco/encuestador)
   deviceId        String?  @map("device_id")
+  // Versión de la definición del cuestionario usada por el cliente (offline)
+  surveyVersion   Int      @default(1) @map("survey_version")
 
   @@index([driverType])
   @@index([completedAt])

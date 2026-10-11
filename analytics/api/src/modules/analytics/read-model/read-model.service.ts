@@ -131,6 +131,37 @@ export class ReadModelService {
     return rows.map((r) => ({ day: new Date(r.day).toISOString().slice(0, 10), total: r.total, completed: r.total }));
   }
 
+  /** Panel de anomalías (anti-fraude): por dispositivo, respuestas duplicadas y picos por hora. */
+  async anomalies(surveyId: string): Promise<unknown> {
+    const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
+    const src = q.source;
+    const deviceField = src.deviceField ?? 'device_id';
+    const chanField = src.channelField ?? 'channel';
+    const timeExpr = src.captureField
+      ? `COALESCE("${src.captureField}", "${src.timeField}")`
+      : `"${src.timeField}"`;
+
+    const byDevice = await this.prisma.$queryRawUnsafe<
+      Array<{ id: string; channel: string; count: number }>
+    >(
+      `SELECT COALESCE("${deviceField}", '(público)') AS id, COALESCE("${chanField}", 'public') AS channel,
+              COUNT(*)::int AS count
+       FROM ${src.table} GROUP BY 1, 2 ORDER BY 3 DESC LIMIT 100`,
+    );
+    const [dup] = await this.prisma.$queryRawUnsafe<Array<{ groups: number; max: number }>>(
+      `SELECT COUNT(*)::int AS groups, COALESCE(MAX(c), 0)::int AS max FROM (
+         SELECT "${src.answersField}" AS a, COUNT(*)::int AS c
+         FROM ${src.table} GROUP BY 1 HAVING COUNT(*) > 1
+       ) t`,
+    );
+    const hourly = await this.prisma.$queryRawUnsafe<Array<{ hour: string; count: number }>>(
+      `SELECT to_char(date_trunc('hour', ${timeExpr}), 'YYYY-MM-DD HH24:00') AS hour, COUNT(*)::int AS count
+       FROM ${src.table} WHERE ${timeExpr} >= now() - interval '48 hours'
+       GROUP BY 1 ORDER BY 1`,
+    );
+    return { byDevice, duplicateAnswers: { groups: dup?.groups ?? 0, max: dup?.max ?? 0 }, hourly };
+  }
+
   private fetchRows(q: Questionnaire): Promise<Array<{ answers: string; seg: string }>> {
     return this.prisma.$queryRawUnsafe<Array<{ answers: string; seg: string }>>(
       `SELECT "${q.source.answersField}" AS answers, "${q.source.segmentsField}" AS seg

@@ -45,6 +45,12 @@ export class ReportingController {
     return this.reporting.timeline(id);
   }
 
+  @Get('anomalies')
+  async anomalies(@Query('survey') survey: string, @Req() req: RequestWithUser) {
+    await this.accessAudit.registrarLectura('analytics/anomalies', req.staffUser?.id);
+    return this.reporting.anomalies(survey ?? '');
+  }
+
   @Get('surveys/:id/cross-tab')
   async crossTab(
     @Param('id') id: string,

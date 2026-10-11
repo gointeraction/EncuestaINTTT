@@ -34,6 +34,7 @@ import type {
   IdentityControllerLoginBody,
   IdentityControllerMe200,
   IdentityControllerSession200,
+  ReportingControllerAnomaliesParams,
   ReportingControllerCrossTabParams,
   ReportingControllerParticipantsParams,
   ReportingControllerSurveyParams
@@ -181,6 +182,18 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
+ reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerAnomalies<TData = void>(
+    params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/anomalies`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
  reportingControllerCrossTab<TData = void>(id: string,
     params: DeepNonNullable<ReportingControllerCrossTabParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
  reportingControllerCrossTab<TData = void>(id: string,
@@ -242,6 +255,7 @@ export type SummarizationControllerStatusClientResult = NonNullable<void>
 export type ReportingControllerSurveyClientResult = NonNullable<void>
 export type ReportingControllerDimensionsClientResult = NonNullable<void>
 export type ReportingControllerTimelineClientResult = NonNullable<void>
+export type ReportingControllerAnomaliesClientResult = NonNullable<void>
 export type ReportingControllerCrossTabClientResult = NonNullable<void>
 export type ReportingControllerGlobalClientResult = NonNullable<void>
 export type ReportingControllerParticipantsClientResult = NonNullable<void>

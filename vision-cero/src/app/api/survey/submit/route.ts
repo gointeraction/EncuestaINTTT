@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { driverType, answers, sorteo, turnstileToken, website, clientSubmissionId, channel, botProof, deviceId: deviceIdField, signature } =
+    const { driverType, answers, sorteo, turnstileToken, website, clientSubmissionId, channel, botProof, deviceId: deviceIdField, signature, surveyVersion } =
       body ?? {};
 
     // ====== 2) Honeypot: campo oculto que solo los bots rellenan ======
@@ -178,6 +178,10 @@ export async function POST(req: NextRequest) {
           channel: chan,
           clientSubmissionId: subId,
           deviceId,
+          surveyVersion:
+            typeof surveyVersion === "number" && Number.isInteger(surveyVersion) && surveyVersion >= 1
+              ? surveyVersion
+              : 1,
         },
       });
 

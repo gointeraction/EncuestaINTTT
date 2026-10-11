@@ -22,6 +22,10 @@ export const ANALYTICS_ROUTES: Routes = [
       import('./pages/reportes-cruzados/reportes-cruzados.page').then((m) => m.ReportesCruzadosPage),
   },
   {
+    path: 'anomalias',
+    loadComponent: () => import('./pages/anomalias/anomalias.page').then((m) => m.AnomaliasPage),
+  },
+  {
     path: 'participantes',
     loadComponent: () =>
       import('./pages/participantes/participantes.component').then((m) => m.ParticipantesComponent),

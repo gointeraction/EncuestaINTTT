@@ -104,6 +104,11 @@ export class ReportingService {
     return this.readModel.timeline(surveyId);
   }
 
+  /** Panel de anomalías (anti-fraude). */
+  anomalies(surveyId: string): Promise<unknown> {
+    return this.readModel.anomalies(surveyId);
+  }
+
   /** Tabla cruzada entre dos preguntas del cuestionario (read-only sobre la captura real). */
   async crossTab(surveyId: string, questionA: string, questionB: string): Promise<unknown> {
     const src = PRIMARY_QUESTIONNAIRE.source;

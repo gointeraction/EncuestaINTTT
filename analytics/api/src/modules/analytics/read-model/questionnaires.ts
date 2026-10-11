@@ -14,6 +14,8 @@ export interface Questionnaire {
     channelField?: string;
     sorteoField?: string;
     timeField?: string;
+    /** Campo de dispositivo (para el panel de anomalías). */
+    deviceField?: string;
     /** Campo de captura (dispositivo); la timeline lo prefiere sobre timeField. */
     captureField?: string;
   };
@@ -134,6 +136,7 @@ export const QUESTIONNAIRES: Questionnaire[] = [
       sorteoField: 'participaSorteo',
       timeField: 'completedAt',
       captureField: 'capturedAt',
+      deviceField: 'device_id',
     },
     segments: DRIVER_LABELS,
     channels: CHANNEL_LABELS,
