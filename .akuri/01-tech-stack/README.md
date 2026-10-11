@@ -52,8 +52,8 @@ WRITE INFO: each layer holds technologies; each technology is a **folder**; each
 01-tech-stack/
 ├── README.md                 ← declaration of elements (L2) + this index
 ├── persistence/              ← LAYER: prisma/ postgresql/ redis/
-├── backend/                  ← LAYER: nextjs-api/
-├── frontend/                 ← LAYER: nextjs/ react/ tailwind-shadcn/ zustand/
+├── backend/                  ← LAYER: nextjs-api/ nestjs/ (back-office)
+├── frontend/                 ← LAYER: nextjs/ react/ tailwind-shadcn/ zustand/ angular/ orval/
 ├── infrastructure/           ← LAYER: docker/ docker-compose/ nginx/ pm2/
 └── security/                 ← LAYER: turnstile/
 ```
@@ -68,7 +68,10 @@ WRITE INFO: each element declared once, with its `element-id` as the binding key
 | `frontend.react.ui` | frontend | React 19 rendering runtime |
 | `frontend.tailwind-shadcn` | frontend | Tailwind CSS v4 + shadcn/ui design system (new-york) |
 | `frontend.zustand` | frontend | Client state management (survey answers, navigation) |
-| `backend.nextjs-api` | backend | Next.js Route Handlers (`src/app/api/**/route.ts`) |
+| `backend.nextjs-api` | backend | Next.js Route Handlers (`src/app/api/**/route.ts`) — capa de CAPTURA |
+| `backend.nestjs.analytics` | backend | (planned) NestJS 11 — back-office analítico/reportería/acceso (ver `analytics-platform.md`) |
+| `frontend.angular.admin` | frontend | (planned) Angular — consola de análisis y auth del personal |
+| `library.orval` | frontend | (planned) generador del `api-sdk` desde el OpenAPI del back-office |
 | `persistence.prisma` | persistence | Prisma ORM 6 (schema of record, transactional client) |
 | `persistence.postgresql` | persistence | PostgreSQL 16/18 operational DB (`@db.Text` JSON) |
 | `persistence.redis` | persistence | Redis 7 cache + rate-limit store (declared in docker-compose) |
