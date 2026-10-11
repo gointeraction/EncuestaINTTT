@@ -218,6 +218,8 @@ model SurveyResponse {
   cedula          String?  // formato: V-12345678 o E-12345678
   telefono        String?  // formato: +58 412-1234567
   codigoSorteo    String?
+  // Canal de captura: public (autoservicio general) | kiosk | surveyor
+  channel         String   @default("public")
 
   @@index([driverType])
   @@index([completedAt])
