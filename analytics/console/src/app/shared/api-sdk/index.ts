@@ -158,6 +158,16 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
+ exportControllerExportSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ exportControllerExportSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ exportControllerExportSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  exportControllerExportSurvey<TData = void>(
+    id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/surveys/${id}/export`,options
+    );
+  }
+
 };
 
 export type IdentityControllerLoginClientResult = NonNullable<IdentityControllerLogin200>
@@ -170,3 +180,4 @@ export type SummarizationControllerSummarizeClientResult = NonNullable<void>
 export type SummarizationControllerStatusClientResult = NonNullable<void>
 export type ReportingControllerSurveyClientResult = NonNullable<void>
 export type ReportingControllerGlobalClientResult = NonNullable<void>
+export type ExportControllerExportSurveyClientResult = NonNullable<void>
