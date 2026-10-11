@@ -58,6 +58,7 @@ WRITE INFO: project gates live colocated with what they check:
 | `check-access-audit-required.py` | `.akuri/rules/access/access-audit-required/deterministic/` | protected reads reference the access audit |
 | `check-api-sdk-only.py` | `.akuri/rules/angular/api-sdk-only/deterministic/` | console pages use the api-sdk only |
 | `check-session-guard.py` | `.akuri/rules/angular/session-guard/deterministic/` | console routes declare a session guard |
+| `check-design-system-containers.py` | `.akuri/rules/angular/design-system-containers/deterministic/` | pages/layouts build with `ds-container` |
 | `check-constructors.py` | `.akuri/constructors/tools/` | the L4 constructors exist with the right doc-type |
 | `check.py` | `.akuri/04-testing/load-and-resilience/deterministic/` | testing set + A2↔A3 coherence |
 
