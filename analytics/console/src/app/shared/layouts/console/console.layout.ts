@@ -69,22 +69,10 @@ import { SessionService } from '../../../core/session.service';
       padding: var(--ds-space-1) var(--ds-space-4);
       font-size: var(--ds-text-caption);
     }
-    :host ::ng-deep ds-container[data-name='content'] {
-      display: flex;
-      flex-direction: column;
-      flex: 1 1 auto;
-      min-height: 0;
-    }
-    /* el page container ocupa EXACTAMENTE la misma posición y tamaño que el display */
-    :host ::ng-deep ds-container[data-name='content'] > * {
-      flex: 1 1 auto;
-      min-height: 0;
-      min-width: 0;
-    }
-    :host ::ng-deep ds-container[data-name='content'] > *:not(router-outlet) {
-      display: flex;
-      flex-direction: column;
-    }
+    :host ::ng-deep ds-container[data-name='content'] { flex: 1 1 auto; min-height: 0; }
+    /* El enganche page↔display lo hace el propio ds-container (regla :has() dentro
+       de components/layout/ds-container.ts): estira el host ruteado que contiene el
+       [data-container="page"] para que el page llene exactamente el display. */
     :host ::ng-deep .ds-h__section { flex-direction: row; align-items: center; gap: var(--ds-space-2); }
     .brand__logo { height: 30px; width: auto; display: block; }
     .brand__title { font-weight: var(--ds-font-weight-semibold); white-space: nowrap; }
