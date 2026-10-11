@@ -15,6 +15,9 @@ Write-Host "         ASISTENTE DE INSTALACIÓN Y CONFIGURACIÓN LOCAL (WINDOWS)"
 Write-Host "================================================================================" -ForegroundColor Cyan
 Write-Host ""
 
+# La aplicación Next vive en ./vision-cero; los archivos generales (.env, install) en la raíz.
+Set-Location "$PSScriptRoot\vision-cero"
+
 # 1. Verificación de Node.js y npm
 Write-Host "[1/5] Verificando entorno Node.js y npm..." -ForegroundColor Blue
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
@@ -37,8 +40,8 @@ npm install
 Write-Host ""
 Write-Host "[3/5] Verificando archivo de configuración .env..." -ForegroundColor Blue
 if (-not (Test-Path ".env")) {
-    if (Test-Path ".env.example") {
-        Copy-Item ".env.example" ".env"
+    if (Test-Path "..\.env.example") {
+        Copy-Item "..\.env.example" ".env"
         Write-Host "  -> Se creó el archivo .env a partir de .env.example" -ForegroundColor Yellow
     } else {
         Write-Host "[ERROR] No se encontró el archivo .env ni .env.example" -ForegroundColor Red

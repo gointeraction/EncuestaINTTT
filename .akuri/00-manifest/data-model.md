@@ -120,7 +120,7 @@ dentro de la misma instancia PostgreSQL, cada uno con dueño y mecanismo de acce
 | `analytics` | derivados: `report_*` / read models, estado de sumarización, identidad de staff, `access_audit` | Back-office (NestJS) | ninguno (privado del back-office) |
 
 WRITE INFO: cada esquema tiene su PROPIA capa de acceso (Prisma) y su rol de BD:
-  - **Captura**: `EncuestaINTTT/prisma/schema.prisma` (datasource `public`) con el rol `intt_user`
+  - **Captura**: `EncuestaINTTT/vision-cero/prisma/schema.prisma` (datasource `public`) con el rol `intt_user`
     (dueño); sus migraciones gobiernan `public`.
   - **Back-office**: `analytics/api/prisma/schema.prisma` (propio, `multiSchema`); sus migraciones
     gobiernan SOLO `analytics`. El acceso a `public` se hace con un rol de solo lectura

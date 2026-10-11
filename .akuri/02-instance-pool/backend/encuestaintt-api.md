@@ -11,8 +11,8 @@ layer: backend
 technology: nextjs-api
 instance: The EncuestaINTTT API (Next.js Route Handlers), one backend for the whole app.
 repo-location: /mnt/PROJECTS/GOINTERACTION/INTT/ENCUESTA/03-REPO/EncuestaINTTT
-path: src/app/api/
-entry-point: src/app/api/**/route.ts
+path: vision-cero/src/app/api/
+entry-point: vision-cero/src/app/api/**/route.ts
 status: declared
 ruleset: [encuestaintt-nextjs-api]
 ---
@@ -60,7 +60,7 @@ WRITE INFO: > File: 02-instance-pool/backend/encuestaintt-api.md
 1. **instance** — the EncuestaINTTT API: one backend for the whole app, implemented as Next.js
    Route Handlers; persistence via `persistence.postgresql` through `persistence.prisma`.
 
-2. **repo-location** — `EncuestaINTTT/src/app/api/`; services in `EncuestaINTTT/src/lib/services/`.
+2. **repo-location** — `EncuestaINTTT/vision-cero/src/app/api/`; services in `EncuestaINTTT/vision-cero/src/lib/services/`.
 
 3. **entry-point** — one `route.ts` per resource (`GET`/`POST`/`PATCH`/`DELETE`); logic in the
    service layer.

@@ -20,6 +20,7 @@ export const LEGACY_COLUMNS = [
   '"driverType"',
   '"answers"',
   '"completedAt"',
+  '"capturedAt"',
   '"participaSorteo"',
   '"nombre"',
   '"cedula"',
@@ -128,11 +129,15 @@ export function answersFor(r: Rng, driverType: DriverTypeId): Record<string, unk
 function legacyRow(r: Rng, id: string, driverType: DriverTypeId, seq: number, cedulaSeq: number): Cell[] {
   const channel = r.weighted(CHANNEL_WEIGHTS);
   const participa = r.float() < 0.65;
+  // CAPTURA (dispositivo) y RECEPCIÓN (servidor, unos minutos después).
+  const captured = ISO(seq);
+  const received = new Date(Date.parse(captured) + r.int(0, 240) * 60_000).toISOString();
   return [
     id,
     driverType,
     JSON.stringify(answersFor(r, driverType)),
-    ISO(seq),
+    received,
+    captured,
     participa,
     participa ? `Participante ${seq + 1}` : null,
     participa ? `V-${10_000_000 + cedulaSeq}` : null,

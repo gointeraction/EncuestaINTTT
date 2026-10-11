@@ -1,0 +1,5 @@
+(globalThis["TURBOPACK_CHUNK_LISTS"] || (globalThis["TURBOPACK_CHUNK_LISTS"] = [])).push({
+    script: typeof document === "object" ? document.currentScript : undefined,
+    chunks: ["static/chunks/[root-of-the-server]__0y8cfq1._.css","static/chunks/node_modules_09igewh._.js","static/chunks/src_0d879kb._.js","static/chunks/src_lib_db_ts_01_bg3-._.js","static/chunks/src_components_0wva_he._.js","static/chunks/src_0f38wdm._.js","static/chunks/node_modules_motion-dom_dist_es_0g6cuzy._.js","static/chunks/node_modules_framer-motion_dist_es_1_a7n4k._.js","static/chunks/node_modules_lucide-react_dist_esm_icons_index_0wem3_5.js","static/chunks/node_modules_lucide-react_dist_esm_icons_0utfinu._.js","static/chunks/node_modules_lucide-react_dist_esm_lucide-react_0_cloxd.js","static/chunks/node_modules_lucide-react_dist_esm_lucide-react_04wdmfd.js","static/chunks/node_modules_lodash_03y4jh7._.js","static/chunks/node_modules_recharts_es6_11x-yal._.js","static/chunks/node_modules_@radix-ui_0qheigc._.js","static/chunks/node_modules_@floating-ui_08aw1s3._.js","static/chunks/node_modules_0u7hahz._.js","static/chunks/_1h_u82-._.js"],
+    source: "entry"
+});

@@ -1,0 +1,240 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================================
+// ENUMS SDD (Sistema de Gestión de Encuestas v1.1.0)
+// ============================================================================
+
+enum Role {
+  admin
+  creator
+  analyst
+}
+
+enum SurveyStatus {
+  draft
+  published
+  closed
+  archived
+}
+
+enum AccessMode {
+  public_anonymous
+  email_verified
+  invitation_token
+  whitelist
+}
+
+enum ResponseStatus {
+  in_progress
+  completed
+  abandoned
+}
+
+enum InvitationStatus {
+  pending
+  used
+  expired
+}
+
+// ============================================================================
+// MODELOS PRINCIPALES SDD
+// ============================================================================
+
+model User {
+  id           String     @id @default(uuid())
+  email        String     @unique
+  name         String?
+  passwordHash String     @map("password_hash")
+  role         Role       @default(creator)
+  createdAt    DateTime   @default(now()) @map("created_at")
+  updatedAt    DateTime   @updatedAt @map("updated_at")
+
+  surveys      Survey[]
+  auditLogs    AuditLog[]
+
+  @@map("users")
+}
+
+model Survey {
+  id           String       @id @default(uuid())
+  creatorId    String       @map("creator_id")
+  title        String
+  description  String?      @db.Text
+  slug         String       @unique
+  shortCode    String       @unique @map("short_code")
+  status       SurveyStatus @default(draft)
+  accessMode   AccessMode   @default(public_anonymous) @map("access_mode")
+  allowPartial Boolean      @default(false) @map("allow_partial")
+  maxResponses Int?         @map("max_responses")
+  startsAt     DateTime?    @map("starts_at")
+  endsAt       DateTime?    @map("ends_at")
+  consentText  String?      @db.Text @map("consent_text")
+  createdAt    DateTime     @default(now()) @map("created_at")
+  updatedAt    DateTime     @updatedAt @map("updated_at")
+
+  creator      User         @relation(fields: [creatorId], references: [id], onDelete: Cascade)
+  questions    Question[]
+  responses    Response[]
+  invitations  Invitation[]
+
+  @@index([creatorId])
+  @@index([status])
+  @@index([slug])
+  @@index([shortCode])
+  @@map("surveys")
+}
+
+model Question {
+  id              String           @id @default(uuid())
+  surveyId        String           @map("survey_id")
+  sectionId       String?          @map("section_id")
+  type            String           // short_text, long_text, single_choice, multi_choice, dropdown, scale, rating, date
+  label           String           @db.Text
+  required        Boolean          @default(false)
+  position        Int              @default(0)
+  validationRules Json             @default("{}") @map("validation_rules")
+  branchingRules  Json?            @map("branching_rules")
+  createdAt       DateTime         @default(now()) @map("created_at")
+  updatedAt       DateTime         @updatedAt @map("updated_at")
+
+  survey          Survey           @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  options         QuestionOption[]
+  answers         Answer[]
+
+  @@index([surveyId])
+  @@index([position])
+  @@map("questions")
+}
+
+model QuestionOption {
+  id         String   @id @default(uuid())
+  questionId String   @map("question_id")
+  label      String   @db.Text
+  value      String
+  position   Int      @default(0)
+
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@index([questionId])
+  @@index([position])
+  @@map("question_options")
+}
+
+model Response {
+  id              String         @id @default(uuid())
+  surveyId        String         @map("survey_id")
+  respondentToken String?        @map("respondent_token")
+  emailHash       String?        @map("email_hash")
+  status          ResponseStatus @default(completed)
+  startedAt       DateTime       @default(now()) @map("started_at")
+  submittedAt     DateTime?      @map("submitted_at")
+  device          Json           @default("{}")
+  channel         String         @default("link")
+  ipHash          String         @map("ip_hash")
+  createdAt       DateTime       @default(now()) @map("created_at")
+
+  survey          Survey         @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+  answers         Answer[]
+
+  @@index([surveyId, status])
+  @@index([surveyId, respondentToken])
+  @@map("responses")
+}
+
+model Answer {
+  id           String    @id @default(uuid())
+  responseId   String    @map("response_id")
+  questionId   String    @map("question_id")
+  valueText    String?   @db.Text @map("value_text")
+  valueNumeric Decimal?  @map("value_numeric") @db.Decimal(10, 2)
+  valueOptions Json?     @map("value_options")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  response     Response  @relation(fields: [responseId], references: [id], onDelete: Cascade)
+  question     Question  @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([responseId, questionId])
+  @@index([questionId, valueNumeric])
+  @@map("answers")
+}
+
+model Invitation {
+  id        String           @id @default(uuid())
+  surveyId  String           @map("survey_id")
+  token     String           @unique
+  email     String?
+  status    InvitationStatus @default(pending)
+  usedAt    DateTime?        @map("used_at")
+  createdAt DateTime         @default(now()) @map("created_at")
+
+  survey    Survey           @relation(fields: [surveyId], references: [id], onDelete: Cascade)
+
+  @@index([surveyId])
+  @@index([token])
+  @@map("invitations")
+}
+
+model AuditLog {
+  id         BigInt   @id @default(autoincrement())
+  actorId    String?  @map("actor_id")
+  action     String
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  payload    Json     @default("{}")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+
+  @@index([actorId])
+  @@index([entityType, entityId])
+  @@index([action])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
+
+// ============================================================================
+// MODELOS LEGACY (Encuesta Motocicletas Visión Cero INTT - Compatibilidad)
+// ============================================================================
+
+model SurveyResponse {
+  id              String   @id @default(cuid())
+  driverType      String   // DriverTypeId
+  answers         String   @db.Text // JSON string
+  completedAt     DateTime @default(now()) // RECEPCIÓN: cuándo el servidor guardó el cuestionario
+  capturedAt      DateTime? // CAPTURA: cuándo el dispositivo terminó (offline); null si online
+
+  // Datos personales para el sorteo (opcionales)
+  participaSorteo Boolean  @default(false)
+  nombre          String?
+  cedula          String?  // formato: V-12345678 o E-12345678
+  telefono        String?  // formato: +58 412-1234567
+  codigoSorteo    String?
+  // Canal de captura: public (autoservicio general) | kiosk | surveyor
+  channel         String   @default("public")
+
+  @@index([driverType])
+  @@index([completedAt])
+  @@index([participaSorteo])
+  @@index([cedula])
+  @@map("legacy_survey_responses")
+}
+
+model SurveySummary {
+  id           String   @id @default("latest")
+  calculatedAt DateTime @default(now())
+  totalCount   Int      @default(0)
+  summaryData  String   @db.Text // JSON con todas las métricas precalculadas
+
+  @@index([calculatedAt])
+  @@map("legacy_survey_summaries")
+}

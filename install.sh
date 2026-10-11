@@ -32,7 +32,8 @@ if [ "$EUID" -ne 0 ]; then
 fi
 
 APP_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "$APP_DIR"
+SRC_DIR="$APP_DIR/vision-cero"
+cd "$SRC_DIR"
 
 echo -e "${GREEN}[OK]${NC} Directorio de la aplicación detectado: ${BOLD}$APP_DIR${NC}\n"
 
@@ -231,14 +232,14 @@ server {
 
     # Servir archivos estáticos directamente desde disco
     location /_next/static/ {
-        alias ${APP_DIR}/.next/standalone/.next/static/;
+        alias ${SRC_DIR}/.next/standalone/.next/static/;
         expires 365d;
         access_log off;
         add_header Cache-Control "public, max-age=31536000, immutable";
     }
 
     location /public/ {
-        alias ${APP_DIR}/public/;
+        alias ${SRC_DIR}/public/;
         expires 30d;
         access_log off;
     }
@@ -307,7 +308,7 @@ cat > /etc/cron.d/backup-encuesta-intt <<EOF
 0 2 * * * root PGPASSWORD='${DB_PASSWORD}' pg_dump -U intt_user -h 127.0.0.1 -p 5451 intt_encuesta | gzip > /var/backups/encuesta-intt/backup_\$(date +\%F).sql.gz && find /var/backups/encuesta-intt/ -type f -name "*.sql.gz" -mtime +30 -delete
 
 # Sumarización analítica horaria para carga ultrarrápida del Dashboard (< 5 ms)
-0 * * * * root cd ${APP_DIR} && /usr/bin/npm run survey:summarize >> /var/log/encuesta-summarize.log 2>&1
+0 * * * * root cd ${SRC_DIR} && /usr/bin/npm run survey:summarize >> /var/log/encuesta-summarize.log 2>&1
 EOF
 
 # Guardar resumen de credenciales
@@ -333,8 +334,8 @@ Cloudflare Turnstile:
   Secret Key:           ${TURNSTILE_SECRET_KEY}
 
 Rutas Clave del Sistema:
-  Aplicación:           ${APP_DIR}
-  Configuración .env:   ${APP_DIR}/.env
+  Aplicación:           ${SRC_DIR}
+  Configuración .env:   ${SRC_DIR}/.env
   Respaldos Automáticos: /var/backups/encuesta-intt/
 
 Seguridad de Acceso:

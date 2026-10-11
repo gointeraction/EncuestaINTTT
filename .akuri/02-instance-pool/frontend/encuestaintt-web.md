@@ -11,8 +11,8 @@ layer: frontend
 technology: nextjs
 instance: The EncuestaINTTT web application (citizen portal + dashboard + admin), one Next.js 16 App Router app.
 repo-location: /mnt/PROJECTS/GOINTERACTION/INTT/ENCUESTA/03-REPO/EncuestaINTTT
-path: src/app/
-entry-point: src/app/layout.tsx, src/app/page.tsx
+path: vision-cero/src/app/
+entry-point: vision-cero/src/app/layout.tsx, vision-cero/src/app/page.tsx
 status: declared
 ruleset: [encuestaintt-nextjs-page]
 ---

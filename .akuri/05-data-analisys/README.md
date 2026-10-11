@@ -59,7 +59,7 @@ VISUAL_PATTERN=EVERY_GRAPH_SHOWS_N.
 
 WRITE INFO: A2 **declara**; A3 **construye y verifica**. Este conjunto declara el modelo de
 presentación y comprueba que la realidad (el cuestionario en
-`EncuestaINTTT/src/lib/survey-data.ts` y los read models del back-office) coincide con la
+`EncuestaINTTT/vision-cero/src/lib/survey-data.ts` y los read models del back-office) coincide con la
 declaración. En discrepancia, se corrige A2 — nunca se dobla A3.
 
 ## Instruction set
@@ -87,7 +87,7 @@ visual adecuado a cada tipo.
 
 | Artefacto | Ruta |
 |-----------|------|
-| Cuestionario y tipos de pregunta | `EncuestaINTTT/src/lib/survey-data.ts` |
+| Cuestionario y tipos de pregunta | `EncuestaINTTT/vision-cero/src/lib/survey-data.ts` |
 | Read models del back-office | `analytics/api/src/modules/analytics/read-model/read-model.service.ts` |
 | Reportería y cruces | `analytics/api/src/modules/analytics/reporting/reporting.service.ts` |
 | Consola y visuales | `analytics/console/src/app/` |

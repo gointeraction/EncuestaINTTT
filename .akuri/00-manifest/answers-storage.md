@@ -67,9 +67,10 @@ WRITE INFO: **Por qué** (frente a «una columna por pregunta» o EAV):
 WRITE INFO: el documento `answers` es un **mapa plano `pregunta-id → valor`**:
 - valor cerrado (única/select) → `string`; múltiple → `string[]`; escala/número → `number`;
   abierto → `string`. Compuestos (`estado-municipio`) → varias claves (`estado`, `municipio`).
-- El **envelope** va en columnas (no en el JSON): `driverType`, `channel`, `completedAt`,
-  `participaSorteo` (+ sorteo) y, para multi-cuestionario/offline, `questionnaire` y
-  `answersVersion`.
+- El **envelope** va en columnas (no en el JSON): `driverType`, `channel`, **`completedAt`
+  (recepción del servidor, `now()` al insertar)** y **`capturedAt` (captura del dispositivo,
+  nullable; igual a `completedAt` cuando es online, distinto en offline)**, `participaSorteo`
+  (+ sorteo) y, para multi-cuestionario/offline, `questionnaire` y `answersVersion`.
 
 WRITE RULE: el documento MUST contener TODAS las preguntas aplicables al perfil (cuestionario
 COMPLETO); incompletos no se persisten. — MUST

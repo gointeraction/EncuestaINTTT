@@ -12,7 +12,7 @@ technology: postgresql
 instance: PostgreSQL 16 database intt_encuesta accessed via Prisma 6, plus local JSON fallback.
 repo-location: /mnt/PROJECTS/GOINTERACTION/INTT/ENCUESTA/03-REPO/EncuestaINTTT
 path: prisma/
-entry-point: prisma/schema.prisma
+entry-point: vision-cero/prisma/schema.prisma
 status: declared
 ruleset: [encuestaintt-prisma]
 ---
@@ -61,7 +61,7 @@ WRITE INFO: > File: 02-instance-pool/persistence/postgresql-prisma.md
    through the Prisma 6 client singleton (`src/lib/db.ts`). Local fallback stores:
    `db/local_surveys.json` (via `local-survey-store.ts`) and `db/sqlite_backup.json` (stats fallback).
 
-2. **repo-location** — schema + migrations in `EncuestaINTTT/prisma/`; the **running instance** is the
+2. **repo-location** — schema + migrations in `EncuestaINTTT/vision-cero/prisma/`; the **running instance** is the
    `db` service of `compose.yaml`, with PGDATA colocated at `./.data/postgres` (bind mount, gitignored)
    and init scripts in `./db/init/`. Schema is synced by the one-shot `migrate` service
    (`prisma db push` by default). Local fallback stores remain `db/local_surveys.json` and

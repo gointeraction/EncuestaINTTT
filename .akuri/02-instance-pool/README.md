@@ -49,17 +49,17 @@ WRITE INFO: VISUAL_PATTERN=SINGLE_SOURCE_OF_TRUTH; VISUAL_PATTERN=SNAKE_CASE.
 WRITE INFO: the ACTIVE instances (one codebase, multiple surfaces):
 
 ### frontend
-- **encuestaintt-web** — see `frontend/encuestaintt-web.md`. Location `EncuestaINTTT/src/app/`;
+- **encuestaintt-web** — see `frontend/encuestaintt-web.md`. Location `EncuestaINTTT/vision-cero/src/app/`;
   entry `src/app/layout.tsx` + `src/app/page.tsx`; the citizen portal, private dashboard and
   admin panel; talks to `backend.nextjs-api` (in-process route handlers).
 
 ### backend
-- **encuestaintt-api** — see `backend/encuestaintt-api.md`. Location `EncuestaINTTT/src/app/api/`;
+- **encuestaintt-api** — see `backend/encuestaintt-api.md`. Location `EncuestaINTTT/vision-cero/src/app/api/`;
   entry per-resource `route.ts`; the API (legacy `/api/*` + SDD `/api/v1/*`); persistence via
   `persistence.postgresql` through `persistence.prisma`.
 
 ### persistence
-- **postgresql-prisma** — see `persistence/postgresql-prisma.md`. Location `EncuestaINTTT/prisma/`
+- **postgresql-prisma** — see `persistence/postgresql-prisma.md`. Location `EncuestaINTTT/vision-cero/prisma/`
   (schema + migrations), database `intt_encuesta`; operational store. Local fallback:
   `db/local_surveys.json` + `db/sqlite_backup.json`.
 

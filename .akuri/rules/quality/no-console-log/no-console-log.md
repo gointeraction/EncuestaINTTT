@@ -63,7 +63,7 @@ offending file, naming it.
 
 ### SECTION 01-EVALUATION
 
-WRITE INFO: the rule holds when the gate returns exit 0 over `EncuestaINTTT/src`.
+WRITE INFO: the rule holds when the gate returns exit 0 over `EncuestaINTTT/vision-cero/src`.
 
 ### SECTION 02-REPORT
 

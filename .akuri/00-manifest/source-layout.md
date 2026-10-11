@@ -30,6 +30,19 @@ WRITE INFO: Every implementation layer scoped by the tech-stack has three canoni
 A single artifact belongs in EXACTLY one root. The decision asks *"does the system need this
 to exist, or a business capability?"* — not convenience.
 
+WRITE INFO: **REPO ROOT**: the repo has GENERAL files at the first level and each IMPLEMENTATION
+in its own folder:
+- **Root** (general): `compose.yaml`, `install.sh`/`install.ps1`, `.akuri/` (corpus), `docs/`,
+  `handover/`, `.env*`, `README.md`.
+- **`vision-cero/`**: the Next.js **capture** app (Visión Cero) — `src/`, `public/`, `prisma/`,
+  `db/`, `scripts/`, `tests/`, `deploy/`, `Dockerfile`, `Caddyfile`, `.zscripts/`, y sus
+  `next.config.ts` / `tailwind.config.ts` / `package.json`.
+- **`analytics/`**: la capa analítica — `analytics/api` (NestJS), `analytics/console` (Angular),
+  `analytics/api-sdk` (Orval), `analytics/seed` (seeder).
+
+Los paths internos de este documento (`src/app/...`, `prisma/...`) son RELATIVOS a
+`vision-cero/`.
+
 ### SECTION 02-USE-MODES
 
 WRITE INFO: USE_MODE is one of: INFORM | CONSTRUCT | AUDIT | FIX.
