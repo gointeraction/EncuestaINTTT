@@ -1,11 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
 import {
   DsButtonComponent,
+  DsChartCardComponent,
   DsContainerComponent,
   DsHeaderComponent,
   DsKpiGridComponent,
   DsPageTitleComponent,
   ThemeService,
+  type DsChartSeries,
   type DsKpiItem,
 } from '@cifraflow/design';
 import { GLOBAL_STATE, type GlobalStateContract } from './business/contracts/global.state.contract';
@@ -28,6 +30,7 @@ import { GlobalStateService } from './business/state/global.state.service';
     DsPageTitleComponent,
     DsKpiGridComponent,
     DsButtonComponent,
+    DsChartCardComponent,
   ],
   providers: [GlobalStateService, { provide: GLOBAL_STATE, useExisting: GlobalStateService }],
   template: `
@@ -82,6 +85,17 @@ import { GlobalStateService } from './business/state/global.state.service';
             </ds-container>
           </div>
         }
+
+        @if (state.timeline().length > 1) {
+          <ds-container kind="section" name="timeline" style="margin-top: var(--ds-space-6)">
+            <ds-chart-card
+              title="Cuestionarios en el tiempo"
+              subtitle="Cuestionarios respondidos por día"
+              [categories]="timelineChart().categories"
+              [series]="timelineChart().series"
+            />
+          </ds-container>
+        }
       </ds-container>
     </ds-container>
   `,
@@ -111,6 +125,14 @@ export class GlobalPage {
       { label: 'Tipos de conductor', value: g.byDriverType.length, icon: 'users', tone: 'neutral' },
       { label: 'Canales', value: g.byChannel.length, icon: 'pie-chart', tone: 'neutral' },
     ];
+  });
+
+  readonly timelineChart = computed<{ categories: string[]; series: DsChartSeries[] }>(() => {
+    const points = this.state.timeline();
+    return {
+      categories: points.map((p) => p.day),
+      series: [{ name: 'Cuestionarios', data: points.map((p) => p.total) }],
+    };
   });
 
   constructor() {

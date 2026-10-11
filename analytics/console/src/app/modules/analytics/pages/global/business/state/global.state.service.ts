@@ -1,7 +1,7 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { GlobalDataService } from '../data/global.data.service';
 import type { GlobalStateContract } from '../contracts/global.state.contract';
-import type { GlobalPayload } from '../models/global.model';
+import type { GlobalPayload, TimelinePoint } from '../models/global.model';
 
 @Injectable()
 export class GlobalStateService implements GlobalStateContract {
@@ -9,12 +9,17 @@ export class GlobalStateService implements GlobalStateContract {
 
   readonly loading = signal(false);
   readonly payload = signal<GlobalPayload | null>(null);
+  readonly timeline = signal<TimelinePoint[]>([]);
   readonly run = signal<string | null>(null);
 
   async load(): Promise<void> {
     this.loading.set(true);
     try {
-      this.payload.set(await this.data.loadGlobal());
+      const payload = await this.data.loadGlobal();
+      this.payload.set(payload);
+      if (payload?.questionnaire) {
+        this.timeline.set(await this.data.timeline(payload.questionnaire));
+      }
     } finally {
       this.loading.set(false);
     }

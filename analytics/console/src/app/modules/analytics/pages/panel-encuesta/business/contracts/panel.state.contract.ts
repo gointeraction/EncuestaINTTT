@@ -4,7 +4,6 @@ import type {
   QuestionAnalytics,
   SurveyPayload,
   SurveySource,
-  TimelinePoint,
 } from '../models/panel.model';
 
 /** Token de inyección del contrato de estado de la página (el seam lógica↔vista). */
@@ -14,7 +13,6 @@ export interface PanelStateContract {
   readonly sources: Signal<SurveySource[]>;
   readonly dashboard: Signal<SurveyPayload | null>;
   readonly dimensions: Signal<FilterDimension[]>;
-  readonly timeline: Signal<TimelinePoint[]>;
   readonly loading: Signal<boolean>;
   readonly surveyId: Signal<string>;
   readonly search: Signal<string>;

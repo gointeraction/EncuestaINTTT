@@ -6,7 +6,6 @@ import type {
   QuestionAnalytics,
   SurveyPayload,
   SurveySource,
-  TimelinePoint,
 } from '../models/panel.model';
 
 @Injectable()
@@ -16,7 +15,6 @@ export class PanelStateService implements PanelStateContract {
   readonly sources = signal<SurveySource[]>([]);
   readonly dashboard = signal<SurveyPayload | null>(null);
   readonly dimensions = signal<FilterDimension[]>([]);
-  readonly timeline = signal<TimelinePoint[]>([]);
   readonly loading = signal(false);
   readonly search = signal('');
   readonly typeFilter = signal('');
@@ -65,19 +63,16 @@ export class PanelStateService implements PanelStateContract {
     if (!id) {
       this.dashboard.set(null);
       this.dimensions.set([]);
-      this.timeline.set([]);
       return;
     }
     this.loading.set(true);
     try {
-      const [dashboard, dimensions, timeline] = await Promise.all([
+      const [dashboard, dimensions] = await Promise.all([
         this.data.loadSurvey(id),
         this.data.loadDimensions(id),
-        this.data.loadTimeline(id),
       ]);
       this.dashboard.set(dashboard);
       this.dimensions.set(dimensions);
-      this.timeline.set(timeline);
     } finally {
       this.loading.set(false);
     }

@@ -169,18 +169,6 @@ interface ChartVm {
           }
         }
 
-        <!-- LÍNEA DE TIEMPO -->
-        @if (state.timeline().length > 1) {
-          <ds-container kind="section" name="timeline">
-            <ds-chart-card
-              title="Cuestionarios en el tiempo"
-              subtitle="Cuestionarios respondidos por día"
-              [categories]="timelineChart().categories"
-              [series]="timelineChart().series"
-            />
-          </ds-container>
-        }
-
         <!-- TABLA: RESPUESTAS ABIERTAS -->
         @if (commentRows().length) {
           <ds-container kind="section" name="comentarios">
@@ -304,14 +292,6 @@ export class PanelEncuestaPage {
       };
     }
     return { type: 'none', base };
-  });
-
-  readonly timelineChart = computed<{ categories: string[]; series: DsChartSeries[] }>(() => {
-    const points = this.state.timeline();
-    return {
-      categories: points.map((p) => p.day),
-      series: [{ name: 'Cuestionarios', data: points.map((p) => p.total) }],
-    };
   });
 
   readonly tableRows = computed<DsTableRow[]>(() => {
