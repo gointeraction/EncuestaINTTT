@@ -149,12 +149,12 @@ export interface BarChartData {
     .ds-chart__legend-name { font-size: var(--ds-text-caption); color: var(--ds-viz-label); }
     .ds-chart__legend-name--truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ds-chart__grid {
-      display: flex; align-items: flex-end; gap: var(--ds-gap-md);
+      display: flex; align-items: stretch; gap: var(--ds-gap-md);
       height: 180px;
       border-bottom: 1px solid var(--ds-viz-axis-line);
       padding-top: var(--ds-space-2);
     }
-    .ds-chart__col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: var(--ds-gap-xs); }
+    .ds-chart__col { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--ds-gap-xs); }
     .ds-chart__bar-group { flex: 1; width: 100%; display: flex; align-items: flex-end; gap: 2px; }
     .ds-chart__bar {
       flex: 1; border-radius: var(--ds-radius-sm) var(--ds-radius-sm) 0 0;
