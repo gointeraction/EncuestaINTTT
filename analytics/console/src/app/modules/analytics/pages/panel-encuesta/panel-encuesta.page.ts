@@ -123,6 +123,7 @@ interface ChartVm {
 
         <!-- GRÁFICO DE LA PREGUNTA ENFOCADA -->
         @if (state.selected(); as q) {
+          <div class="panel__detail">
           <ds-container kind="section" name="grafico">
             @if (questionKpis().length > 1) {
               <ds-kpi-grid [items]="questionKpis()" />
@@ -167,6 +168,7 @@ interface ChartVm {
               />
             </ds-container>
           }
+          </div>
         }
 
         <!-- TABLA: RESPUESTAS ABIERTAS -->
@@ -186,6 +188,9 @@ interface ChartVm {
   `,
   styles: `
     .panel__body { padding: var(--ds-space-4); display: flex; flex-direction: column; gap: var(--ds-space-4); }
+    /* Gráfico y detalle por categoría, uno al lado del otro (envuelve en pantallas menores). */
+    .panel__detail { display: grid; gap: var(--ds-space-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
+    @media (max-width: 1024px) { .panel__detail { grid-template-columns: minmax(0, 1fr); } }
     .panel__fuente { display: inline-flex; gap: 0.4rem; align-items: center; color: inherit; }
     .panel__segment { margin: var(--ds-space-2) 0 0; font-size: var(--ds-text-caption); color: var(--ds-text-muted); }
   `,
