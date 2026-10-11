@@ -57,7 +57,7 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
         style="justify-content: center; align-items: center"
       >
         <ds-container kind="block" name="login-card" class="login-card">
-          <form (ngSubmit)="submit()" novalidate class="login-form">
+          <form (submit)="submit($event)" novalidate class="login-form">
             <ds-form-field
               #emailField
               label="Correo"
@@ -166,7 +166,8 @@ export class LoginPage {
     });
   }
 
-  async submit(): Promise<void> {
+  async submit(event?: Event): Promise<void> {
+    event?.preventDefault();
     this.emailTouched.set(true);
     this.passwordTouched.set(true);
     if (this.emailErrors().length || this.passwordErrors().length) return;
