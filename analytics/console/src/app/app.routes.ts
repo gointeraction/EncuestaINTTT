@@ -21,5 +21,21 @@ export const routes: Routes = [
         (m) => m.PanelEncuestaComponent,
       ),
   },
+  {
+    path: 'reportes-cruzados',
+    canActivate: [sessionGuard],
+    loadComponent: () =>
+      import('./modules/analytics/reportes-cruzados/reportes-cruzados.component').then(
+        (m) => m.ReportesCruzadosComponent,
+      ),
+  },
+  {
+    path: 'participantes',
+    canActivate: [sessionGuard],
+    loadComponent: () =>
+      import('./modules/analytics/participantes/participantes.component').then(
+        (m) => m.ParticipantesComponent,
+      ),
+  },
   { path: '**', redirectTo: '' },
 ];

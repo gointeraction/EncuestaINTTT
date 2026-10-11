@@ -21,6 +21,8 @@ interface GlobalPayload {
     <p>
       <button type="button" (click)="summarize()">Recalcular sumarización</button>
       <a href="/panel">Panel por encuesta</a>
+      <a href="/reportes-cruzados">Reportes cruzados</a>
+      <a href="/participantes">Participantes</a>
     </p>
 
     @if (kpis().length) {
