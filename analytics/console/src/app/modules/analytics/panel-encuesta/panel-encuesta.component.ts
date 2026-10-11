@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { JsonPipe } from '@angular/common';
 import { firstValueFrom } from 'rxjs';
 import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../shared/api-sdk';
+import { API_BASE } from '../../../core/api.config';
 
 interface SurveySource {
   id: string;
@@ -24,6 +25,10 @@ interface SurveySource {
       </select>
     </label>
 
+    @if (surveyId) {
+      <p><a [href]="exportUrl()" download>Exportar CSV</a></p>
+    }
+
     @if (dashboard(); as d) {
       <pre>{{ d | json }}</pre>
     } @else {
@@ -39,6 +44,10 @@ export class PanelEncuestaComponent {
 
   constructor() {
     void this.loadSources();
+  }
+
+  exportUrl(): string {
+    return `${API_BASE}/analytics/surveys/${this.surveyId}/export`;
   }
 
   async loadSources(): Promise<void> {
