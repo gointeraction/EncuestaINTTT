@@ -1,8 +1,8 @@
 import { Component, signal } from '@angular/core';
-import { ConsoleLayout } from './shared/layouts/console/console.layout';
+import { RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [ConsoleLayout],
+  imports: [RouterOutlet],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
