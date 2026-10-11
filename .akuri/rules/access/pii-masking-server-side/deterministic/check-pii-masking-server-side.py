@@ -20,6 +20,9 @@ def violations(root: Path):
             continue
         if "export" not in p.name.lower():
             continue
+        # El serializador es responsable de la máscara; controller/module solo orquestan.
+        if p.name.endswith(".controller.ts") or p.name.endswith(".module.ts"):
+            continue
         text = p.read_text(encoding="utf-8", errors="ignore")
         if not any(m in text for m in MASK_MARKERS):
             out.append(p)
