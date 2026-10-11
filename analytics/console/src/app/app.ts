@@ -1,11 +1,10 @@
 import { Component, signal } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { DsContainerComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
-import { ShellHeaderComponent } from './core/shell-header/shell-header.component';
+import { ConsoleLayoutComponent } from './shared/layouts/console-layout/console-layout.component';
 
 @Component({
-  imports: [RouterOutlet, DsContainerComponent, DsFabComponent, ShellHeaderComponent],
+  imports: [DsContainerComponent, DsFabComponent, ConsoleLayoutComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
