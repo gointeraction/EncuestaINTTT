@@ -155,6 +155,19 @@ Cada feature deriva de un propósito dentro del alcance y es un **corte vertical
   construye en Angular, consumiendo el back-office SOLO por un `api-sdk` generado (orval) desde su
   OpenAPI. La extracción es strangler, por fases, empezando por `analytics`.
 
+## 8. Further decisions (D-12..D-14)
+
+- **D-12 (Sesión local, federable a futuro)**: la autenticación del personal es una **sesión local**
+  propia del back-office (sin integración con identidades externas por ahora), implementada de forma
+  **federable** (p. ej. estrategias estilo Passport) para poder integrar un IdP del INTT más adelante
+  sin reescribir. Local: `platform/identity`.
+- **D-13 (Idioma español — OVERRIDE)**: por excepción al mandato de inglés de A1, todo el proyecto
+  (docs, comentarios, UI) se escribe en **español**; los identificadores de código se mantienen en
+  inglés. Override O-1 en `00-manifest/overrides.md`.
+- **D-14 (Design system de consola)**: la consola Angular adopta (vendoriza) el design system de
+  `cifraflow-shared` (`design` + `fab`) adaptado a la marca INTT; tokens como SSOT. Ver
+  `01-tech-stack/frontend/design-system/design-system.md`.
+
 ## Deterministic gate
 
 - run `deterministic/check.py <artifact>` — exit 0 PASS / 1 FAIL. Probabilistic proposes; this guarantees (L1 rule 9).

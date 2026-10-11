@@ -119,6 +119,15 @@ dentro de la misma instancia PostgreSQL, cada uno con dueño y mecanismo de acce
 | `public` | captura: `User`, `Survey`, `Question`, `Response`, `Answer`, `Invitation`, `AuditLog`, `legacy_survey_*` | Captura (Next.js / Prisma) | back-office: SOLO LECTURA (`intt_analytics_ro`) |
 | `analytics` | derivados: `report_*` / read models, estado de sumarización, identidad de staff, `access_audit` | Back-office (NestJS) | ninguno (privado del back-office) |
 
+WRITE INFO: cada esquema tiene su PROPIA capa de acceso (Prisma) y su rol de BD:
+  - **Captura**: `EncuestaINTTT/prisma/schema.prisma` (datasource `public`) con el rol `intt_user`
+    (dueño); sus migraciones gobiernan `public`.
+  - **Back-office**: `analytics/api/prisma/schema.prisma` (propio, `multiSchema`); sus migraciones
+    gobiernan SOLO `analytics`. El acceso a `public` se hace con un rol de solo lectura
+    (`intt_analytics_ro`: `USAGE` + `SELECT`) o, preferido, mediante **vistas de solo lectura en
+    `analytics`** sobre `public` (mantiene limpias las migraciones del back-office). El back-office
+    NO comparte el esquema Prisma de la captura.
+
 WRITE RULE: `public` es escrito ÚNICAMENTE por la captura; `analytics` ÚNICAMENTE por el
 back-office. — MUST
 

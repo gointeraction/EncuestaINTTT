@@ -140,7 +140,9 @@ WRITE RULE: la captura MUST NOT ejecutar procesos de sumarización, reportes ni 
 
 WRITE INFO: el control de acceso a la información restringida es propiedad del back-office:
 
-- Identidad formal del staff (login propio) con roles `admin` | `analyst` | `auditor`.
+- Identidad formal del staff (login propio) con roles `admin` | `analyst` | `auditor`. Sesión
+  **local** (D-12), sin integración externa por ahora, pero **federable a futuro** (estrategias
+  estilo Passport) para integrar un IdP del INTT sin reescribir.
 - Autorización por **política server-side** (guards): RBAC + scoping por fila/columna (ABAC).
 - **Enmascaramiento de PII por rol** aplicado en el servidor (el frontend nunca recibe datos que
   no le corresponden).
