@@ -1,0 +1,25 @@
+{
+  "declared_public_endpoints": [
+    "root",
+    "surveySubmit",
+    "publicSurveyGet",
+    "publicSurveyResponses"
+  ],
+  "declared_admin_endpoints": [
+    "adminLogin",
+    "adminSession",
+    "adminLogout",
+    "surveyStats",
+    "surveyParticipants",
+    "v1Surveys"
+  ],
+  "required_suite_files": [
+    "scripts/test-e2e-journey.ts",
+    "scripts/test-responses-ingestion.ts",
+    "scripts/test-surveys-crud.ts",
+    "scripts/test-questions-crud.ts",
+    "scripts/summarize.ts"
+  ],
+  "a3_root": "/mnt/PROJECTS/GOINTERACTION/INTT/ENCUESTA/03-REPO/EncuestaINTTT",
+  "suite_dir": "scripts"
+}

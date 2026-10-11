@@ -1,0 +1,44 @@
+# Local rules — EncuestaINTTT (colocated .akuri/rules/rules.yaml)
+
+# Every project is unique: its stack, organization, style and decisions live HERE,
+# colocated with the code. The external pack (akuri-oma-documentation) discovers this
+# file and composes it over the base norms N01..N10. Local rules ADD requirements;
+# they never remove base norms. When a project genuinely diverges from a base norm,
+# record the OVERRIDE in the project manifest (A2 03-projects/<p>), not silently here.
+
+project: encuestaintt
+stack:
+  frontend: nextjs-16-app-router      # Next.js 16.3 (App Router), React 19, TypeScript 5
+  styling: tailwindcss-v4-shadcn      # Tailwind CSS v4 + Shadcn UI
+  state: zustand-v5                   # Zustand v5 para estado global (respuestas, navegación)
+  backend: nextjs-api-routes          # Next.js API Routes en modo standalone
+  orm: prisma-v6                      # Prisma ORM v6 conector binario PostgreSQL
+  database: postgresql-16-18          # PostgreSQL 16/18 con @db.Text para JSON
+  cache: redis                        # Redis para caché estadísticas y rate-limit
+  webserver: nginx-1.24               # Nginx con Brotli/Gzip, microcaché, rate-limit
+  process: pm2-v5                     # PM2 cluster mode (instances: "max")
+  auth: turnstile-hmac                # Cloudflare Turnstile + HMAC session admin
+  i18n: es-only                       # Solo español (institucional INTT Venezuela)
+  deployment: onpremises-linux        # Ubuntu/Debian on-prem, 4 VLANs segmentadas
+  containerization: docker-compose    # docker-compose.yml para PostgreSQL + Redis
+
+# Extra sections a transversal must include beyond the base 01..08.
+required-sections: []
+#   e.g. [ "09-ACCESIBILIDAD" ] if the project mandates an accessibility section.
+
+# Extra frontmatter fields a transversal must declare.
+required-frontmatter: [ idioma ]
+
+# Local deterministic checks that run against every transversal (colocated here).
+checks: [ check-documento-en-es.py ]
+
+# Conventions the local check enforces (documented, not magic).
+conventions:
+  idioma: es
+  slug-epicas: snake_case          # encuesta-adaptativa, incentivos-sorteo, ...
+  slug-transversales: snake_case   # formulario, perfilamiento, validaciones, ...
+  rutas-api: bajo /api             # Next.js API Routes en src/app/api/
+  endpoints-admin: bajo /api/admin # restringido a intranet/VPN en Nginx
+  frontend-routes: app-router      # src/app/ con route groups (encuesta, admin)
+  reglas: rule-id <epic>.<transversal>.R<NN>
+  adl-sketches: .adl               # sketches en carpeta sketches/ por transversal

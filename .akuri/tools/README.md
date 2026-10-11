@@ -1,0 +1,70 @@
+---
+file: README.md
+doc-type: README
+level: L3
+area: A3
+position: 1
+title: TOOLS
+summary: Deterministic tools of the EncuestaINTTT project — checkers/builders invoked
+  by the OMA engine (`oma_check` / `oma_build`) and by the project's own gates.
+---
+
+# .akuri/tools — Deterministic tools
+
+## CHAPTER 1: PURPOSE & USE MODES
+
+### SECTION 01-PURPOSE
+
+WRITE INFO: this folder holds the project's DETERMINISTIC tools: checkers (`check*.py`) and
+builders (`build*.py`) that guarantee the declarations and the code. They are discovered by the
+engine (`oma_discover`) and run by `oma_check` / `oma_build`.
+
+### SECTION 02-USE-MODES
+
+WRITE INFO: USE_MODE is one of: INFORM | CONSTRUCT | AUDIT | FIX.
+
+## CHAPTER 2: CONTEXT — TECH & PATTERNS
+
+### SECTION 01-TECHNOLOGIES
+
+WRITE INFO: TECH=PYTHON.
+
+### SECTION 02-ARCHITECTURE-PATTERNS
+
+WRITE INFO: ARCH_PATTERN=SINGLE_TOOL_THREE_FLAVORS.
+
+### SECTION 03-DESIGN-PATTERNS
+
+WRITE INFO: DESIGN_PATTERN=COMMAND.
+
+### SECTION 04-VISUAL-DESIGN-PATTERNS
+
+WRITE INFO: VISUAL_PATTERN=SINGLE_SOURCE_OF_TRUTH.
+
+## CHAPTER 3: CONTENT
+
+### SECTION 01-TOOLS
+
+WRITE INFO: project gates live colocated with what they check:
+
+| Gate | Location | Checks |
+|------|----------|--------|
+| `check-documento-en-es.py` | `.akuri/rules/` | every functional document is authored in Spanish |
+| `check-no-console-log.py` | `.akuri/rules/quality/no-console-log/deterministic/` | no stray console.log/debug in `src/` |
+| `check.py` | `.akuri/04-testing/load-and-resilience/deterministic/` | testing set + A2↔A3 coherence |
+
+### SECTION 02-CONVENTION
+
+WRITE INFO: each tool does ONE thing in three flavors (`--action=create|audit|fix`); exit 0 PASS,
+1 FAIL, 2 invalid entry condition.
+
+## CHAPTER 4: EVALUATION & CLOSING
+
+### SECTION 01-EVALUATION
+
+WRITE INFO: run `oma_discover(root=a3-...)` to list the deterministic tools; run each with
+`--action=audit` on the real corpus.
+
+### SECTION 02-REPORT
+
+WRITE INFO: REPORT verdict = PASS | FAIL.
