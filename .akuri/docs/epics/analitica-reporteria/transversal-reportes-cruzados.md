@@ -14,7 +14,7 @@ idioma: es
 layers: descripcion reglas persistencia backend frontend-logica frontend-visual experiencias-visuales trazabilidad
 flows: reportes-cruzados
 routes: /analytics/surveys/:id/cross-tab
-models: SurveyCrossTab
+models: SurveyResponse
 ---
 
 # Transversal — Reportes cruzados (épica analitica-reporteria)
@@ -35,7 +35,7 @@ models: SurveyCrossTab
 
 | Modelo | Almacén | Rol |
 |---|---|---|
-| `SurveyCrossTab` | esquema `analytics` | cruce precalculado de pares de preguntas |
+| `SurveyResponse` | `public.legacy_survey_responses` (documental JSON) | fuente del cruce: dos claves de `answers` (cruce calculado en vivo, sin read model) |
 
 ## SECTION 04-BACKEND
 

@@ -14,7 +14,7 @@ idioma: es
 layers: descripcion reglas persistencia backend frontend-logica frontend-visual experiencias-visuales trazabilidad
 flows: acceso-datos
 routes: /analytics/sources/surveys
-models: SurveyRead ResponseRead
+models: SurveyResponse
 ---
 
 # Transversal — Acceso a los datos de la encuesta (épica analitica-reporteria)
@@ -35,8 +35,8 @@ models: SurveyRead ResponseRead
 
 | Modelo | Almacén | Rol |
 |---|---|---|
-| `SurveyRead` | vistas de solo lectura en `analytics` sobre `public` | encuestas disponibles |
-| `ResponseRead` | vistas de solo lectura en `analytics` sobre `public` | respuestas por encuesta |
+| `SurveyResponse` | `public.legacy_survey_responses` (Visión Cero, documental JSON) | cuestionarios respondidos disponibles |
+| *(SDD)* `Response`/`Answer` | `public.responses`/`answers` (normalizado) | fuente alternativa multi-cuestionario |
 
 ## SECTION 04-BACKEND
 

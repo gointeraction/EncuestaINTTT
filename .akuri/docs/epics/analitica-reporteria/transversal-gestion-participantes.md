@@ -15,7 +15,7 @@ idioma: es
 layers: descripcion reglas persistencia backend frontend-logica frontend-visual experiencias-visuales trazabilidad
 flows: gestion-participantes
 routes: /analytics/participants
-models: ParticipantEntry
+models: SurveyResponse
 ---
 
 # Transversal — Gestión de participantes (épica analitica-reporteria)
@@ -36,7 +36,7 @@ models: ParticipantEntry
 
 | Modelo | Almacén | Rol |
 |---|---|---|
-| `ParticipantEntry` | vista de solo lectura en `analytics` sobre `public` | inscrito en el sorteo |
+| `SurveyResponse` | `public.legacy_survey_responses` (filas `participaSorteo = true`) | inscrito en el sorteo (cédula única) |
 
 ## SECTION 04-BACKEND
 

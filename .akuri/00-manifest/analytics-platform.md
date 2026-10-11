@@ -224,6 +224,30 @@ WRITE INFO: justificación de fondo — el desacoplamiento alinea cada naturalez
 analítica, control de acceso y auditabilidad**. Esas dos optimizaciones se estorban dentro de un
 mismo runtime; separarlas es una decisión de arquitectura, no una preferencia.
 
+### SECTION 11-MODELO-DE-ANALISIS
+
+WRITE INFO: el análisis opera sobre **DOS generaciones de datos** y un **registro de
+cuestionarios** (no sobre un caso particular):
+
+- **Visión Cero (legacy, documental)** — `public.legacy_survey_responses`: el cuestionario
+  respondido COMPLETO en un JSON (`answers`, keyed por pregunta-id) + envelope (`driverType`,
+  `channel`, `completedAt`, sorteo). Ver `answers-storage.md`.
+- **SDD (normalizado)** — `surveys/questions/responses/answers`: motor genérico multi-cuestionario.
+
+WRITE INFO: el **registro de cuestionarios** (`questionnaires-registry.md`) declara, por
+cuestionario, su fuente, etiquetas (preguntas, tipos de conductor, canales), seed y análisis. La
+analítica (read models, reportería, filtrado) es **registry-driven**.
+
+WRITE INFO: mapa de las estrategias de análisis de la plataforma:
+- Sumarización recomputable (CQRS) → `docs/epics/analitica-reporteria/transversal-sumarizacion-cqrs.md`.
+- Filtrado por dimensiones (envelope / respuesta / derivada) → `analysis-filtering.md`.
+- Almacenamiento del cuestionario respondido → `answers-storage.md`.
+- Paneles, cruzados, exportación, acceso y participantes → épica `analitica-reporteria`.
+- Términos (método/instrumento/reactivos/datos/análisis) → `glossary.md`.
+
+WRITE RULE: la analítica MUST derivar su fuente, etiquetas y dimensiones del REGISTRO de
+cuestionarios, nunca de constantes de un caso particular. — MUST
+
 ## CHAPTER 4: EVALUATION & CLOSING
 
 ### SECTION 01-EVALUATION

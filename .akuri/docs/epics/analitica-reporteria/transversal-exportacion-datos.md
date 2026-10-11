@@ -37,6 +37,10 @@ models: SurveyExport
 |---|---|---|
 | `SurveyExport` | esquema `analytics` | registro de cada exportación (actor, encuesta, momento) |
 
+WRITE INFO: la fuente de la exportación se deriva del **registro de cuestionarios**
+(documental JSON de Visión Cero en `public.legacy_survey_responses`, o normalizado SDD); ver
+`00-manifest/questionnaires-registry.md` y `00-manifest/answers-storage.md`.
+
 ## SECTION 04-BACKEND
 
 - **Módulo:** `analytics/api/src/modules/analytics/export` (hexagonal).

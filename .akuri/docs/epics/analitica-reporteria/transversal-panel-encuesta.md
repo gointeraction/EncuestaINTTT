@@ -15,7 +15,7 @@ idioma: es
 layers: descripcion reglas persistencia backend frontend-logica frontend-visual experiencias-visuales trazabilidad
 flows: panel-encuesta
 routes: /analytics/surveys/:id/dashboard
-models: SurveyDashboard
+models: SurveySummaryReport
 ---
 
 # Transversal — Panel por encuesta (épica analitica-reporteria)
@@ -36,7 +36,7 @@ models: SurveyDashboard
 
 | Modelo | Almacén | Rol |
 |---|---|---|
-| `SurveyDashboard` | esquema `analytics` | vista precalculada por encuesta |
+| `SurveySummaryReport` | esquema `analytics` | resumen precalculado por encuesta (preguntas × valores) |
 
 ## SECTION 04-BACKEND
 

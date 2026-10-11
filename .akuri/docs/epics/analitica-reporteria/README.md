@@ -36,6 +36,21 @@ paneles y exportaciones. Todo el procesamiento ocurre fuera de la ruta de captur
 | Reportes cruzados | transversal-reportes-cruzados.md |
 | Gestión de participantes | transversal-gestion-participantes.md |
 
+## Modelo de análisis
+
+Los transversales operan sobre **dos generaciones de datos** y un **registro de cuestionarios**
+(ver `00-manifest/analytics-platform.md §11`):
+
+- **Visión Cero (legacy, documental)** — `public.legacy_survey_responses`: el cuestionario
+  respondido COMPLETO en un JSON (`answers`, keyed por pregunta-id) + envelope
+  (`driverType`, `channel`, `completedAt`, sorteo).
+- **SDD (normalizado)** — `surveys/questions/responses/answers` (motor genérico multi-cuestionario).
+
+El **registro** (`00-manifest/questionnaires-registry.md`) declara, por cuestionario, fuente,
+etiquetas (preguntas/tipos de conductor/canales), seed y análisis; la analítica es
+**registry-driven**. El almacenamiento y el filtrado se especifican en
+`00-manifest/answers-storage.md` y `00-manifest/analysis-filtering.md`.
+
 ## Cobertura
 
 Toda funcionalidad de esta épica se documenta en exactamente un transversal (el índice se
