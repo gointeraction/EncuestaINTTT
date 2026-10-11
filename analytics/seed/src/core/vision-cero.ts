@@ -75,7 +75,12 @@ const TEXT_BY_ID: Record<string, string[]> = {
   motivo_no_licencia: ['No la he tramitado', 'Es costosa', 'Falta de tiempo'],
 };
 
-const ISO = (i: number) => new Date(Date.UTC(2026, 0, 1) + i * 60_000).toISOString();
+/** Ventana de captura: del 1 de octubre de 2026 hasta hoy. */
+const WINDOW_FROM = Date.UTC(2026, 9, 1); // 2026-10-01
+function capturedAtMs(r: Rng): number {
+  const span = Math.max(1, Date.now() - WINDOW_FROM);
+  return WINDOW_FROM + Math.floor(r.float() * span);
+}
 
 /** Genera el valor de una respuesta según el TIPO de la pregunta real. */
 function valueFor(r: Rng, q: Question): Record<string, string> | string | string[] | number {
@@ -130,8 +135,9 @@ function legacyRow(r: Rng, id: string, driverType: DriverTypeId, seq: number, ce
   const channel = r.weighted(CHANNEL_WEIGHTS);
   const participa = r.float() < 0.65;
   // CAPTURA (dispositivo) y RECEPCIÓN (servidor, unos minutos después).
-  const captured = ISO(seq);
-  const received = new Date(Date.parse(captured) + r.int(0, 240) * 60_000).toISOString();
+  const cMs = capturedAtMs(r);
+  const captured = new Date(cMs).toISOString();
+  const received = new Date(Math.min(cMs + r.int(0, 240) * 60_000, Date.now())).toISOString();
   return [
     id,
     driverType,

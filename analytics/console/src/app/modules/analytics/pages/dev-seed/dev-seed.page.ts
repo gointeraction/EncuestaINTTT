@@ -61,7 +61,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
           <div class="seed__actions">
             <ds-button [loading]="state.busy()" (click)="load()">Cargar (y sumarizar)</ds-button>
             <ds-button variant="secondary" [loading]="state.busy()" (click)="summarize()">Sumarizar</ds-button>
-            <ds-button variant="secondary" [loading]="state.busy()" (click)="makeFixtures()">Generar CSV (30/tipo)</ds-button>
+            <ds-button variant="secondary" [loading]="state.busy()" (click)="makeFixtures()">Generar CSV (25–70/tipo)</ds-button>
             <ds-button variant="secondary" [loading]="state.busy()" (click)="loadFixtures()">Cargar CSV</ds-button>
             <ds-button variant="destructive" [loading]="state.busy()" (click)="reset()">Borrar todo</ds-button>
           </div>
@@ -136,7 +136,7 @@ export class DevSeedPage {
   }
 
   makeFixtures(): void {
-    void this.state.fixtures(30);
+    void this.state.fixtures();
   }
 
   loadFixtures(): void {

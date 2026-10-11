@@ -50,8 +50,9 @@ export class DevSeedClient {
     return firstValueFrom(this.http.post<SeedStatus>(`${this.base}/summarize`, {}));
   }
 
-  fixtures(perType = 30): Promise<SeedStatus> {
-    return firstValueFrom(this.http.post<SeedStatus>(`${this.base}/fixtures`, { perType }));
+  fixtures(perType?: number): Promise<SeedStatus> {
+    const body = perType ? { perType } : {};
+    return firstValueFrom(this.http.post<SeedStatus>(`${this.base}/fixtures`, body));
   }
 
   load(): Promise<SeedStatus> {

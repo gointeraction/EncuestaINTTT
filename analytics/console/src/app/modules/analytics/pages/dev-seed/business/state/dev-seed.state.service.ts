@@ -34,7 +34,7 @@ export class DevSeedStateService implements DevSeedStateContract {
     return this.run(() => this.client.summarize());
   }
 
-  fixtures(perType: number): Promise<void> {
+  fixtures(perType?: number): Promise<void> {
     return this.run(() => this.client.fixtures(perType));
   }
 
