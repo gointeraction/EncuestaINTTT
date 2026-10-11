@@ -16,6 +16,7 @@ import type { DsFormFieldState } from '../field/form-field.component';
   template: `
     <input
       [type]="type()"
+      [id]="controlId() || null"
       [value]="value()"
       [placeholder]="placeholder()"
       [disabled]="disabled() || state() === 'neutral'"
@@ -28,9 +29,25 @@ import type { DsFormFieldState } from '../field/form-field.component';
       [class]="borderClass()"
     />
   `,
+  styles: `
+    :host { display: block; }
+    :host input {
+      transition:
+        transform var(--ds-duration-fast) var(--ds-ease-standard),
+        box-shadow var(--ds-duration-fast) var(--ds-ease-standard);
+    }
+    /* Hover: the field lifts slightly and casts a shadow (mirrors ds-button). */
+    :host input:hover:not(:disabled):not(:focus) {
+      transform: translateY(-2px);
+      box-shadow: var(--ds-shadow-md);
+    }
+    :host input:focus { transform: none; }
+  `,
 })
 export class DsFormInputComponent {
   readonly type = input<'text' | 'email' | 'password' | 'number' | 'tel' | 'url'>('text');
+  /** Id applied to the inner <input> so a label's `for` can associate with it. */
+  readonly controlId = input('');
   readonly value = input('');
   readonly placeholder = input('');
   readonly disabled = input(false);
