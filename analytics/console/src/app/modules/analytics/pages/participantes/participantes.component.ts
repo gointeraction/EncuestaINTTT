@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { DsContainerComponent, DsHeaderComponent, DsPageTitleComponent } from '@cifraflow/design';
 import { firstValueFrom } from 'rxjs';
-import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../shared/api-sdk';
+import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../../shared/api-sdk';
 
 interface Participant {
   id: string;

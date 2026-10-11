@@ -9,8 +9,8 @@ import {
 } from '@cifraflow/design';
 import type { DsKpiItem, DsChartSeries } from '@cifraflow/design';
 import { firstValueFrom } from 'rxjs';
-import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../shared/api-sdk';
-import { API_BASE } from '../../../core/api.config';
+import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../../shared/api-sdk';
+import { API_BASE } from '../../../../core/api.config';
 
 interface SurveySource {
   id: string;

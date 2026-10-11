@@ -1,41 +1,18 @@
 import { Routes } from '@angular/router';
-import { sessionGuard } from './core/session.guard';
 
+/**
+ * Rutas raíz de la consola. Redirige cada módulo a su archivo de rutas LOCAL
+ * (modules/<modulo>/<modulo>.routes.ts); cada módulo expone sus páginas, que se
+ * despliegan dentro del layout (`app-console-layout`).
+ */
 export const routes: Routes = [
   {
     path: 'login',
-    loadComponent: () =>
-      import('./modules/auth/login/login.component').then((m) => m.LoginComponent),
+    loadChildren: () => import('./modules/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },
   {
     path: '',
-    canActivate: [sessionGuard],
-    loadComponent: () =>
-      import('./modules/dashboard/dashboard.component').then((m) => m.DashboardComponent),
-  },
-  {
-    path: 'panel',
-    canActivate: [sessionGuard],
-    loadComponent: () =>
-      import('./modules/analytics/panel-encuesta/panel-encuesta.component').then(
-        (m) => m.PanelEncuestaComponent,
-      ),
-  },
-  {
-    path: 'reportes-cruzados',
-    canActivate: [sessionGuard],
-    loadComponent: () =>
-      import('./modules/analytics/reportes-cruzados/reportes-cruzados.component').then(
-        (m) => m.ReportesCruzadosComponent,
-      ),
-  },
-  {
-    path: 'participantes',
-    canActivate: [sessionGuard],
-    loadComponent: () =>
-      import('./modules/analytics/participantes/participantes.component').then(
-        (m) => m.ParticipantesComponent,
-      ),
+    loadChildren: () => import('./modules/analytics/analytics.routes').then((m) => m.ANALYTICS_ROUTES),
   },
   { path: '**', redirectTo: '' },
 ];

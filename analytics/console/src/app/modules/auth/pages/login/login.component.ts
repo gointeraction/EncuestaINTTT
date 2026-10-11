@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { DsContainerComponent, DsHeaderComponent, DsPageTitleComponent } from '@cifraflow/design';
-import { SessionService } from '../../../core/session.service';
+import { SessionService } from '../../../../core/session.service';
 
 @Component({
   selector: 'app-login',

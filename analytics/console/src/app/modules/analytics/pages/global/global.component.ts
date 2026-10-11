@@ -7,8 +7,8 @@ import {
   type DsKpiItem,
 } from '@cifraflow/design';
 import { firstValueFrom } from 'rxjs';
-import { EncuestaINTTTBackOfficeAnalíticoService } from '../../shared/api-sdk';
-import { SessionService } from '../../core/session.service';
+import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../../shared/api-sdk';
+import { SessionService } from '../../../../core/session.service';
 
 interface GlobalPayload {
   totalSurveys: number;
@@ -19,7 +19,7 @@ interface GlobalPayload {
 }
 
 @Component({
-  selector: 'app-dashboard',
+  selector: 'app-global',
   standalone: true,
   imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsKpiGridComponent],
   template: `
@@ -50,7 +50,7 @@ interface GlobalPayload {
     </ds-container>
   `,
 })
-export class DashboardComponent {
+export class GlobalComponent {
   readonly session = inject(SessionService);
   private readonly api = inject(EncuestaINTTTBackOfficeAnalíticoService);
 
