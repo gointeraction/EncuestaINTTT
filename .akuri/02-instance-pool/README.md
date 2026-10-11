@@ -81,6 +81,10 @@ the persistence run as containers on the same host; the "backend" is the Next.js
 PostgreSQL and Redis data live COLOCATED in `./.data/` (gitignored). The former host path
 (Nginx + PM2 + native PostgreSQL) is OPTIONAL/legacy (`install.sh`).
 
+WRITE INFO: el sistema corre en DOS entornos aislados — `development` y `production` — separados
+por configuración (base de datos, ruta de datos y proyecto de compose distintos). Las pruebas y
+el seeder (`encuestaintt-seed`) operan SOLO en `development`; ver `00-manifest/environments.md`.
+
 ### SECTION 04-PLANNED-INSTANCES
 
 WRITE INFO: la capa analítica (ver `00-manifest/analytics-platform.md`) declara instancias
@@ -90,6 +94,7 @@ PLANNED que aún no existen en A3 — se materializan en las fases del plan:
 |-----------|------|-----------|-----|------|
 | `encuestaintt-analytics-api` | backend | nestjs | `backend/encuestaintt-analytics-api.md` | F1 |
 | `encuestaintt-admin` | frontend | angular | `frontend/encuestaintt-admin.md` | F2 |
+| `encuestaintt-seed` | backend | nestjs | `backend/encuestaintt-seed.md` | F5 |
 
 WRITE RULE: una instancia `planned` NO se construye sin actualizar su `status` y revalidar sus
 gates; la captura (`encuestaintt-api`/`encuestaintt-web`) permanece sin cambios. — MUST
