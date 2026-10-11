@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { Public } from '../../../shared/decorators/public.decorator.js';
 import { STAFF_SESSION_COOKIE, readStaffSession } from '../../../shared/security/cookies.js';
@@ -22,6 +23,17 @@ interface LoginBody {
 }
 type RequestWithUser = Request & { staffUser?: StaffSessionUser };
 
+const STAFF_USER_SCHEMA = {
+  type: 'object',
+  properties: {
+    id: { type: 'string' },
+    email: { type: 'string' },
+    role: { type: 'string' },
+    permissions: { type: 'array', items: { type: 'string' } },
+  },
+};
+
+@ApiTags('identity')
 @UseGuards(SessionGuard)
 @Controller('auth/staff')
 export class IdentityController {
@@ -32,6 +44,16 @@ export class IdentityController {
 
   @Public()
   @Post('login')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email', 'password'],
+      properties: { email: { type: 'string' }, password: { type: 'string' } },
+    },
+  })
+  @ApiOkResponse({
+    schema: { type: 'object', properties: { user: STAFF_USER_SCHEMA } },
+  })
   async login(@Body() body: LoginBody, @Res({ passthrough: true }) res: Response) {
     const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
     const password = typeof body?.password === 'string' ? body.password : '';
@@ -53,12 +75,14 @@ export class IdentityController {
   }
 
   @Get('session')
+  @ApiOkResponse({ schema: { type: 'object', properties: { user: STAFF_USER_SCHEMA } } })
   async session(@Req() req: RequestWithUser) {
     await this.accessAudit.registrarLectura('auth/staff/session', req.staffUser?.id);
     return { user: req.staffUser ?? null };
   }
 
   @Get('me')
+  @ApiOkResponse({ schema: { type: 'object', properties: { user: STAFF_USER_SCHEMA } } })
   async me(@Req() req: RequestWithUser) {
     await this.accessAudit.registrarLectura('auth/staff/me', req.staffUser?.id);
     return { user: req.staffUser ?? null };
