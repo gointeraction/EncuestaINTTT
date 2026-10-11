@@ -117,6 +117,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://intt_analytics:${ANALYTICS_DB_PASSWORD:?defina ANALYTICS_DB_PASSWORD en .env}@db:5432/${POSTGRES_DB:-intt_encuesta}?schema=analytics
+      REDIS_URL: redis://cache:6379
       NODE_ENV: production
       PORT: "3000"
       STAFF_ADMIN_EMAIL: ${STAFF_ADMIN_EMAIL:-admin@intt.gob.ve}
