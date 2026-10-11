@@ -72,7 +72,7 @@ WRITE INFO: each element declared once, with its `element-id` as the binding key
 | `backend.nestjs.analytics` | backend | (planned) NestJS 12 — back-office analítico/reportería/acceso (ver `analytics-platform.md`) |
 | `frontend.angular.admin` | frontend | (planned) Angular 22 — consola de análisis y auth del personal |
 | `library.orval` | frontend | (planned) generador del `api-sdk` desde el OpenAPI del back-office |
-| `frontend.design-system` | frontend | (planned) design system de la consola (cifraflow `design` + `fab`), adaptado a INTT |
+| `frontend.design-system` | frontend | design system de la consola (cifraflow `design` + `fab` vendorizados), adaptado a INTT |
 | `persistence.prisma` | persistence | Prisma ORM 6 (schema of record, transactional client) |
 | `persistence.postgresql` | persistence | PostgreSQL 16/18 operational DB (`@db.Text` JSON) |
 | `persistence.redis` | persistence | Redis 7 cache + rate-limit store (declared in docker-compose) |

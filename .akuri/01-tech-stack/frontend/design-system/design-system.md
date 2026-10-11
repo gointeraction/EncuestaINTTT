@@ -71,13 +71,15 @@ notifications, ds). Útil para ajustar/verificar tokens en vivo durante el desar
 
 ### SECTION 04-ADAPTACION
 
-WRITE INFO: pasos de adopción en `analytics/console`:
-  1. Vendorizar `design/` y `fab/` como librería local de la consola (`src/app/shared/design`,
-     `src/app/shared/fab`), migrando a Angular 22 standalone.
-  2. Ajustar tokens a la marca institucional **INTT** (paleta y tipografía Georama ya definidas en
-     la captura) manteniendo el `taxonomy.md` y `docs/`.
-  3. Declarar los tokens como SSOT (regla `design-system-tokens`); ningún componente hardcodea color.
-  4. Consumir la librería desde las páginas (`modules/{auth,dashboard,reports,export,access}`).
+WRITE INFO: adopción en `analytics/console` — **vendorizado y compilando**:
+  1. Copiado `design/` (144 archivos) + `fab/` (19) + `core/settings/` (seam del host) a
+     `src/app/shared/`.
+  2. **Tailwind v4** añadido (`tailwindcss` + `@tailwindcss/postcss`, `.postcssrc.json`) y estilos
+     globales en `src/styles.css`: `@import "tailwindcss"` → `design/theme.css` → `design/tokens/index.css`.
+  3. Alias de módulo vía `tsconfig.json` `paths`: `@cifraflow/design`, `@cifraflow/fab`.
+  4. Dependencia `@angular/cdk` (BreakpointObserver) y presupuestos de estilo de Angular ajustados.
+  5. Shell mínimo wireado en `src/app/app.ts`/`app.html` (`ds-container kind="display"` + `ds-fab`).
+  6. Tokens como SSOT (por adaptar a la marca INTT); ningún componente hardcodea color.
 
 ## Fields
 
@@ -87,7 +89,7 @@ WRITE INFO: pasos de adopción en `analytics/console`:
 4. **scope-role** — provee los componentes y tokens de toda la consola analítica.
 5. **capabilities** — kpi-card/kpi-grid, chart, table, filter-bar, layout (header/panels/page-title), navigation, feedback, form.
 6. **depends-on** — `frontend.angular.admin`.
-7. **canonical-files** — `analytics/console/src/app/shared/design/**`, `analytics/console/src/app/shared/fab/**`.
+7. **canonical-files** — `analytics/console/src/app/shared/design/**`, `analytics/console/src/app/shared/fab/**`, `analytics/console/src/app/shared/core/settings/**`, `analytics/console/src/styles.css`, `analytics/console/.postcssrc.json`, `analytics/console/tsconfig.json` (paths).
 8. **compliance** — frontend: design-system-tokens (SSOT), api-sdk-only, no-console-log.
 
 ## Deterministic gate
