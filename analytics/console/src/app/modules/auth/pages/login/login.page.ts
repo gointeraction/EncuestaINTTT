@@ -164,7 +164,7 @@ export class LoginPage {
 
     const ok = await this.state.login(this.email().trim(), this.password(), this.token());
     if (ok) {
-      await this.router.navigateByUrl('/auth/welcome');
+      await this.router.navigateByUrl('/');
     }
   }
 }

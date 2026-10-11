@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
-import { sessionGuard } from '../../core/session.guard';
 
-/** Rutas locales del módulo `auth`: acceso (público) y bienvenida (post-login). */
+/** Rutas locales del módulo `auth`: acceso, registro y recuperación (todas públicas). */
 export const AUTH_ROUTES: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   {
@@ -15,10 +14,5 @@ export const AUTH_ROUTES: Routes = [
   {
     path: 'recuperar',
     loadComponent: () => import('./pages/recuperar/recuperar.page').then((m) => m.RecuperarPage),
-  },
-  {
-    path: 'welcome',
-    canActivate: [sessionGuard],
-    loadComponent: () => import('./pages/welcome/welcome.page').then((m) => m.WelcomePage),
   },
 ];
