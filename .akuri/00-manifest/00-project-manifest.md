@@ -112,15 +112,16 @@ Cada feature deriva de un propósito dentro del alcance y es un **corte vertical
 "piezas" sueltas. Las features se documentan en `.akuri/docs/epics/<epic>/transversal-<feature>.md`
 (requisito completo por capa) según el pack `akuri-oma-documentation`.
 
-Épicas declaradas (alineadas al SDD y a la Visión Cero):
+Épicas declaradas y documentadas en `.akuri/docs/epics/` (con gate del pack):
 
-| Épica | Slug | Features (transversales) |
-|---|---|---|
-| Encuesta ciudadana Visión Cero | `encuesta-vision-cero` | formulario-adaptativo, perfilamiento, geolocalizacion-ve, envio-respuestas |
-| Incentivos y sorteo | `incentivos-sorteo` | sorteo, validacion-cedula-telefono, codigo-unico |
-| Dashboard y analítica | `dashboard-analitica` | sumarizacion-cqrs, kpis-dashboard, participantes-sorteo |
-| Gestión de encuestas (SDD) | `gestion-encuestas` | crud-encuestas, preguntas, publicacion-qr, validacion-encuestados, respuestas, analitica-encuesta, exportacion-csv |
-| Autenticación administrativa | `autenticacion-admin` | login-admin, sesion-rbac, logout |
+| Épica | Slug | Transversales | Estado |
+|---|---|---|---|
+| Acceso del personal | `acceso-staff` | login-staff, sesion-guard, roles-permisos, auditoria-acceso | documentada |
+| Analítica y reportería | `analitica-reporteria` | acceso-datos-encuesta, sumarizacion-cqrs, panel-encuesta, panel-global, exportacion-datos, reportes-cruzados, gestion-participantes | documentada |
+
+Las features de la **captura** (encuesta ciudadana Visión Cero, incentivos/sorteo, gestión de
+encuestas SDD) se especifican en la documentación de la captura (`docs/sdd/`, `docs/SPECIFICATION.md`)
+y permanecen intactas; su documentación como transversales del pack queda **pendiente**.
 
 ## 5. References
 
