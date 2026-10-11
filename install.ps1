@@ -72,13 +72,13 @@ Write-Host "  Modo Desarrollo:   npm run dev" -ForegroundColor Cyan
 Write-Host "  Modo Producción:   npm run build  seguido de  npm start" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "Accesos:" -ForegroundColor Yellow
-Write-Host "  * Encuesta Pública:    http://localhost:3000" -ForegroundColor White
-Write-Host "  * Panel Administrativo: http://localhost:3000/?admin=1 (Clave: VisionCero2026!)" -ForegroundColor White
+Write-Host "  * Encuesta Pública:    http://localhost:3001" -ForegroundColor White
+Write-Host "  * Panel Administrativo: http://localhost:3001/?admin=1 (Clave: VisionCero2026!)" -ForegroundColor White
 Write-Host ""
 
 $resp = Read-Host "¿Deseas iniciar la aplicación ahora en modo desarrollo? (S/n)"
 if ($resp -eq "" -or $resp -match "^[sSyY]") {
     Write-Host "Iniciando servidor Next.js..." -ForegroundColor Green
-    Start-Process "http://localhost:3000"
+    Start-Process "http://localhost:3001"
     npm run dev
 }

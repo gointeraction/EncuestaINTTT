@@ -135,6 +135,7 @@ if [ -n "$PG_CONF" ] && ! grep -q "intt_tuning_applied" "$PG_CONF"; then
     echo "work_mem = 16MB" >> "$PG_CONF"
     echo "effective_cache_size = 3GB" >> "$PG_CONF"
     echo "random_page_cost = 1.1" >> "$PG_CONF"
+    echo "port = 5451" >> "$PG_CONF"
     systemctl restart postgresql
 fi
 
@@ -144,7 +145,7 @@ ADMIN_SECRET=$(openssl rand -hex 32)
 
 cat > .env <<EOF
 # Base de Datos PostgreSQL
-DATABASE_URL="postgresql://intt_user:${DB_PASSWORD}@127.0.0.1:5432/intt_encuesta?schema=public"
+DATABASE_URL="postgresql://intt_user:${DB_PASSWORD}@127.0.0.1:5451/intt_encuesta?schema=public"
 
 # Credenciales del panel de administración (dashboard privado)
 ADMIN_PASSWORD=${ADMIN_PASSWORD}
@@ -191,7 +192,7 @@ module.exports = {
       exec_mode: "cluster",
       env: {
         NODE_ENV: "production",
-        PORT: 3000,
+        PORT: 3001,
         HOSTNAME: "127.0.0.1"
       },
       max_memory_restart: "1G",
@@ -245,7 +246,7 @@ server {
     # Protección de tasa en el envío de respuestas
     location /api/survey/submit {
         limit_req zone=survey_submit_limit burst=5 nodelay;
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -267,7 +268,7 @@ server {
         ${CUSTOM_ALLOW}
         deny all;               # 403 Forbidden para todo el tráfico de Internet
 
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -279,7 +280,7 @@ server {
 
     # Proxy general hacia Next.js
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
         proxy_set_header Connection 'upgrade';
@@ -303,7 +304,7 @@ ufw allow 'Nginx Full' >/dev/null 2>&1 || true
 mkdir -p /var/backups/encuesta-intt
 cat > /etc/cron.d/backup-encuesta-intt <<EOF
 # Respaldo automático diario de la base de datos a las 02:00 AM
-0 2 * * * root PGPASSWORD='${DB_PASSWORD}' pg_dump -U intt_user -h 127.0.0.1 intt_encuesta | gzip > /var/backups/encuesta-intt/backup_\$(date +\%F).sql.gz && find /var/backups/encuesta-intt/ -type f -name "*.sql.gz" -mtime +30 -delete
+0 2 * * * root PGPASSWORD='${DB_PASSWORD}' pg_dump -U intt_user -h 127.0.0.1 -p 5451 intt_encuesta | gzip > /var/backups/encuesta-intt/backup_\$(date +\%F).sql.gz && find /var/backups/encuesta-intt/ -type f -name "*.sql.gz" -mtime +30 -delete
 
 # Sumarización analítica horaria para carga ultrarrápida del Dashboard (< 5 ms)
 0 * * * * root cd ${APP_DIR} && /usr/bin/npm run survey:summarize >> /var/log/encuesta-summarize.log 2>&1
@@ -322,7 +323,7 @@ Contraseña Administrador: ${ADMIN_PASSWORD}
 
 Base de Datos:
   Motor:                PostgreSQL 16
-  Host:                 127.0.0.1 (Puerto 5432)
+  Host:                 127.0.0.1 (Puerto 5451)
   Base de Datos:        intt_encuesta
   Usuario:              intt_user
   Contraseña:           ${DB_PASSWORD}
