@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input, output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { DsIconComponent } from '../icon/icon.component';
 
 export type DsKpiTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
@@ -13,15 +13,6 @@ export interface DsKpiItem {
   trend?: string;
   trendUp?: boolean;
 }
-
-/** Column layout by item count (auto-fit: 4→4, 5–6→3, 7–8→4). */
-const COLS_BY_COUNT: Array<{ min: number; cols: string }> = [
-  { min: 7, cols: 'repeat(4, 1fr)' },
-  { min: 5, cols: 'repeat(3, 1fr)' },
-  { min: 4, cols: 'repeat(4, 1fr)' },
-  { min: 3, cols: 'repeat(3, 1fr)' },
-  { min: 1, cols: 'repeat(2, 1fr)' },
-];
 
 /** Value font-size by length (auto-shrink long data). */
 const VALUE_FONT: Array<{ max: number; cls: string }> = [
@@ -62,7 +53,7 @@ const TONE_BG: Record<DsKpiTone, string> = {
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: block; width: 100%;' },
   template: `
-    <div class="ds-kg" [style.grid-template-columns]="columns()">
+    <div class="ds-kg">
       @for (kpi of items(); track kpi.id ?? kpi.label) {
         @if (clickable()) {
           <button type="button" class="ds-kg__card ds-kg__card--btn" [class.ds-kg__card--accent]="kpi.tone && kpi.tone !== 'neutral'"
@@ -109,12 +100,9 @@ const TONE_BG: Record<DsKpiTone, string> = {
     :host { display: block; width: 100%; }
     .ds-kg {
       display: grid; gap: var(--ds-space-4);
-      grid-template-columns: repeat(4, 1fr);
+      /* Auto-fit: en escritorio caben todos en UNA fila; envuelve en pantallas menores. */
+      grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr));
     }
-    /* = var(--ds-breakpoint-desktop) */
-    @media (max-width: 1024px) { .ds-kg { grid-template-columns: repeat(2, 1fr); } }
-    /* = var(--ds-breakpoint-mobile) */
-    @media (max-width: 640px)  { .ds-kg { grid-template-columns: 1fr; } }
 
     .ds-kg__card {
       display: flex; align-items: center; gap: var(--ds-space-3);
@@ -164,12 +152,6 @@ export class DsKpiGridComponent {
   readonly clickable = input(false);
 
   readonly kpiClick = output<DsKpiItem>();
-
-  protected readonly columns = computed(() => {
-    const count = this.items().length;
-    const row = COLS_BY_COUNT.find((c) => count >= c.min) ?? COLS_BY_COUNT[0];
-    return row.cols;
-  });
 
   protected toneColor(kpi: DsKpiItem): string {
     return TONE_COLOR[(kpi.tone ?? 'neutral')];
