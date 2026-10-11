@@ -240,15 +240,18 @@ export class PanelEncuestaPage {
   readonly kpis = computed<DsKpiItem[]>(() => {
     const t = this.state.dashboard()?.totals;
     if (!t) return [];
+    // Solo se aceptan cuestionarios COMPLETOS y VÁLIDOS → no hay finalización/abandono/en curso.
     const items: DsKpiItem[] = [
       { label: 'Cuestionarios (muestra)', value: t.total, icon: 'file-text', tone: 'neutral' },
-      { label: 'Finalización', value: `${Math.round((t.completionRate ?? 0) * 100)}%`, icon: 'check', tone: 'success' },
-      { label: 'Abandono', value: `${Math.round((t.abandonmentRate ?? 0) * 100)}%`, icon: 'alert-circle', tone: 'danger' },
-      { label: 'En curso', value: t.in_progress, icon: 'activity', tone: 'info' },
     ];
-    // Base de cálculo de la pregunta enfocada (cambia por pregunta y con los filtros).
     const q = this.state.selected();
-    if (q) items.push({ label: 'Base (pregunta)', value: questionBase(q), icon: 'file-text', tone: 'info' });
+    if (q) {
+      const base = questionBase(q);
+      items.push({ label: 'Base (pregunta)', value: base, icon: 'check-circle', tone: 'info' });
+      if (base < t.total) {
+        items.push({ label: 'No aplica / sin dato', value: t.total - base, icon: 'alert-circle', tone: 'neutral' });
+      }
+    }
     return items;
   });
 
