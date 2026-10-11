@@ -125,6 +125,43 @@ WRITE INFO: current placements:
 | `db/*` | core | local fallback stores (`local_surveys.json`, `sqlite_backup.json`). |
 | `scripts/*` | shared | deterministic ops/tests (tsx). |
 
+### SECTION 04-ANALYTICS-APPS
+
+WRITE INFO: la capa de captura conserva su layout actual (Next.js en la raíz del repo). La capa
+analítica se añade como aplicaciones HERMANAS dentro del mismo repo (monorepo aditivo), sin mover
+la captura:
+
+```
+EncuestaINTTT/
+├── (captura, sin cambios)     # Next.js: src/, prisma/, compose.yaml
+├── apps/
+│   ├── analytics-api/         # NESTJS (hexagonal): src/{core,modules,shared}
+│   └── admin-web/             # ANGULAR (standalone): src/app/{core,modules,shared}
+└── packages/
+    └── api-sdk/               # cliente generado (orval) desde el OpenAPI del back-office
+```
+
+WRITE INFO: la app NestJS sigue el layout canónico `core / modules / shared` del método
+(ver invesnetwork como precedente):
+
+| Root | Place here | Do NOT place here |
+|------|-----------|-------------------|
+| `apps/analytics-api/src/core/` | arranque, config, cliente Prisma (read-only sobre `public`, escritura en `analytics`), scheduling | módulos de negocio |
+| `apps/analytics-api/src/modules/` | slices hexagonales por supradominio (`platform`, `analytics`): entity → use-cases → port → adapter → controller | bootstrap, plumbing |
+| `apps/analytics-api/src/shared/` | contratos, DTOs, filtros, guards, políticas | negocio de un módulo |
+| `apps/admin-web/src/app/core/` | singletons: config, http interceptor, guard de sesión, api base URL | páginas, design system |
+| `apps/admin-web/src/app/modules/` | páginas de staff (login, dashboards, reportes) | api-sdk, design system |
+| `apps/admin-web/src/app/shared/` | `api-sdk` (cliente orval) + design system | lógica de negocio |
+| `packages/api-sdk/` | el cliente tipado generado | código escrito a mano |
+
+WRITE RULE: el back-office NO accede a la base de datos desde los controladores; pasa por
+use-cases → puertos → adaptadores. — MUST
+
+WRITE RULE: `admin-web` accede a datos SOLO por `packages/api-sdk`. — MUST
+
+WRITE RULE: la captura NO importa nada de `apps/analytics-api` ni de `packages/api-sdk`, y
+viceversa; el único acoplamiento es la base de datos (esquema/rol). — MUST
+
 ## CHAPTER 4: EVALUATION & CLOSING
 
 ### SECTION 01-EVALUATION

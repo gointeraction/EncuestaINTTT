@@ -104,6 +104,25 @@ WRITE INFO:
 | `lib/services/analytics-service.ts`, `lib/survey-analytics.ts`, `api/survey/stats`, `.../analytics`, `.../exports` | `analytics` | read-only aggregation. |
 | `lib/rate-limit.ts`, `lib/turnstile.ts`, `services/ip-hash.ts`, `services/local-survey-store.ts` | `integration` | business-agnostic machinery. |
 
+### SECTION 04-BACKOFFICE-SUPRADOMAINS
+
+WRITE INFO: la capa analítica (back-office NestJS, ver `analytics-platform.md`) usa sus PROPIOS
+supradominios — no los de la captura — porque responde a un dominio distinto (analítica y acceso):
+
+| Supradominio | Place here (WHAT goes) | Do NOT place here |
+|-------------|------------------------|-------------------|
+| `platform` | identidad del staff, sesión, RBAC/ABAC (guards), auditoría de acceso (`access_audit`), configuración | reportes, read models, captura |
+| `analytics` | read models y reportería read-only: sumarización CQRS, KPIs, tablas cruzadas, exportación (con enmascaramiento PII), puertos `*_REPORTING_QUERY` | escritura de captura, identidad |
+| `integration` | adaptadores hacia el esquema `public` (rol read-only), cliente Prisma/consulta, jobs (cron/scheduler) | lógica de negocio analítica, política de acceso |
+
+### Decision rule (back-office) — ask in order; first matching group wins
+1. **Identidad, roles o auditoría de acceso?** → `platform`.
+2. **Lectura/agregación/reportes sobre datos capturados?** → `analytics`.
+3. **Mecanismo técnico de acceso a datos o scheduling?** → `integration`.
+
+WRITE RULE: la capa de captura y la capa analítica MUST NOT compartir supradominios ni módulos
+de negocio; se comunican SOLO por la base de datos (esquema/rol) y por el contrato de API. — MUST
+
 ## CHAPTER 4: EVALUATION & CLOSING
 
 ### SECTION 01-EVALUATION

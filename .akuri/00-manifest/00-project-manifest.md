@@ -91,6 +91,9 @@ consolida en un dashboard gerencial privado.
   levanta el sistema completo; los datos (PostgreSQL + Redis) viven COLOCALIZADOS con el repo
   en `./.data/`. El sistema es autocontenido y desacoplado: se despliega y gestiona con
   `docker compose up -d --build`.
+- **Back-office analítico (planificado, desacoplado)**: una capa independiente — NestJS (API de
+  analítica/reportería/acceso) y Angular (consola de staff) — que NO toca la captura, con esquema
+  PostgreSQL propio y control de acceso restringido. Estrategia y plan: `00-manifest/analytics-platform.md`.
 
 ## 3. Scope-Excludes (explicitly out of scope)
 
@@ -138,6 +141,19 @@ Cada feature deriva de un propósito dentro del alcance y es un **corte vertical
   defecto, `migrate deploy` si se baselinan migraciones) del que depende `app`. No hay
   dependencias externas: sin servicios gestionados, sin cloud. PM2/Nginx del host pasan a ser
   OPCIONALES (camino `install.sh` para bare-metal); el camino primario es el contenedor.
+
+## 7. Analytics decoupling decisions (D-9..D-11)
+
+- **D-9 (Captura desacoplada, intacta)**: la capa de captura de datos (Next.js) permanece aislada
+  y sin cambios; ningún requisito analítico puede alterar el camino de captura. La captura es el
+  ÚNICO escritor del esquema `public`.
+- **D-10 (Back-office independiente)**: la analítica, reportería y el control de acceso restringido
+  viven en un backend NestJS independiente con su propia identidad (staff), sobre un esquema
+  `analytics` propio, leyendo `public` con un rol PostgreSQL de solo lectura. Toda sumarización y
+  procesamiento corre como jobs del back-office, nunca en la captura.
+- **D-11 (Consola de staff en Angular)**: la consola de análisis y autenticación del personal se
+  construye en Angular, consumiendo el back-office SOLO por un `api-sdk` generado (orval) desde su
+  OpenAPI. La extracción es strangler, por fases, empezando por `analytics`.
 
 ## Deterministic gate
 

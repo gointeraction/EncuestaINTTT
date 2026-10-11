@@ -109,6 +109,25 @@ structured store (`db/local_surveys.json` via `local-survey-store.ts`) and the d
 back to `db/sqlite_backup.json`. The fallback is resilience, not a second source of truth: when
 PostgreSQL returns, it is authoritative again. — MUST
 
+### SECTION 07-TWO-SCHEMAS
+
+WRITE INFO: con la capa analítica (ver `analytics-platform.md`) el modelo se parte en DOS esquemas
+dentro de la misma instancia PostgreSQL, cada uno con dueño y mecanismo de acceso propios:
+
+| Esquema | Fuente de verdad de | Dueño (escritura) | Acceso del otro lado |
+|---------|---------------------|-------------------|----------------------|
+| `public` | captura: `User`, `Survey`, `Question`, `Response`, `Answer`, `Invitation`, `AuditLog`, `legacy_survey_*` | Captura (Next.js / Prisma) | back-office: SOLO LECTURA (`intt_analytics_ro`) |
+| `analytics` | derivados: `report_*` / read models, estado de sumarización, identidad de staff, `access_audit` | Back-office (NestJS) | ninguno (privado del back-office) |
+
+WRITE RULE: `public` es escrito ÚNICAMENTE por la captura; `analytics` ÚNICAMENTE por el
+back-office. — MUST
+
+WRITE RULE: los datos de `analytics` son DERIVADOS de `public` y nunca su fuente de verdad; se
+recomputan (I6 se extiende a todo el esquema `analytics`). — MUST
+
+WRITE RULE: el enmascaramiento de PII (`access_audit`, exportaciones) es responsabilidad del
+back-office y se aplica en el servidor, nunca en el cliente. — MUST
+
 ## CHAPTER 4: EVALUATION & CLOSING
 
 ### SECTION 01-EVALUATION
