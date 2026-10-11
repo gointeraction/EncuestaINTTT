@@ -48,14 +48,17 @@ USER nextjs
 EXPOSE 3000
 CMD ["node", "server.js"]
 
-# ---------- migrator (one-shot: schema sync + optional seed/backup import) ----------
+# ---------- migrator (one-shot: capture schema + analytics schema/role + optional seed) ----------
 FROM deps AS migrator
 ENV NODE_ENV=production
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends postgresql-client \
+ && rm -rf /var/lib/apt/lists/*
 COPY prisma ./prisma
 COPY scripts ./scripts
 COPY src/lib ./src/lib
 COPY db ./db
+COPY deploy ./deploy
 COPY package.json ./
-COPY deploy/migrate-entrypoint.sh /usr/local/bin/migrate-entrypoint.sh
-RUN chmod +x /usr/local/bin/migrate-entrypoint.sh
-ENTRYPOINT ["/usr/local/bin/migrate-entrypoint.sh"]
+RUN chmod +x deploy/migrate-entrypoint.sh
+ENTRYPOINT ["deploy/migrate-entrypoint.sh"]
