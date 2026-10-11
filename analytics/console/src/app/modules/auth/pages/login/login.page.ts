@@ -102,9 +102,12 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
             </ds-form-field>
 
             @if (state.error(); as e) { <p role="alert" class="login-error">{{ e }}</p> }
+            @if (state.status() === 'success') {
+              <p role="status" class="login-ok">Acceso correcto. Redirigiendo…</p>
+            }
 
-            <ds-button type="submit" variant="primary" [loading]="state.loading()">
-              {{ state.loading() ? 'Entrando…' : 'Entrar' }}
+            <ds-button type="submit" variant="primary" [loading]="state.status() === 'submitting'">
+              {{ state.status() === 'submitting' ? 'Entrando…' : 'Entrar' }}
             </ds-button>
           </form>
         </ds-container>
@@ -124,6 +127,7 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
     }
     .login-form { display: flex; flex-direction: column; gap: var(--ds-space-4); }
     .login-error { color: var(--ds-color-state-danger); font-size: var(--ds-text-small); }
+    .login-ok { color: var(--ds-color-state-success); font-size: var(--ds-text-small); }
   `,
 })
 export class LoginPage {
@@ -174,7 +178,7 @@ export class LoginPage {
 
     const ok = await this.state.login(this.email().trim(), this.password());
     if (ok) {
-      await this.router.navigateByUrl('/');
+      await this.router.navigateByUrl('/auth/welcome');
     }
   }
 }

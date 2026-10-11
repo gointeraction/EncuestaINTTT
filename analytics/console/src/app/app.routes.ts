@@ -6,11 +6,12 @@ import { sessionGuard } from './core/session.guard';
  * Rutas raíz de la consola. Cada área ata el LAYOUT (eager, `component:`) a un grupo
  * LAZY de páginas (`loadChildren`): el layout renderiza el único `<router-outlet>` y
  * las páginas de cada módulo se incrustan dentro (page ocupa el display).
- * Sin sesión, el área analítica redirige al login.
+ * El área `auth` es pública (acceso + bienvenida); el área analítica exige sesión.
  */
 export const routes: Routes = [
+  { path: 'login', redirectTo: 'auth/login', pathMatch: 'full' },
   {
-    path: 'login',
+    path: 'auth',
     component: ConsoleLayout,
     loadChildren: () => import('./modules/auth/auth.routes').then((m) => m.AUTH_ROUTES),
   },

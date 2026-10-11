@@ -2,7 +2,7 @@ import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
 import { SessionService } from './session.service';
 
-/** Exige sesión de staff; si no la hay, redirige a /login. */
+/** Exige sesión de staff; si no la hay, redirige al login. */
 export const sessionGuard: CanActivateFn = async () => {
   const session = inject(SessionService);
   const router = inject(Router);
@@ -12,5 +12,5 @@ export const sessionGuard: CanActivateFn = async () => {
   if (session.user()) {
     return true;
   }
-  return router.createUrlTree(['/login']);
+  return router.createUrlTree(['/auth/login']);
 };
