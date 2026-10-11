@@ -32,7 +32,7 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
   ],
   providers: [AnomaliesStateService, { provide: ANOMALIES_STATE, useExisting: AnomaliesStateService }],
   template: `
-    <ds-container kind="page" name="anomalias">
+    <ds-container kind="page" name="anomalias" class="page-max">
       <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
         <ds-header>
           <div class="ds-h__row">

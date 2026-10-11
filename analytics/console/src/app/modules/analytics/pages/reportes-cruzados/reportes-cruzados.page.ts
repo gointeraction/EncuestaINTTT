@@ -30,7 +30,7 @@ import { ReportesStateService } from './business/state/reportes.state.service';
   ],
   providers: [ReportesStateService, { provide: REPORTES_STATE, useExisting: ReportesStateService }],
   template: `
-    <ds-container kind="page" name="reportes-cruzados">
+    <ds-container kind="page" name="reportes-cruzados" class="page-max">
       <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
         <ds-header>
           <div class="ds-h__row">

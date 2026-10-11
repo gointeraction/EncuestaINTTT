@@ -25,7 +25,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
   imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
   providers: [DevSeedStateService, { provide: DEV_SEED_STATE, useExisting: DevSeedStateService }],
   template: `
-    <ds-container kind="page" name="dev-seed">
+    <ds-container kind="page" name="dev-seed" class="page-max">
       <ds-container
         kind="area"
         name="header"

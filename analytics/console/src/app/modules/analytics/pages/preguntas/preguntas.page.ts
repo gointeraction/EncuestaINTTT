@@ -31,7 +31,7 @@ import { PreguntasStateService } from './business/state/preguntas.state.service'
   ],
   providers: [PreguntasStateService, { provide: PREGUNTAS_STATE, useExisting: PreguntasStateService }],
   template: `
-    <ds-container kind="page" name="preguntas">
+    <ds-container kind="page" name="preguntas" class="page-max">
       <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
         <ds-header>
           <div class="ds-h__row">

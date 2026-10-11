@@ -26,7 +26,7 @@ import { ParticipantsStateService } from './business/state/participants.state.se
     { provide: PARTICIPANTS_STATE, useExisting: ParticipantsStateService },
   ],
   template: `
-    <ds-container kind="page" name="participantes">
+    <ds-container kind="page" name="participantes" class="page-max">
       <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
         <ds-header>
           <div class="ds-h__row">

@@ -71,7 +71,7 @@ interface ChartVm {
   ],
   providers: [PanelStateService, { provide: PANEL_STATE, useExisting: PanelStateService }],
   template: `
-    <ds-container kind="page" name="panel-encuesta">
+    <ds-container kind="page" name="panel-encuesta" class="page-max">
       <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
         <ds-header>
           <div class="ds-h__row">

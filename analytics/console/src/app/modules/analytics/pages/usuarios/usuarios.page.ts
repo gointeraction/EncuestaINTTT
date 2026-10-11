@@ -23,7 +23,7 @@ import { AdminUsersStateService } from './business/state/admin-users.state.servi
   imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
   providers: [AdminUsersStateService, { provide: ADMIN_USERS_STATE, useExisting: AdminUsersStateService }],
   template: `
-    <ds-container kind="page" name="usuarios">
+    <ds-container kind="page" name="usuarios" class="page-max">
       <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
         <ds-header>
           <div class="ds-h__row">

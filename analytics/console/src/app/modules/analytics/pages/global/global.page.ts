@@ -34,7 +34,7 @@ import { GlobalStateService } from './business/state/global.state.service';
   ],
   providers: [GlobalStateService, { provide: GLOBAL_STATE, useExisting: GlobalStateService }],
   template: `
-    <ds-container kind="page" name="global">
+    <ds-container kind="page" name="global" class="page-max">
       <ds-container
         kind="area"
         name="header"
