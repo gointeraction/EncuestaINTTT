@@ -3,6 +3,7 @@ import { NgOptimizedImage } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { DsContainerComponent, ThemeService } from '@cifraflow/design';
 import { TurnstileComponent } from '../../../../core/turnstile/turnstile.component';
+import { TURNSTILE_SITE_KEY } from '../../../../core/turnstile.config';
 import { LOGIN_STATE, type LoginStateContract } from './business/contracts/login.state.contract';
 import { LoginStateService } from './business/state/login.state.service';
 
@@ -90,14 +91,16 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
             </div>
 
             <div class="auth-captcha">
-              <app-turnstile (token)="token.set($event)" />
+              @if (turnstileEnabled) {
+                <app-turnstile (token)="token.set($event)" />
+              }
             </div>
 
             @if (state.error(); as e) {
               <div class="auth-error" role="alert">{{ e }}</div>
             }
 
-            @if (token()) {
+            @if (token() || !turnstileEnabled) {
               <button type="submit" class="auth-btn" [disabled]="state.status() === 'submitting'">
                 {{ state.status() === 'submitting' ? 'Iniciando sesión…' : 'Iniciar sesión' }}
               </button>
@@ -120,6 +123,7 @@ export class LoginPage {
   readonly state: LoginStateContract = inject(LOGIN_STATE);
   private readonly router = inject(Router);
 
+  readonly turnstileEnabled = !!TURNSTILE_SITE_KEY;
   readonly email = signal('');
   readonly password = signal('');
   readonly emailTouched = signal(false);
@@ -156,7 +160,7 @@ export class LoginPage {
     this.emailTouched.set(true);
     this.passwordTouched.set(true);
     if (this.emailErrors().length || this.passwordErrors().length) return;
-    if (!this.token()) return;
+    if (this.turnstileEnabled && !this.token()) return;
 
     const ok = await this.state.login(this.email().trim(), this.password(), this.token());
     if (ok) {

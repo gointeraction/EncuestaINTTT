@@ -57,6 +57,7 @@ export class TurnstileComponent implements AfterViewInit, OnDestroy {
   private widgetId: string | null = null;
 
   async ngAfterViewInit(): Promise<void> {
+    if (!TURNSTILE_SITE_KEY) return; // deshabilitado: sin sitekey no se monta el widget
     await loadTurnstileScript();
     if (!window.turnstile) return;
     this.widgetId = window.turnstile.render(this.host().nativeElement, {
