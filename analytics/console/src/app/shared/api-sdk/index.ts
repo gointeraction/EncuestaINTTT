@@ -118,6 +118,46 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
+ summarizationControllerSummarize<TData = void>( options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ summarizationControllerSummarize<TData = void>( options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ summarizationControllerSummarize<TData = void>( options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  summarizationControllerSummarize<TData = void>(
+     options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/analytics/jobs/summarize`,undefined,options
+    );
+  }
+
+ summarizationControllerStatus<TData = void>( options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ summarizationControllerStatus<TData = void>( options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ summarizationControllerStatus<TData = void>( options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  summarizationControllerStatus<TData = void>(
+     options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/jobs/summarize/status`,options
+    );
+  }
+
+ reportingControllerSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerSurvey<TData = void>(
+    id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/surveys/${id}/dashboard`,options
+    );
+  }
+
+ reportingControllerGlobal<TData = void>( options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerGlobal<TData = void>( options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerGlobal<TData = void>( options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerGlobal<TData = void>(
+     options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/global/dashboard`,options
+    );
+  }
+
 };
 
 export type IdentityControllerLoginClientResult = NonNullable<IdentityControllerLogin200>
@@ -126,3 +166,7 @@ export type IdentityControllerSessionClientResult = NonNullable<IdentityControll
 export type IdentityControllerMeClientResult = NonNullable<IdentityControllerMe200>
 export type HealthControllerCheckClientResult = NonNullable<void>
 export type PublicReadControllerListSurveysClientResult = NonNullable<void>
+export type SummarizationControllerSummarizeClientResult = NonNullable<void>
+export type SummarizationControllerStatusClientResult = NonNullable<void>
+export type ReportingControllerSurveyClientResult = NonNullable<void>
+export type ReportingControllerGlobalClientResult = NonNullable<void>
