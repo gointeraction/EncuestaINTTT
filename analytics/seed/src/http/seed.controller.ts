@@ -1,0 +1,60 @@
+import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
+import { SEED_CONFIG, type SeedConfig } from '../config.js';
+import { PgService } from '../core/pg.service.js';
+import { SeedCommand, type SeedOptions } from '../commands/seed.command.js';
+import { ResetCommand } from '../commands/reset.command.js';
+import { SummarizeCommand } from '../commands/summarize.command.js';
+
+interface StatusRow {
+  surveys: number;
+  responses: number;
+  answers: number;
+  legacy: number;
+}
+
+/** Superficie HTTP del seeder (SOLO dev). La consola la consume; guardas del módulo aplican. */
+@Controller()
+export class SeedController {
+  constructor(
+    private readonly pg: PgService,
+    private readonly seed: SeedCommand,
+    private readonly reset: ResetCommand,
+    private readonly summarize: SummarizeCommand,
+    @Inject(SEED_CONFIG) private readonly config: SeedConfig,
+  ) {}
+
+  @Get('status')
+  async status() {
+    const [row] = await this.pg.query<StatusRow>(
+      `select
+         (select count(*) from public.surveys)::int as surveys,
+         (select count(*) from public.responses)::int as responses,
+         (select count(*) from public.answers)::int as answers,
+         (select count(*) from public.legacy_survey_responses)::int as legacy`,
+    );
+    return {
+      environment: this.config.appEnv,
+      database: this.config.databaseName,
+      counts: row ?? { surveys: 0, responses: 0, answers: 0, legacy: 0 },
+    };
+  }
+
+  @Post('seed')
+  async runSeed(@Body() body: SeedOptions) {
+    await this.seed.run(body ?? {});
+    await this.summarize.run(); // deja los KPI listos
+    return this.status();
+  }
+
+  @Post('reset')
+  async runReset() {
+    await this.reset.run();
+    return this.status();
+  }
+
+  @Post('summarize')
+  async runSummarize() {
+    await this.summarize.run();
+    return this.status();
+  }
+}

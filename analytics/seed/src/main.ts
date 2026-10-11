@@ -8,7 +8,8 @@ import { GenerateCommand } from './commands/generate.command.js';
 import { SummarizeCommand } from './commands/summarize.command.js';
 
 const USAGE =
-  'uso: seed <seed|reset|generate|summarize> [--profile small|medium|large|xl] [--seed N]';
+  'uso: seed <seed|reset|generate|summarize> [--profile …] [--surveys N] [--responses N] [--questions N] [--legacy N] [--seed N]\n' +
+  '     (sin comando → servidor HTTP dev-only en $PORT, por defecto 3161)';
 
 function parseArgs(argv: string[]): CliFlags {
   const [command = '', ...rest] = argv;
@@ -34,6 +35,21 @@ function parseArgs(argv: string[]): CliFlags {
 async function main(): Promise<void> {
   const flags = parseArgs(process.argv.slice(2));
 
+  // Modo HTTP (servicio dev-only): sin comando CLI.
+  if (!flags.command) {
+    try {
+      const app = await NestFactory.create(AppModule.forRoot(flags));
+      const port = Number(process.env.PORT ?? 3161);
+      await app.listen(port, '0.0.0.0');
+      console.log(`[seed] HTTP dev-only en :${port}`);
+    } catch (err) {
+      console.error(`[seed] ${(err as Error).message}`);
+      process.exitCode = 1;
+    }
+    return;
+  }
+
+  // Modo CLI (comandos).
   let ctx: Awaited<ReturnType<typeof NestFactory.createApplicationContext>>;
   try {
     ctx = await NestFactory.createApplicationContext(AppModule.forRoot(flags), {

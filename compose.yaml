@@ -159,6 +159,7 @@ services:
     environment:
       APP_ENV: ${APP_ENV:-development}
       SEED_ALLOW: ${SEED_ALLOW:-0}
+      PORT: "3161"
       DATABASE_URL: postgresql://${POSTGRES_USER:-intt_user}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}@db:5451/${POSTGRES_DB:-intt_encuesta}?schema=public
       API_BASE_URL: http://api:3151
     volumes:
@@ -168,7 +169,7 @@ services:
       db:
         condition: service_healthy
     networks: [intt-internal]
-    restart: "no"
+    restart: unless-stopped
 
 networks:
   intt-internal: {}

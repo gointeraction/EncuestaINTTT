@@ -31,6 +31,18 @@ docker compose --env-file .env.development run --rm seed summarize
 docker compose --env-file .env.development run --rm seed reset
 ```
 
+## Interfaz visual (consola)
+
+El seeder, sin argumentos, levanta un **servidor HTTP dev-only** en `:3161` (`GET /status`,
+`POST /seed`, `POST /reset`, `POST /summarize`). La consola lo consume a través de **nginx**
+(`/seed/` → `seed:3161`) en la página **"Datos de prueba"** (`/datos`): eliges perfil/conteos y
+pulsas **Cargar / Sumarizar / Borrar**. Requiere el perfil `seed` activo:
+
+```bash
+docker compose --env-file .env.development --profile seed up -d --build seed
+# luego, en la consola: menú «Datos» → /datos
+```
+
 ## Variables
 
 `APP_ENV`, `SEED_ALLOW`, `DATABASE_URL` (captura, esquema `public`), `API_BASE_URL` (por defecto

@@ -17,3 +17,13 @@ export const PROFILES: Record<string, Profile> = {
 };
 
 export type ProfileName = keyof typeof PROFILES;
+
+/** Combina un perfil base con overrides puntuales (para la CLI y la API HTTP). */
+export function withOverride(base: Profile, o: Partial<Profile>): Profile {
+  return {
+    surveys: o.surveys ?? base.surveys,
+    questionsPerSurvey: o.questionsPerSurvey ?? base.questionsPerSurvey,
+    responses: o.responses ?? base.responses,
+    legacy: o.legacy ?? base.legacy,
+  };
+}

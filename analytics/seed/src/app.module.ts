@@ -5,6 +5,7 @@ import { SeedCommand } from './commands/seed.command.js';
 import { ResetCommand } from './commands/reset.command.js';
 import { GenerateCommand } from './commands/generate.command.js';
 import { SummarizeCommand } from './commands/summarize.command.js';
+import { SeedController } from './http/seed.controller.js';
 
 @Module({})
 export class AppModule {
@@ -12,6 +13,7 @@ export class AppModule {
     const config = loadConfig(flags); // valida guardas (aborta fuera de development)
     return {
       module: AppModule,
+      controllers: [SeedController],
       providers: [
         { provide: SEED_CONFIG, useValue: config },
         { provide: PgService, useFactory: () => new PgService(config.databaseUrl) },
