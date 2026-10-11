@@ -13,3 +13,5 @@ export * from './identityControllerMe200';
 export * from './identityControllerMe200User';
 export * from './identityControllerSession200';
 export * from './identityControllerSession200User';
+export * from './reportingControllerCrossTabParams';
+export * from './reportingControllerParticipantsParams';

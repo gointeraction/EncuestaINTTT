@@ -21,6 +21,10 @@ import {
   inject
 } from '@angular/core';
 
+import type {
+  DeepNonNullable
+} from '@orval/core';
+
 import {
   Observable
 } from 'rxjs';
@@ -29,7 +33,9 @@ import type {
   IdentityControllerLogin200,
   IdentityControllerLoginBody,
   IdentityControllerMe200,
-  IdentityControllerSession200
+  IdentityControllerSession200,
+  ReportingControllerCrossTabParams,
+  ReportingControllerParticipantsParams
 } from './model';
 
 interface HttpClientOptions {
@@ -148,6 +154,22 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
+ reportingControllerCrossTab<TData = void>(id: string,
+    params: DeepNonNullable<ReportingControllerCrossTabParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerCrossTab<TData = void>(id: string,
+    params: DeepNonNullable<ReportingControllerCrossTabParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerCrossTab<TData = void>(id: string,
+    params: DeepNonNullable<ReportingControllerCrossTabParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerCrossTab<TData = void>(
+    id: string,
+    params: DeepNonNullable<ReportingControllerCrossTabParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/surveys/${id}/cross-tab`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
  reportingControllerGlobal<TData = void>( options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
  reportingControllerGlobal<TData = void>( options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
  reportingControllerGlobal<TData = void>( options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
@@ -155,6 +177,18 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
      options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
       `/analytics/global/dashboard`,options
+    );
+  }
+
+ reportingControllerParticipants<TData = void>(params: DeepNonNullable<ReportingControllerParticipantsParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerParticipants<TData = void>(params: DeepNonNullable<ReportingControllerParticipantsParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerParticipants<TData = void>(params: DeepNonNullable<ReportingControllerParticipantsParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerParticipants<TData = void>(
+    params: DeepNonNullable<ReportingControllerParticipantsParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/participants`,{
+    ...options,
+        params: {...params, ...options?.params},}
     );
   }
 
@@ -179,5 +213,7 @@ export type PublicReadControllerListSurveysClientResult = NonNullable<void>
 export type SummarizationControllerSummarizeClientResult = NonNullable<void>
 export type SummarizationControllerStatusClientResult = NonNullable<void>
 export type ReportingControllerSurveyClientResult = NonNullable<void>
+export type ReportingControllerCrossTabClientResult = NonNullable<void>
 export type ReportingControllerGlobalClientResult = NonNullable<void>
+export type ReportingControllerParticipantsClientResult = NonNullable<void>
 export type ExportControllerExportSurveyClientResult = NonNullable<void>
