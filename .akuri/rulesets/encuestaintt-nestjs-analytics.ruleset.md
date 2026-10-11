@@ -9,7 +9,7 @@ summary: EncuestaINTTT extra gates for the NestJS back-office (analytics/reporti
   — added ON TOP of the technology ruleset. Not a procedure.
 technology: nestjs
 applies-to: backoffice-api
-rules: [no-console-log, source-layout, module-structure, controllers-endpoints, use-cases, domain-errors, cross-module-communication, owner-of-analytics-schema, no-write-to-public, read-only-on-public, pagination, audit-fields, access-audit, pii-masking-server-side, rbac-before-data]
+rules: [no-console-log, source-layout, module-structure, controllers-endpoints, use-cases, domain-errors, cross-module-communication, owner-of-analytics-schema, no-write-to-public, pagination, audit-fields, rbac-before-data, pii-masking-server-side, access-audit-required]
 ---
 
 # RULESET — encuestaintt nestjs analytics (back-office)

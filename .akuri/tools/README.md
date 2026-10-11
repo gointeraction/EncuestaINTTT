@@ -51,6 +51,13 @@ WRITE INFO: project gates live colocated with what they check:
 |------|----------|--------|
 | `check-documento-en-es.py` | `.akuri/rules/` | every functional document is authored in Spanish |
 | `check-no-console-log.py` | `.akuri/rules/quality/no-console-log/deterministic/` | no stray console.log/debug in `src/` |
+| `check-no-write-to-public.py` | `.akuri/rules/analytics/no-write-to-public/deterministic/` | back-office never writes to the `public` schema |
+| `check-owner-of-analytics-schema.py` | `.akuri/rules/analytics/owner-of-analytics-schema/deterministic/` | back-office models declare `@@schema("analytics")` |
+| `check-rbac-before-data.py` | `.akuri/rules/access/rbac-before-data/deterministic/` | module controllers declare guard/policy/public |
+| `check-pii-masking-server-side.py` | `.akuri/rules/access/pii-masking-server-side/deterministic/` | exports apply the server-side PII mask |
+| `check-access-audit-required.py` | `.akuri/rules/access/access-audit-required/deterministic/` | protected reads reference the access audit |
+| `check-api-sdk-only.py` | `.akuri/rules/angular/api-sdk-only/deterministic/` | console pages use the api-sdk only |
+| `check-session-guard.py` | `.akuri/rules/angular/session-guard/deterministic/` | console routes declare a session guard |
 | `check.py` | `.akuri/04-testing/load-and-resilience/deterministic/` | testing set + A2↔A3 coherence |
 
 ### SECTION 02-CONVENTION
