@@ -34,7 +34,7 @@ RUN npm run build
 
 # ---------- runner (the application) ----------
 FROM base AS runner
-ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3000
+ENV NODE_ENV=production HOSTNAME=0.0.0.0 PORT=3001
 RUN groupadd --system --gid 1001 nodejs \
  && useradd --system --uid 1001 --gid nodejs nextjs
 COPY --from=builder /app/public ./public
@@ -45,7 +45,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/.prisma ./node_modul
 # Local fallback store (resilience path reads/writes db/*.json)
 COPY --from=builder --chown=nextjs:nodejs /app/db ./db
 USER nextjs
-EXPOSE 3000
+EXPOSE 3001
 CMD ["node", "server.js"]
 
 # ---------- migrator (one-shot: capture schema + analytics schema/role + optional seed) ----------

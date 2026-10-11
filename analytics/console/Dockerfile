@@ -10,4 +10,4 @@ RUN npm run build
 FROM nginx:1.24-alpine AS runner
 COPY deploy/nginx-console.conf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/console/browser /usr/share/nginx/html
-EXPOSE 80
+EXPOSE 4301

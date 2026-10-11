@@ -13,7 +13,7 @@ async function bootstrap() {
     .build();
   SwaggerModule.setup('openapi', app, SwaggerModule.createDocument(app, config));
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 3151);
 }
 await bootstrap();
 

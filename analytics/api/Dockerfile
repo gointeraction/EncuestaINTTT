@@ -18,12 +18,12 @@ RUN npx prisma generate
 RUN npm run build
 
 FROM base AS runner
-ENV NODE_ENV=production PORT=3000
+ENV NODE_ENV=production PORT=3151
 COPY --from=builder /app/node_modules ./node_modules
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/prisma ./prisma
 COPY --from=builder /app/package.json ./package.json
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 RUN chmod +x /usr/local/bin/docker-entrypoint.sh
-EXPOSE 3000
+EXPOSE 3151
 ENTRYPOINT ["/usr/local/bin/docker-entrypoint.sh"]
