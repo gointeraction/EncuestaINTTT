@@ -31,6 +31,7 @@ export interface QuestionAnalytics {
   base?: number;
   options?: OptionCount[];
   distribution?: DistributionPoint[];
+  stats?: { count: number; mean: number; median: number; mode: number; stdDev: number; min: number; max: number };
   average?: number | null;
   comments?: string[];
 }

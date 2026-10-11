@@ -170,6 +170,20 @@ interface ChartVm {
             </ds-container>
           }
           </div>
+          @if (q.kind === 'numeric' && q.stats) {
+            <ds-container kind="section" name="estadisticos">
+              <h3 class="panel__stats-title">Estadísticos de {{ q.label }}</h3>
+              <div class="panel__stats">
+                <div><span>Media</span><b>{{ fmt(q.stats.mean) }}</b></div>
+                <div><span>Mediana</span><b>{{ fmt(q.stats.median) }}</b></div>
+                <div><span>Moda</span><b>{{ fmt(q.stats.mode) }}</b></div>
+                <div><span>Desv. estándar</span><b>{{ fmt(q.stats.stdDev) }}</b></div>
+                <div><span>Mín</span><b>{{ fmt(q.stats.min) }}</b></div>
+                <div><span>Máx</span><b>{{ fmt(q.stats.max) }}</b></div>
+                <div><span>N</span><b>{{ q.stats.count }}</b></div>
+              </div>
+            </ds-container>
+          }
         }
 
         <!-- TABLA: RESPUESTAS ABIERTAS -->
@@ -194,6 +208,11 @@ interface ChartVm {
     @media (max-width: 1024px) { .panel__detail { grid-template-columns: minmax(0, 1fr); } }
     .panel__fuente { display: inline-flex; gap: 0.4rem; align-items: center; color: inherit; }
     .panel__segment { margin: var(--ds-space-2) 0 0; font-size: var(--ds-text-caption); color: var(--ds-text-muted); }
+    .panel__stats-title { margin: 0 0 var(--ds-space-3); font-size: var(--ds-text-heading-4); color: var(--ds-surface-page-on); }
+    .panel__stats { display: grid; gap: var(--ds-space-3); grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); }
+    .panel__stats div { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--ds-border-subtle); border-radius: var(--ds-radius-md); padding: var(--ds-space-3); background: var(--ds-surface-card); }
+    .panel__stats span { font-size: var(--ds-text-caption); color: var(--ds-text-muted); text-transform: uppercase; letter-spacing: var(--ds-letter-spacing-wide); }
+    .panel__stats b { font-size: var(--ds-text-large); color: var(--ds-color-brand-primary); font-variant-numeric: tabular-nums; }
   `,
 })
 export class PanelEncuestaPage {
@@ -347,6 +366,10 @@ export class PanelEncuestaPage {
 
   baseLabel(): string {
     return `Base: ${this.chart().base} respuestas`;
+  }
+
+  fmt(n: number): string {
+    return Number.isFinite(n) ? n.toFixed(2) : '—';
   }
 
   segmentLabel(): string {

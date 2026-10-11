@@ -10,6 +10,16 @@ export interface QuestionAgg {
   options: Array<{ value: string; count: number }>;
   /** Distribución valor→conteo (preguntas numéricas/escala). */
   distribution?: Array<{ value: number; count: number }>;
+  /** Estadísticos de una pregunta numérica. */
+  stats?: {
+    count: number;
+    mean: number;
+    median: number;
+    mode: number;
+    stdDev: number;
+    min: number;
+    max: number;
+  };
   average: number | null;
 }
 
@@ -140,6 +150,7 @@ export function aggregateAnswers(
       distribution: [...(numDist.get(k) ?? new Map<number, number>()).entries()]
         .map(([value, count]) => ({ value, count }))
         .sort((a, b) => a.value - b.value),
+      stats: computeStats(numDist.get(k) ?? new Map<number, number>()),
       average: n.count ? n.sum / n.count : null,
     });
   }
@@ -173,6 +184,50 @@ function derivedValue(d: DerivedQuestion, obj: Record<string, unknown>): string 
     if (typeof v === 'number') return binLabel(d.bins, v);
   }
   return null;
+}
+
+/** Estadísticos (media, mediana, moda, desviación estándar, mín/máx, N) de una distribución. */
+function computeStats(dist: Map<number, number>): {
+  count: number;
+  mean: number;
+  median: number;
+  mode: number;
+  stdDev: number;
+  min: number;
+  max: number;
+} {
+  const entries = [...dist.entries()].sort((a, b) => a[0] - b[0]);
+  const count = entries.reduce((s, [, c]) => s + c, 0);
+  if (count === 0) return { count: 0, mean: 0, median: 0, mode: 0, stdDev: 0, min: 0, max: 0 };
+  let sum = 0;
+  let min = entries[0][0];
+  let max = entries[0][0];
+  let mode = entries[0][0];
+  let modeCount = -1;
+  for (const [v, c] of entries) {
+    sum += v * c;
+    if (v < min) min = v;
+    if (v > max) max = v;
+    if (c > modeCount) {
+      modeCount = c;
+      mode = v;
+    }
+  }
+  const mean = sum / count;
+  let varSum = 0;
+  for (const [v, c] of entries) varSum += c * (v - mean) ** 2;
+  const stdDev = count > 1 ? Math.sqrt(varSum / (count - 1)) : 0;
+  const half = count / 2;
+  let acc = 0;
+  let median = mean;
+  for (const [v, c] of entries) {
+    acc += c;
+    if (acc >= half) {
+      median = v;
+      break;
+    }
+  }
+  return { count, mean, median, mode, stdDev, min, max };
 }
 
 /** Etiqueta del rango al que pertenece un valor numérico (último rango abierto: "X+"). */
