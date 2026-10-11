@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { DsContainerComponent, DsHeaderComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
+import { SessionService } from '../../../core/session.service';
 import {
   ConsoleAccountSection,
   ConsoleFooterSection,
@@ -44,12 +45,14 @@ import {
           <div class="ds-h__section ds-h__section--grow">
             <app-console-header-section />
           </div>
-          <div class="ds-h__section ds-h__section--end">
-            <div class="flex items-center gap-6">
-              <app-console-nav-section />
-              <app-console-account-section />
+          @if (session.user()) {
+            <div class="ds-h__section ds-h__section--end">
+              <div class="flex items-center gap-6">
+                <app-console-nav-section />
+                <app-console-account-section />
+              </div>
             </div>
-          </div>
+          }
         </div>
       </ds-header>
     </ds-container>
@@ -71,4 +74,6 @@ import {
     :host { display: flex; flex-direction: column; height: 100dvh; }
   `,
 })
-export class ConsoleLayout {}
+export class ConsoleLayout {
+  protected readonly session = inject(SessionService);
+}
