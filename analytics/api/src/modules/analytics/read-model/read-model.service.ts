@@ -1,19 +1,12 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { QUESTIONNAIRES, PRIMARY_QUESTIONNAIRE, type Questionnaire } from './questionnaires.js';
-
-interface QuestionAgg {
-  id: string;
-  label: string;
-  kind: 'choice' | 'numeric' | 'text';
-  options: Array<{ value: string; count: number }>;
-  average: number | null;
-}
+import { aggregateAnswers, buildFilterWhere, bySegment } from './answers-analysis.js';
 
 /**
  * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de la
- * CAPTURA REAL, según el REGISTRO de cuestionarios (A2: questionnaires-registry.md). Hoy hay un
- * cuestionario (Visión Cero); con N, se itera QUESTIONNAIRES. No escribe en public.
+ * CAPTURA REAL, según el REGISTRO de cuestionarios (A2: questionnaires-registry.md) y el modelo
+ * de filtrado (A2: analysis-filtering.md). No escribe en public.
  */
 @Injectable()
 export class ReadModelService {
@@ -24,9 +17,7 @@ export class ReadModelService {
   }
 
   async summarizeGlobal(): Promise<number> {
-    const q = PRIMARY_QUESTIONNAIRE;
-    const total = await this.summarizeGlobalOf(q);
-    return total;
+    return this.summarizeGlobalOf(PRIMARY_QUESTIONNAIRE);
   }
 
   private async summarizeGlobalOf(q: Questionnaire): Promise<number> {
@@ -65,13 +56,11 @@ export class ReadModelService {
     return total;
   }
 
+  /** Resumen materializado del cuestionario (sin filtros). */
   async summarizeSurvey(surveyId: string): Promise<number> {
     const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
-    const rows = await this.prisma.$queryRawUnsafe<Array<{ answers: string; seg: string }>>(
-      `SELECT "${q.source.answersField}" AS answers, "${q.source.segmentsField}" AS seg
-       FROM ${q.source.table} LIMIT 200000`,
-    );
-    const { questions, total } = aggregate(q, rows);
+    const rows = await this.fetchRows(q);
+    const { questions, total } = aggregateAnswers(q, rows);
     const payload = {
       surveyId: q.id,
       title: q.title,
@@ -87,71 +76,46 @@ export class ReadModelService {
     });
     return total;
   }
-}
 
-function bySegment(rows: Array<{ seg: string }>): Array<{ id: string; responses: number }> {
-  const m = new Map<string, number>();
-  for (const r of rows) m.set(r.seg, (m.get(r.seg) ?? 0) + 1);
-  return [...m.entries()]
-    .map(([id, responses]) => ({ id, responses }))
-    .sort((a, b) => b.responses - a.responses);
-}
+  /**
+   * Resumen FILTRADO en vivo: acota los cuestionarios por `(dimension = value)` y reagrega
+   * pregunta por pregunta (A2: analysis-filtering.md). Solo-lectura.
+   */
+  async summarizeFiltered(surveyId: string, dimension: string, value: string): Promise<unknown> {
+    const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
+    const { sql, params } = buildFilterWhere(q, dimension, value);
+    const rows = await this.prisma.$queryRawUnsafe<Array<{ answers: string; seg: string }>>(
+      `SELECT "${q.source.answersField}" AS answers, "${q.source.segmentsField}" AS seg
+       FROM ${q.source.table} ${sql} LIMIT 200000`,
+      ...params,
+    );
+    const { questions, total } = aggregateAnswers(q, rows);
+    return {
+      surveyId: q.id,
+      segment: { dimension, value },
+      totals: { responses: total },
+      byDriverType: bySegment(rows),
+      questions,
+      generatedAt: new Date().toISOString(),
+    };
+  }
 
-/** Agrega el JSON de respuestas (categóricas y numéricas) del cuestionario. */
-function aggregate(
-  q: Questionnaire,
-  rows: Array<{ answers: string }>,
-): { questions: QuestionAgg[]; total: number } {
-  const cats = new Map<string, Map<string, number>>();
-  const nums = new Map<string, { sum: number; count: number }>();
-  let total = 0;
-  for (const row of rows) {
-    let obj: Record<string, unknown>;
-    try {
-      obj = JSON.parse(row.answers) as Record<string, unknown>;
-    } catch {
-      continue;
-    }
-    total++;
-    for (const [k, v] of Object.entries(obj)) {
-      if (Array.isArray(v)) {
-        const m = cats.get(k) ?? new Map<string, number>();
-        for (const x of v) m.set(String(x), (m.get(String(x)) ?? 0) + 1);
-        cats.set(k, m);
-      } else if (typeof v === 'number') {
-        const n = nums.get(k) ?? { sum: 0, count: 0 };
-        n.sum += v;
-        n.count++;
-        nums.set(k, n);
-      } else if (v !== null && v !== undefined && v !== '') {
-        const m = cats.get(k) ?? new Map<string, number>();
-        m.set(String(v), (m.get(String(v)) ?? 0) + 1);
-        cats.set(k, m);
-      }
-    }
+  /** Respondidos por día (timeline), desde el campo de tiempo del registro. */
+  async timeline(surveyId: string): Promise<Array<{ day: string; total: number; completed: number }>> {
+    const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
+    const tf = q.source.timeField ?? 'completedAt';
+    const rows = await this.prisma.$queryRawUnsafe<Array<{ day: Date; total: number }>>(
+      `SELECT date_trunc('day', "${tf}") AS day, COUNT(*)::int AS total
+       FROM ${q.source.table}
+       GROUP BY 1 ORDER BY 1 ASC LIMIT 400`,
+    );
+    return rows.map((r) => ({ day: new Date(r.day).toISOString().slice(0, 10), total: r.total, completed: r.total }));
   }
-  const questions: QuestionAgg[] = [];
-  for (const [k, m] of cats) {
-    questions.push({
-      id: k,
-      label: q.labels[k] ?? k,
-      kind: 'choice',
-      options: [...m.entries()]
-        .map(([value, count]) => ({ value, count }))
-        .sort((a, b) => b.count - a.count)
-        .slice(0, 30),
-      average: null,
-    });
+
+  private fetchRows(q: Questionnaire): Promise<Array<{ answers: string; seg: string }>> {
+    return this.prisma.$queryRawUnsafe<Array<{ answers: string; seg: string }>>(
+      `SELECT "${q.source.answersField}" AS answers, "${q.source.segmentsField}" AS seg
+       FROM ${q.source.table} LIMIT 200000`,
+    );
   }
-  for (const [k, n] of nums) {
-    questions.push({
-      id: k,
-      label: q.labels[k] ?? k,
-      kind: 'numeric',
-      options: [],
-      average: n.count ? n.sum / n.count : null,
-    });
-  }
-  questions.sort((a, b) => a.id.localeCompare(b.id));
-  return { questions, total };
 }

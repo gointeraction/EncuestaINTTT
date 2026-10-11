@@ -13,6 +13,7 @@ export interface Questionnaire {
     segmentsField: string;
     channelField?: string;
     sorteoField?: string;
+    timeField?: string;
   };
   /** Campo de segmentación → etiqueta (p.ej. driverType). */
   segments: Record<string, string>;
@@ -110,6 +111,7 @@ export const QUESTIONNAIRES: Questionnaire[] = [
       segmentsField: 'driverType',
       channelField: 'channel',
       sorteoField: 'participaSorteo',
+      timeField: 'completedAt',
     },
     segments: DRIVER_LABELS,
     channels: CHANNEL_LABELS,
