@@ -81,6 +81,19 @@ the persistence run as containers on the same host; the "backend" is the Next.js
 PostgreSQL and Redis data live COLOCATED in `./.data/` (gitignored). The former host path
 (Nginx + PM2 + native PostgreSQL) is OPTIONAL/legacy (`install.sh`).
 
+### SECTION 04-PLANNED-INSTANCES
+
+WRITE INFO: la capa analítica (ver `00-manifest/analytics-platform.md`) declara instancias
+PLANNED que aún no existen en A3 — se materializan en las fases del plan:
+
+| Instancia | Capa | Tecnología | Doc | Fase |
+|-----------|------|-----------|-----|------|
+| `encuestaintt-analytics-api` | backend | nestjs | `backend/encuestaintt-analytics-api.md` | F1 |
+| `encuestaintt-admin` | frontend | angular | `frontend/encuestaintt-admin.md` | F2 |
+
+WRITE RULE: una instancia `planned` NO se construye sin actualizar su `status` y revalidar sus
+gates; la captura (`encuestaintt-api`/`encuestaintt-web`) permanece sin cambios. — MUST
+
 ## CHAPTER 4: EVALUATION & CLOSING
 
 ### SECTION 01-EVALUATION
