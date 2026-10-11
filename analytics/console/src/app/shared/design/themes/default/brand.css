@@ -12,21 +12,21 @@
  * composites, and contains the ONLY brand literals allowed outside colors.css.
  */
 :root {
-  /* ── BRAND COLORS ─────────────────────────────────────────────────── */
-  /* primary — cian eléctrico de identidad */
-  --ds-color-brand-primary: #00c0f3;
+  /* ── BRAND COLORS — identidad institucional INTT ─────────────────── */
+  /* primary — azul marino INTT */
+  --ds-color-brand-primary: #1c2454;
 
-  /* accent — magenta/fucsia neón (CTAs, polo derecho del lazo) */
-  --ds-color-brand-accent: #d81e8a;
+  /* accent — amarillo oro INTT (CTAs, resaltados) */
+  --ds-color-brand-accent: #ffc907;
 
-  /* contrast — azul cobalto profundo (texto legible en fondos claros) */
-  --ds-color-brand-contrast: #006ec1;
+  /* contrast — azul eléctrico INTT (texto/acento legible) */
+  --ds-color-brand-contrast: #1c64f2;
 
-  /* secondary — violeta/índigo (tono de transición) */
-  --ds-color-brand-secondary: #5844e0;
+  /* secondary — azul de transición */
+  --ds-color-brand-secondary: #1447ac;
 
-  /* dark — pizarra profundo / azul noche (superficies oscuras) */
-  --ds-color-brand-dark: #0f172a;
+  /* dark — azul noche profundo INTT (superficies oscuras) */
+  --ds-color-brand-dark: #151c41;
 
   /* ── BRAND TYPOGRAPHY ─────────────────────────────────────────────── */
   /* Self-hosted variable font (Georama, wght 100–900) — fonts/font-faces.css */

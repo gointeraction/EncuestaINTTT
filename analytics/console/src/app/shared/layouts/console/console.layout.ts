@@ -1,28 +1,31 @@
 import { Component, inject } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { DsContainerComponent, DsHeaderComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
 import { SessionService } from '../../../core/session.service';
 
 /**
- * ConsoleLayout — shell de la consola (normas del DS).
- * `area` header (dos secciones: logo+título y debajo el menú) · `display` que ocupa
- * SOLO el espacio disponible entre el header y el footer (hostea el router-outlet y
- * el FAB) · `area` footer.
+ * ConsoleLayout — shell de la consola (normas del DS): `area` header (dos filas:
+ * logo+título y debajo el menú) · `display` que ocupa el espacio entre header y
+ * footer (router-outlet + FAB) · `area` footer. Solo este layout renderiza el
+ * `<router-outlet>`.
  */
 @Component({
   selector: 'app-console-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, DsContainerComponent, DsHeaderComponent, DsFabComponent],
+  imports: [NgOptimizedImage, RouterOutlet, RouterLink, RouterLinkActive, DsContainerComponent, DsHeaderComponent, DsFabComponent],
   template: `
     <ds-container kind="area" name="header">
       <ds-header>
         <div class="ds-h__row">
           <div class="ds-h__section ds-h__section--grow brand">
             <img
-              class="brand__logo"
-              src="/intt-logo.png"
+              ngSrc="/intt-logo.png"
+              width="110"
+              height="30"
               alt="INTT — Instituto Nacional de Transporte Terrestre"
+              class="brand__logo"
             />
             <span class="brand__title">Visión Cero · Analítica</span>
           </div>
@@ -55,27 +58,43 @@ import { SessionService } from '../../../core/session.service';
   `,
   styles: `
     :host { display: flex; flex-direction: column; height: 100dvh; }
-    :host ::ng-deep ds-container[data-name='header'] { background: #1c2454; color: #fff; padding: 0.5rem 1rem; }
+    :host ::ng-deep ds-container[data-name='header'] {
+      background: var(--ds-color-brand-primary);
+      color: var(--ds-color-white);
+      padding: var(--ds-space-2) var(--ds-space-4);
+    }
     :host ::ng-deep ds-container[data-name='footer'] {
-      background: #151c41; color: rgba(255, 255, 255, 0.7);
-      padding: 0.4rem 1rem; font-size: 0.8rem;
+      background: var(--ds-color-brand-dark);
+      color: var(--ds-color-white);
+      padding: var(--ds-space-1) var(--ds-space-4);
+      font-size: var(--ds-text-caption);
     }
     :host ::ng-deep ds-container[data-name='content'] { flex: 1 1 auto; min-height: 0; }
-    :host ::ng-deep .ds-h__row { gap: 0.5rem; }
-    :host ::ng-deep .ds-h__section { flex-direction: row; align-items: center; gap: 0.6rem; }
+    :host ::ng-deep .ds-h__section { flex-direction: row; align-items: center; gap: var(--ds-space-2); }
     .brand__logo { height: 30px; width: auto; display: block; }
-    .brand__title { font-weight: 600; white-space: nowrap; }
-    .nav a { color: rgba(255, 255, 255, 0.85); text-decoration: none; padding: 0.25rem 0.6rem; border-radius: 6px; font-size: 0.9rem; }
-    .nav a.active, .nav a:hover { color: #151c41; background: #ffc907; }
-    .session { font-size: 0.85rem; white-space: nowrap; }
-    .session__user { color: rgba(255, 255, 255, 0.85); }
+    .brand__title { font-weight: var(--ds-font-weight-semibold); white-space: nowrap; }
+    .nav a {
+      color: var(--ds-color-white);
+      text-decoration: none;
+      padding: var(--ds-space-1) var(--ds-space-2);
+      border-radius: var(--ds-radius-md);
+      font-size: var(--ds-text-small);
+    }
+    .nav a.active, .nav a:hover { color: var(--ds-color-brand-dark); background: var(--ds-color-brand-accent); }
+    .session { font-size: var(--ds-text-small); white-space: nowrap; }
+    .session__user { color: var(--ds-color-white); }
     .session button {
-      cursor: pointer; background: #ffc907; color: #151c41; border: 0;
-      border-radius: 6px; padding: 0.3rem 0.7rem; font-weight: 600;
+      cursor: pointer;
+      background: var(--ds-color-brand-accent);
+      color: var(--ds-color-brand-dark);
+      border: 0;
+      border-radius: var(--ds-radius-md);
+      padding: var(--ds-space-1) var(--ds-space-3);
+      font-weight: var(--ds-font-weight-semibold);
     }
   `,
 })
-export class ConsoleLayoutComponent {
+export class ConsoleLayout {
   readonly session = inject(SessionService);
   private readonly router = inject(Router);
   readonly year = new Date().getFullYear();
