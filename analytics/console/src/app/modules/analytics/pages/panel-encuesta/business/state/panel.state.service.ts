@@ -1,7 +1,13 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { PanelDataService } from '../data/panel.data.service';
 import type { PanelStateContract } from '../contracts/panel.state.contract';
-import type { QuestionAnalytics, SurveyPayload, SurveySource } from '../models/panel.model';
+import type {
+  FilterDimension,
+  QuestionAnalytics,
+  SurveyPayload,
+  SurveySource,
+  TimelinePoint,
+} from '../models/panel.model';
 
 @Injectable()
 export class PanelStateService implements PanelStateContract {
@@ -9,9 +15,13 @@ export class PanelStateService implements PanelStateContract {
 
   readonly sources = signal<SurveySource[]>([]);
   readonly dashboard = signal<SurveyPayload | null>(null);
+  readonly dimensions = signal<FilterDimension[]>([]);
+  readonly timeline = signal<TimelinePoint[]>([]);
   readonly loading = signal(false);
   readonly search = signal('');
   readonly typeFilter = signal('');
+  readonly dimensionId = signal('');
+  readonly dimensionValue = signal('');
 
   private readonly _surveyId = signal('');
   private readonly _questionId = signal('');
@@ -43,13 +53,24 @@ export class PanelStateService implements PanelStateContract {
   async selectSurvey(id: string): Promise<void> {
     this._surveyId.set(id);
     this._questionId.set('');
+    this.dimensionId.set('');
+    this.dimensionValue.set('');
     if (!id) {
       this.dashboard.set(null);
+      this.dimensions.set([]);
+      this.timeline.set([]);
       return;
     }
     this.loading.set(true);
     try {
-      this.dashboard.set(await this.data.loadSurvey(id));
+      const [dashboard, dimensions, timeline] = await Promise.all([
+        this.data.loadSurvey(id),
+        this.data.loadDimensions(id),
+        this.data.loadTimeline(id),
+      ]);
+      this.dashboard.set(dashboard);
+      this.dimensions.set(dimensions);
+      this.timeline.set(timeline);
     } finally {
       this.loading.set(false);
     }
@@ -67,5 +88,25 @@ export class PanelStateService implements PanelStateContract {
 
   setQuestion(id: string): void {
     this._questionId.set(id);
+  }
+
+  /** Aplica (o quita) un segmento: recarga el panel acotado por `dimension = value`. */
+  async setDimension(dimensionId: string, value: string): Promise<void> {
+    if (dimensionId === this.dimensionId() && value === this.dimensionValue()) return;
+    this.dimensionId.set(dimensionId);
+    this.dimensionValue.set(value);
+    this._questionId.set('');
+    const surveyId = this._surveyId();
+    if (!surveyId) return;
+    this.loading.set(true);
+    try {
+      this.dashboard.set(
+        dimensionId && value
+          ? await this.data.loadSurvey(surveyId, { dimension: dimensionId, value })
+          : await this.data.loadSurvey(surveyId),
+      );
+    } finally {
+      this.loading.set(false);
+    }
   }
 }

@@ -15,3 +15,4 @@ export * from './identityControllerSession200';
 export * from './identityControllerSession200User';
 export * from './reportingControllerCrossTabParams';
 export * from './reportingControllerParticipantsParams';
+export * from './reportingControllerSurveyParams';

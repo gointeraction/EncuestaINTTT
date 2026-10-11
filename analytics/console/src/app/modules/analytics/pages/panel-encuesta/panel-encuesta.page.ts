@@ -53,8 +53,8 @@ interface ChartVm {
  * spine: display > page > area(header|body) > section > content
  *
  * Presenta los resultados de una encuesta como estadísticas: filtros (encuesta,
- * búsqueda, tipo y pregunta), KPIs de la muestra, el gráfico según el tipo de
- * pregunta y las tablas (detalle por categoría, resumen de preguntas, abiertas).
+ * búsqueda, tipo, pregunta y segmento por dimensión), KPIs de la muestra, el
+ * gráfico según el tipo de pregunta, la línea de tiempo y las tablas de detalle.
  */
 @Component({
   selector: 'app-panel-encuesta',
@@ -104,6 +104,12 @@ interface ChartVm {
             (activeFiltersChange)="onFilters($event)"
             [total]="state.filtered().length"
           />
+          @if (state.dimensionId() && state.dimensionValue()) {
+            <p class="panel__segment">
+              Segmento activo:
+              <strong>{{ segmentLabel() }}</strong>
+            </p>
+          }
         </ds-container>
 
         <!-- KPIs DE LA MUESTRA -->
@@ -118,6 +124,9 @@ interface ChartVm {
         <!-- GRÁFICO DE LA PREGUNTA ENFOCADA -->
         @if (state.selected(); as q) {
           <ds-container kind="section" name="grafico">
+            @if (questionKpis().length > 1) {
+              <ds-kpi-grid [items]="questionKpis()" />
+            }
             @switch (chart().type) {
               @case ('donut') {
                 <ds-chart-card
@@ -160,6 +169,18 @@ interface ChartVm {
           }
         }
 
+        <!-- LÍNEA DE TIEMPO -->
+        @if (state.timeline().length > 1) {
+          <ds-container kind="section" name="timeline">
+            <ds-chart-card
+              title="Respuestas en el tiempo"
+              subtitle="Total y completadas por día"
+              [categories]="timelineChart().categories"
+              [series]="timelineChart().series"
+            />
+          </ds-container>
+        }
+
         <!-- TABLA: RESUMEN DE PREGUNTAS -->
         <ds-container kind="section" name="tabla-preguntas">
           <ds-data-table-card
@@ -190,6 +211,7 @@ interface ChartVm {
   styles: `
     .panel__body { padding: var(--ds-space-4); display: flex; flex-direction: column; gap: var(--ds-space-4); }
     .panel__fuente { display: inline-flex; gap: 0.4rem; align-items: center; color: inherit; }
+    .panel__segment { margin: var(--ds-space-2) 0 0; font-size: var(--ds-text-caption); color: var(--ds-text-muted); }
   `,
 })
 export class PanelEncuestaPage {
@@ -214,24 +236,38 @@ export class PanelEncuestaPage {
     { key: 'text', label: 'Comentario' },
   ];
 
-  readonly filters = computed<PanelFilter[]>(() => [
-    {
-      label: 'Tipo',
-      value: 'tipo',
-      options: [
-        { label: 'Todos', value: '' },
-        { label: 'Opción única', value: 'single_choice' },
-        { label: 'Opción múltiple', value: 'multi_choice' },
-        { label: 'Escala', value: 'scale' },
-        { label: 'Texto', value: 'short_text' },
-      ],
-    },
-    {
-      label: 'Pregunta',
-      value: 'pregunta',
-      options: this.state.filtered().map((q) => ({ label: q.label, value: q.id })),
-    },
-  ]);
+  readonly filters = computed<PanelFilter[]>(() => {
+    const dimId = this.state.dimensionId();
+    const dimension = this.state.dimensions().find((d) => d.id === dimId);
+    return [
+      {
+        label: 'Tipo',
+        value: 'tipo',
+        options: [
+          { label: 'Todos', value: '' },
+          { label: 'Opción única', value: 'single_choice' },
+          { label: 'Opción múltiple', value: 'multi_choice' },
+          { label: 'Escala', value: 'scale' },
+          { label: 'Texto', value: 'short_text' },
+        ],
+      },
+      {
+        label: 'Pregunta',
+        value: 'pregunta',
+        options: this.state.filtered().map((q) => ({ label: q.label, value: q.id })),
+      },
+      {
+        label: 'Segmento',
+        value: 'dimension',
+        options: this.state.dimensions().map((d) => ({ label: d.label, value: d.id })),
+      },
+      {
+        label: 'Valor',
+        value: 'valor',
+        options: (dimension?.options ?? []).map((o) => ({ label: o.label, value: o.value })),
+      },
+    ];
+  });
 
   readonly kpis = computed<DsKpiItem[]>(() => {
     const t = this.state.dashboard()?.totals;
@@ -242,6 +278,18 @@ export class PanelEncuestaPage {
       { label: 'Abandono', value: `${Math.round((t.abandonmentRate ?? 0) * 100)}%`, icon: 'alert-circle', tone: 'danger' },
       { label: 'En curso', value: t.in_progress, icon: 'activity', tone: 'info' },
     ];
+  });
+
+  readonly questionKpis = computed<DsKpiItem[]>(() => {
+    const q = this.state.selected();
+    if (!q) return [];
+    const items: DsKpiItem[] = [
+      { label: 'Respuestas (base)', value: questionBase(q), icon: 'file-text', tone: 'neutral' },
+    ];
+    if (q.kind === 'numeric' && q.average != null) {
+      items.push({ label: 'Promedio', value: q.average.toFixed(2), icon: 'activity', tone: 'info' });
+    }
+    return items;
   });
 
   readonly chart = computed<ChartVm>(() => {
@@ -276,6 +324,17 @@ export class PanelEncuestaPage {
       };
     }
     return { type: 'none', base };
+  });
+
+  readonly timelineChart = computed<{ categories: string[]; series: DsChartSeries[] }>(() => {
+    const points = this.state.timeline();
+    return {
+      categories: points.map((p) => p.day),
+      series: [
+        { name: 'Respuestas', data: points.map((p) => p.total) },
+        { name: 'Completadas', data: points.map((p) => p.completed) },
+      ],
+    };
   });
 
   readonly tableRows = computed<DsTableRow[]>(() => {
@@ -329,6 +388,11 @@ export class PanelEncuestaPage {
     return `Base: ${this.chart().base} respuestas`;
   }
 
+  segmentLabel(): string {
+    const dimension = this.state.dimensions().find((d) => d.id === this.state.dimensionId());
+    return `${dimension?.label ?? '—'} = ${this.state.dimensionValue()}`;
+  }
+
   onSurvey(event: Event): void {
     void this.state.selectSurvey((event.target as HTMLSelectElement).value);
   }
@@ -336,5 +400,6 @@ export class PanelEncuestaPage {
   onFilters(active: Record<string, string>): void {
     this.state.setType(active['tipo'] ?? '');
     this.state.setQuestion(active['pregunta'] ?? '');
+    void this.state.setDimension(active['dimension'] ?? '', active['valor'] ?? '');
   }
 }

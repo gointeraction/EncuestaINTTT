@@ -35,7 +35,8 @@ import type {
   IdentityControllerMe200,
   IdentityControllerSession200,
   ReportingControllerCrossTabParams,
-  ReportingControllerParticipantsParams
+  ReportingControllerParticipantsParams,
+  ReportingControllerSurveyParams
 } from './model';
 
 interface HttpClientOptions {
@@ -144,13 +145,39 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
- reportingControllerSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- reportingControllerSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- reportingControllerSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+ reportingControllerSurvey<TData = void>(id: string,
+    params?: DeepNonNullable<ReportingControllerSurveyParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerSurvey<TData = void>(id: string,
+    params?: DeepNonNullable<ReportingControllerSurveyParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerSurvey<TData = void>(id: string,
+    params?: DeepNonNullable<ReportingControllerSurveyParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
   reportingControllerSurvey<TData = void>(
+    id: string,
+    params?: DeepNonNullable<ReportingControllerSurveyParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/surveys/${id}/dashboard`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+ reportingControllerDimensions<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerDimensions<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerDimensions<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerDimensions<TData = void>(
     id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
-      `/analytics/surveys/${id}/dashboard`,options
+      `/analytics/surveys/${id}/dimensions`,options
+    );
+  }
+
+ reportingControllerTimeline<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerTimeline<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerTimeline<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerTimeline<TData = void>(
+    id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/surveys/${id}/timeline`,options
     );
   }
 
@@ -213,6 +240,8 @@ export type PublicReadControllerListSurveysClientResult = NonNullable<void>
 export type SummarizationControllerSummarizeClientResult = NonNullable<void>
 export type SummarizationControllerStatusClientResult = NonNullable<void>
 export type ReportingControllerSurveyClientResult = NonNullable<void>
+export type ReportingControllerDimensionsClientResult = NonNullable<void>
+export type ReportingControllerTimelineClientResult = NonNullable<void>
 export type ReportingControllerCrossTabClientResult = NonNullable<void>
 export type ReportingControllerGlobalClientResult = NonNullable<void>
 export type ReportingControllerParticipantsClientResult = NonNullable<void>

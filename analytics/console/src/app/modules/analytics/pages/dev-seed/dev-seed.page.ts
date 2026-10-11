@@ -53,17 +53,8 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
                 @for (p of profiles; track p) { <option [value]="p">{{ p }}</option> }
               </select>
             </label>
-            <label class="seed__field">Encuestas
-              <input type="number" min="0" [value]="surveys()" (input)="surveys.set(num($any($event.target).value))" />
-            </label>
-            <label class="seed__field">Respuestas
+            <label class="seed__field">Respuestas (Visión Cero)
               <input type="number" min="0" [value]="responses()" (input)="responses.set(num($any($event.target).value))" />
-            </label>
-            <label class="seed__field">Preguntas/encuesta
-              <input type="number" min="0" [value]="questions()" (input)="questions.set(num($any($event.target).value))" />
-            </label>
-            <label class="seed__field">Participantes (legacy)
-              <input type="number" min="0" [value]="legacy()" (input)="legacy.set(num($any($event.target).value))" />
             </label>
           </div>
 
@@ -110,10 +101,7 @@ export class DevSeedPage {
   protected readonly profiles = PROFILES;
 
   readonly profile = signal<string>('small');
-  readonly surveys = signal(30);
   readonly responses = signal(9000);
-  readonly questions = signal(8);
-  readonly legacy = signal(2000);
 
   constructor() {
     inject(ThemeService).pageMetadata.set({
@@ -137,10 +125,7 @@ export class DevSeedPage {
   load(): void {
     void this.state.load({
       profile: this.profile(),
-      surveys: this.surveys(),
-      questionsPerSurvey: this.questions(),
       responses: this.responses(),
-      legacy: this.legacy(),
     });
   }
 

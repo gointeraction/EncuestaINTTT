@@ -59,13 +59,34 @@ export interface PanelFilter {
   options: Array<{ label: string; value: string }>;
 }
 
-/** Base de respuesta de una pregunta y su forma visual. */
+/** Resumen visual de una pregunta y su base de respuesta. */
 export interface QuestionSummary {
   id: string;
   label: string;
   type: string;
   visual: VisualForm;
   base: number;
+}
+
+/** Dimensión de filtro (pregunta categórica) entregada por el back-office. */
+export interface FilterDimension {
+  id: string;
+  label: string;
+  type: string;
+  options: Array<{ label: string; value: string }>;
+}
+
+/** Segmento activo (dimensión + valor) aplicado al panel. */
+export interface Segment {
+  dimension: string;
+  value: string;
+}
+
+/** Punto de la línea de tiempo (respuestas por día). */
+export interface TimelinePoint {
+  day: string;
+  total: number;
+  completed: number;
 }
 
 /** Base aplicable de una pregunta (suma de sus categorías observadas). */
