@@ -5,7 +5,7 @@ import { Routes } from '@angular/router';
 export const ANALYTICS_ROUTES: Routes = [
   {
     path: '',
-    loadComponent: () => import('./pages/global/global.component').then((m) => m.GlobalComponent),
+    loadComponent: () => import('./pages/global/global.page').then((m) => m.GlobalPage),
   },
   {
     path: 'panel',
