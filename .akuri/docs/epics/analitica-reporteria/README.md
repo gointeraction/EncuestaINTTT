@@ -11,7 +11,7 @@ summary: Épica de analítica y reportería — acceso de solo lectura a los dat
 epic: analitica-reporteria
 project: encuestaintt
 corpus-root: .akuri/docs
-transversals: acceso-datos-encuesta sumarizacion-cqrs panel-encuesta panel-global exportacion-datos reportes-cruzados gestion-participantes
+transversals: acceso-datos-encuesta sumarizacion-cqrs catalogo-preguntas panel-encuesta panel-global exportacion-datos reportes-cruzados gestion-participantes
 ---
 
 # Épica — Analítica y reportería (analitica-reporteria)
@@ -30,6 +30,7 @@ paneles y exportaciones. Todo el procesamiento ocurre fuera de la ruta de captur
 |---|---|
 | Acceso a los datos de la encuesta | transversal-acceso-datos-encuesta.md |
 | Sumarización (CQRS) | transversal-sumarizacion-cqrs.md |
+| Catálogo de preguntas | transversal-catalogo-preguntas.md |
 | Panel por encuesta | transversal-panel-encuesta.md |
 | Panel global | transversal-panel-global.md |
 | Exportación de datos | transversal-exportacion-datos.md |
