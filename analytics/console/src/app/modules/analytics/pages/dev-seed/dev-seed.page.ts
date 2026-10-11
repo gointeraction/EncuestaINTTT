@@ -53,7 +53,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
                 @for (p of profiles; track p) { <option [value]="p">{{ p }}</option> }
               </select>
             </label>
-            <label class="seed__field">Respuestas (Visión Cero)
+            <label class="seed__field">Cuestionarios (Visión Cero)
               <input type="number" min="0" [value]="responses()" (input)="responses.set(num($any($event.target).value))" />
             </label>
           </div>

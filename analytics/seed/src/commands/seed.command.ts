@@ -41,7 +41,7 @@ export class SeedCommand {
     const rngSeed = opts.seed ?? this.config.rngSeed;
 
     this.log.warn(
-      `seed Visión Cero en "${this.config.databaseName}" · respuestas=${profile.responses} semilla=${rngSeed}`,
+      `seed Visión Cero en "${this.config.databaseName}" · cuestionarios=${profile.responses} semilla=${rngSeed}`,
     );
 
     const dataDir = process.env.SEED_DATA_DIR ?? join(process.cwd(), 'data');

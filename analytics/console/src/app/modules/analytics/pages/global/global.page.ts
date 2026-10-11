@@ -46,7 +46,7 @@ const CHANNEL_LABELS: Record<string, string> = {
         <ds-header>
           <div class="ds-h__row">
             <div class="ds-h__section ds-h__section--grow">
-              <ds-page-title title="Panel global" subtitle="Visión Cero · INTT" [showBack]="false" />
+              <ds-page-title title="Panel global · Encuesta Visión Cero" subtitle="Siniestros de motocicletas · INTT" [showBack]="false" />
             </div>
             <div class="ds-h__section ds-h__section--end">
               <ds-button size="sm" [loading]="state.loading()" (click)="summarize()">
@@ -112,7 +112,7 @@ export class GlobalPage {
     const g = this.state.payload();
     if (!g) return [];
     return [
-      { label: 'Respuestas', value: g.totalResponses, icon: 'file-text', tone: 'info' },
+      { label: 'Cuestionarios', value: g.totalResponses, icon: 'file-text', tone: 'info' },
       { label: 'En el sorteo', value: g.sorteo, icon: 'check-circle', tone: 'success' },
       { label: 'Tipos de conductor', value: g.byDriverType.length, icon: 'users', tone: 'neutral' },
       { label: 'Canales', value: g.byChannel.length, icon: 'pie-chart', tone: 'neutral' },
