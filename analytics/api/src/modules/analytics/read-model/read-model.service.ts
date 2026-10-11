@@ -72,6 +72,16 @@ interface QuestionAgg {
 
 const VISION_CERO = { id: 'vision-cero', title: 'Visión Cero — Motocicletas' };
 
+/** Etiquetas de los tipos de conductor (fuente: src/lib/survey-data.ts). */
+const DRIVER_LABELS: Record<string, string> = {
+  motociclista_activo: 'Motociclista activo',
+  delivery: 'Delivery / Mensajero',
+  mototaxista: 'Mototaxista',
+  ex_motociclista: 'Ex motociclista',
+  familiar: 'Familiar de víctima',
+  otro_conductor: 'Otro conductor / peatón',
+};
+
 /**
  * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de
  * la CAPTURA REAL (`public.legacy_survey_responses`, SOLO LECTURA). Visión Cero = UNA encuesta
@@ -86,11 +96,19 @@ export class ReadModelService {
   }
 
   async summarizeGlobal(): Promise<number> {
-    const [tot] = await this.prisma.$queryRaw<Array<{ total: number }>>`
-      SELECT COUNT(*)::int AS total FROM public.legacy_survey_responses
+    const [tot] = await this.prisma.$queryRaw<Array<{ total: number; sorteo: number }>>`
+      SELECT COUNT(*)::int AS total,
+             COUNT(*) FILTER (WHERE "participaSorteo")::int AS sorteo
+      FROM public.legacy_survey_responses
     `;
     const byDriverType = await this.prisma.$queryRaw<Array<{ id: string; responses: number }>>`
       SELECT "driverType" AS id, COUNT(*)::int AS responses
+      FROM public.legacy_survey_responses
+      GROUP BY 1
+      ORDER BY 2 DESC
+    `;
+    const byChannel = await this.prisma.$queryRaw<Array<{ id: string; responses: number }>>`
+      SELECT COALESCE(channel, 'public') AS id, COUNT(*)::int AS responses
       FROM public.legacy_survey_responses
       GROUP BY 1
       ORDER BY 2 DESC
@@ -101,8 +119,10 @@ export class ReadModelService {
       totalResponses: total,
       completed: total,
       abandoned: 0,
+      sorteo: tot?.sorteo ?? 0,
       bySurvey: [{ ...VISION_CERO, responses: total }],
-      byDriverType,
+      byDriverType: byDriverType.map((d) => ({ ...d, label: DRIVER_LABELS[d.id] ?? d.id })),
+      byChannel,
       generatedAt: new Date().toISOString(),
     };
     await this.prisma.globalDashboard.upsert({

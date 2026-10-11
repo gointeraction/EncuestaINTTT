@@ -11,6 +11,12 @@ import {
 import { GLOBAL_STATE, type GlobalStateContract } from './business/contracts/global.state.contract';
 import { GlobalStateService } from './business/state/global.state.service';
 
+const CHANNEL_LABELS: Record<string, string> = {
+  public: 'Autoservicio',
+  kiosk: 'Kiosco',
+  surveyor: 'Encuestador',
+};
+
 /**
  * @akuri-page
  * page: global
@@ -60,21 +66,56 @@ import { GlobalStateService } from './business/state/global.state.service';
           }
           @if (state.run(); as r) { <p>{{ r }}</p> }
         </ds-container>
+
+        @if (data(); as g) {
+          <div class="gb">
+            <ds-container kind="section" name="by-driver">
+              <h3 class="gb__title">Por tipo de conductor</h3>
+              <ul class="gb__list">
+                @for (d of g.byDriverType; track d.id) {
+                  <li><span>{{ d.label }}</span><b>{{ d.responses }}</b></li>
+                }
+              </ul>
+            </ds-container>
+
+            <ds-container kind="section" name="by-channel">
+              <h3 class="gb__title">Por canal</h3>
+              <ul class="gb__list">
+                @for (c of g.byChannel; track c.id) {
+                  <li><span>{{ channelLabel(c.id) }}</span><b>{{ c.responses }}</b></li>
+                }
+              </ul>
+            </ds-container>
+          </div>
+        }
       </ds-container>
     </ds-container>
+  `,
+  styles: `
+    .gb {
+      display: grid; gap: var(--ds-space-6);
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      margin-top: var(--ds-space-6);
+    }
+    .gb__title { margin: 0 0 var(--ds-space-3); font-size: var(--ds-text-heading-4); color: var(--ds-surface-page-on); }
+    .gb__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--ds-space-2); }
+    .gb__list li { display: flex; justify-content: space-between; gap: var(--ds-space-3); font-size: var(--ds-text-small); border-bottom: 1px solid var(--ds-border-subtle); padding-bottom: var(--ds-space-1); }
+    .gb__list b { color: var(--ds-color-brand-primary); }
   `,
 })
 export class GlobalPage {
   readonly state: GlobalStateContract = inject(GLOBAL_STATE);
 
+  readonly data = computed(() => this.state.payload());
+
   readonly kpis = computed<DsKpiItem[]>(() => {
     const g = this.state.payload();
     if (!g) return [];
     return [
-      { label: 'Encuestas', value: g.totalSurveys, icon: 'database', tone: 'info' },
-      { label: 'Respuestas', value: g.totalResponses, icon: 'file-text', tone: 'neutral' },
-      { label: 'Completadas', value: g.completed, icon: 'check', tone: 'success' },
-      { label: 'Abandonadas', value: g.abandoned, icon: 'alert-circle', tone: 'danger' },
+      { label: 'Respuestas', value: g.totalResponses, icon: 'file-text', tone: 'info' },
+      { label: 'En el sorteo', value: g.sorteo, icon: 'check-circle', tone: 'success' },
+      { label: 'Tipos de conductor', value: g.byDriverType.length, icon: 'users', tone: 'neutral' },
+      { label: 'Canales', value: g.byChannel.length, icon: 'pie-chart', tone: 'neutral' },
     ];
   });
 
@@ -86,6 +127,10 @@ export class GlobalPage {
       seo: { title: 'Panel global · INTT' },
     });
     void this.state.load();
+  }
+
+  channelLabel(id: string): string {
+    return CHANNEL_LABELS[id] ?? id;
   }
 
   summarize(): void {
