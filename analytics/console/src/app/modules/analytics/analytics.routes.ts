@@ -10,7 +10,7 @@ export const ANALYTICS_ROUTES: Routes = [
   {
     path: 'panel',
     loadComponent: () =>
-      import('./pages/panel-encuesta/panel-encuesta.component').then((m) => m.PanelEncuestaComponent),
+      import('./pages/panel-encuesta/panel-encuesta.page').then((m) => m.PanelEncuestaPage),
   },
   {
     path: 'reportes-cruzados',
@@ -21,5 +21,9 @@ export const ANALYTICS_ROUTES: Routes = [
     path: 'participantes',
     loadComponent: () =>
       import('./pages/participantes/participantes.component').then((m) => m.ParticipantesComponent),
+  },
+  {
+    path: 'datos',
+    loadComponent: () => import('./pages/dev-seed/dev-seed.page').then((m) => m.DevSeedPage),
   },
 ];
