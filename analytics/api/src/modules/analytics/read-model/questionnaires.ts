@@ -14,6 +14,8 @@ export interface Questionnaire {
     channelField?: string;
     sorteoField?: string;
     timeField?: string;
+    /** Campo de captura (dispositivo); la timeline lo prefiere sobre timeField. */
+    captureField?: string;
   };
   /** Campo de segmentación → etiqueta (p.ej. driverType). */
   segments: Record<string, string>;
@@ -112,6 +114,7 @@ export const QUESTIONNAIRES: Questionnaire[] = [
       channelField: 'channel',
       sorteoField: 'participaSorteo',
       timeField: 'completedAt',
+      captureField: 'capturedAt',
     },
     segments: DRIVER_LABELS,
     channels: CHANNEL_LABELS,

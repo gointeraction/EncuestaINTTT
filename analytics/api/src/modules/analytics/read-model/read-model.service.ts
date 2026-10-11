@@ -116,13 +116,16 @@ export class ReadModelService {
     };
   }
 
-  /** Respondidos por día (timeline), desde el campo de tiempo del registro. */
+  /** Cuestionarios por día, por la FECHA DE CAPTURA (cae a recepción si es nula). */
   async timeline(surveyId: string): Promise<Array<{ day: string; total: number; completed: number }>> {
     const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
     const tf = q.source.timeField ?? 'completedAt';
+    const cf = q.source.captureField;
+    const expr = cf ? `COALESCE("${cf}", "${tf}")` : `"${tf}"`;
     const rows = await this.prisma.$queryRawUnsafe<Array<{ day: Date; total: number }>>(
-      `SELECT date_trunc('day', "${tf}") AS day, COUNT(*)::int AS total
+      `SELECT date_trunc('day', ${expr}) AS day, COUNT(*)::int AS total
        FROM ${q.source.table}
+       WHERE ${expr} IS NOT NULL
        GROUP BY 1 ORDER BY 1 ASC LIMIT 400`,
     );
     return rows.map((r) => ({ day: new Date(r.day).toISOString().slice(0, 10), total: r.total, completed: r.total }));
