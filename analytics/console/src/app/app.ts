@@ -1,10 +1,8 @@
 import { Component, signal } from '@angular/core';
-import { DsContainerComponent } from '@cifraflow/design';
-import { DsFabComponent } from '@cifraflow/fab';
 import { ConsoleLayoutComponent } from './shared/layouts/console-layout/console-layout.component';
 
 @Component({
-  imports: [DsContainerComponent, DsFabComponent, ConsoleLayoutComponent],
+  imports: [ConsoleLayoutComponent],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
