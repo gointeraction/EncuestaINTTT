@@ -111,7 +111,13 @@ services:
       - ./vision-cero/deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
     depends_on:
       app:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1/api"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks: [intt-internal, intt-edge]
 
   # Back-office analítico (NestJS): analítica, reportería y acceso restringido.
@@ -132,6 +138,12 @@ services:
         condition: service_healthy
       migrate:
         condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:3151/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     networks: [intt-internal]
 
   # Consola de análisis (Angular, estáticos servidos por Nginx).
@@ -143,7 +155,13 @@ services:
       - "${ADMIN_PORT:-4301}:4301"
     depends_on:
       api:
-        condition: service_started
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://127.0.0.1:4301/"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
     networks: [intt-internal, intt-edge]
 
   # Seeder de datos simulados (NestJS standalone) — SOLO entorno development.
