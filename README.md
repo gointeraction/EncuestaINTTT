@@ -270,7 +270,9 @@ EncuestaINTTT/
 │   ├── ARQUITECTURA_REQUERIDA.md       # Documento de Arquitectura (SAD v1.1)
 │   ├── GUIA_IMPLEMENTACION_ONPREMISES.md # Manual paso a paso de producción
 │   ├── PROCESO_SUMARIZACION.md         # Documento Técnico del Proceso de Sumarización (CQRS)
-│   └── SPECIFICATION.md                # Especificación Funcional Completa (SDD v1.1)
+│   ├── SPECIFICATION.md                # Especificación Funcional Completa (SDD v1.1)
+│   ├── propuesta_consultoria_desarrollo_intt.md # Propuesta técnica y económica (PROP-INTT-SDD-2026-01)
+│   └── worklog.md                      # Bitácora de trabajo del desarrollo
 ├── prisma/
 │   └── schema.prisma                   # Esquema de Prisma ORM para PostgreSQL
 ├── public/                             # Recursos estáticos institucionales (Logo INTT, etc.)
@@ -338,3 +340,5 @@ Para más detalles, consulta los documentos de ingeniería disponibles en la car
 * **[docs/GUIA_IMPLEMENTACION_ONPREMISES.md](docs/GUIA_IMPLEMENTACION_ONPREMISES.md):** Manual detallado de despliegue paso a paso para administradores de sistemas y centros de datos.
 * **[docs/PROCESO_SUMARIZACION.md](docs/PROCESO_SUMARIZACION.md):** Documento técnico de ingeniería sobre el patrón CQRS, agregación de métricas y configuración de cron para el Dashboard gerencial.
 * **[docs/SPECIFICATION.md](docs/SPECIFICATION.md):** Especificación técnica formal (SDD) de todas las preguntas, validaciones, modelos de datos y endpoints de API.
+* **[docs/propuesta_consultoria_desarrollo_intt.md](docs/propuesta_consultoria_desarrollo_intt.md):** Propuesta técnica y económica de consultoría y desarrollo (`PROP-INTT-SDD-2026-01`).
+* **[docs/worklog.md](docs/worklog.md):** Bitácora de trabajo del desarrollo de la aplicación de encuesta.
