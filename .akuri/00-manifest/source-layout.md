@@ -151,7 +151,7 @@ WRITE INFO: la app NestJS sigue el layout canónico `core / modules / shared` de
 | `analytics/api/src/shared/` | contratos, DTOs, filtros, guards, políticas | negocio de un módulo |
 | `analytics/console/src/app/core/` | singletons: config, http interceptor, guard de sesión, api base URL | páginas, design system |
 | `analytics/console/src/app/modules/` | páginas de staff (login, dashboards, reportes) | api-sdk, design system |
-| `analytics/console/src/app/shared/` | design system + reexport del `api-sdk` | lógica de negocio |
+| `analytics/console/src/app/shared/` | design system + `layouts/` (shell de páginas con header/logo INTT) + reexport del `api-sdk` | lógica de negocio |
 | `analytics/api-sdk/` | el cliente tipado generado (orval) | código escrito a mano |
 
 WRITE RULE: el back-office NO accede a la base de datos desde los controladores; pasa por
