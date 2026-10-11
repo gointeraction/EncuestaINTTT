@@ -58,7 +58,7 @@ WRITE INFO: > File: 01-tech-stack/infrastructure/nginx/nginx-1.24.md
 
 3. **layer** — infrastructure.
 
-4. **scope-role** — terminates the edge in the compose stack, compresses (Gzip), rate-limits submissions and applies Zero-Trust to the private dashboard routes; proxies to `app:3000`.
+4. **scope-role** — terminates the edge in the compose stack, compresses (Gzip), rate-limits submissions and applies Zero-Trust to the private dashboard routes; proxies to `app:3001`.
 
 5. **capabilities** — `proxy_pass` to the `encuesta_app` upstream, `limit_req` (10 r/m on `/api/survey/submit`), `allow`/`deny` by subred, `/healthz`.
 

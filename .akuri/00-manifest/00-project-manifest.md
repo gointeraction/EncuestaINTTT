@@ -156,7 +156,7 @@ y permanecen intactas; su documentación como transversales del pack queda **pen
   construye en Angular, consumiendo el back-office SOLO por un `api-sdk` generado (orval) desde su
   OpenAPI. La extracción es strangler, por fases, empezando por `analytics`.
 
-## 8. Further decisions (D-12..D-14)
+## 8. Further decisions (D-12..D-15)
 
 - **D-12 (Sesión local, federable a futuro)**: la autenticación del personal es una **sesión local**
   propia del back-office (sin integración con identidades externas por ahora), implementada de forma
@@ -168,6 +168,9 @@ y permanecen intactas; su documentación como transversales del pack queda **pen
 - **D-14 (Design system de consola)**: la consola Angular adopta (vendoriza) el design system de
   `cifraflow-shared` (`design` + `fab`) adaptado a la marca INTT; tokens como SSOT. Ver
   `01-tech-stack/frontend/design-system/design-system.md`.
+- **D-15 (Puertos no estándar)**: captura (Next.js) **3001**, back-office (NestJS) **3151**,
+  consola (Angular) **4301** y PostgreSQL **5451** (no 5432); la base de datos y Redis NO se
+  publican al host. Detalle y justificación en `00-manifest/ports.md`.
 
 ## Deterministic gate
 
