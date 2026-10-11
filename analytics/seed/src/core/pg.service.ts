@@ -3,6 +3,7 @@ import { Pool, type PoolClient } from 'pg';
 import { from as copyFrom } from 'pg-copy-streams';
 import { pipeline } from 'node:stream/promises';
 import { Readable } from 'node:stream';
+import { createWriteStream } from 'node:fs';
 import { csvLine, type Cell } from './csv.js';
 
 /** Acceso a PostgreSQL: consultas + carga masiva por COPY (streaming). */
@@ -42,21 +43,29 @@ export class PgService implements OnModuleDestroy {
     table: string,
     columns: string[],
     rows: Iterable<Cell[]> | AsyncIterable<Cell[]>,
+    csvPath?: string,
   ): Promise<number> {
     const client: PoolClient = await this.pool.connect();
+    const file = csvPath ? createWriteStream(csvPath) : null;
+    if (file) file.write(columns.join(',') + '\n');
     try {
       const sql = `COPY ${table} (${columns.join(', ')}) FROM STDIN WITH (FORMAT csv)`;
       const sink = client.query(copyFrom(sql));
       const source = Readable.from(
         (async function* () {
-          for await (const row of rows as AsyncIterable<Cell[]>) yield csvLine(row) + '\n';
+          for await (const row of rows as AsyncIterable<Cell[]>) {
+            const line = csvLine(row);
+            if (file) file.write(line + '\n');
+            yield line + '\n';
+          }
         })(),
       );
       await pipeline(source, sink);
       const count = (sink as unknown as { rowCount?: number }).rowCount ?? 0;
-      this.log.log(`COPY ${table}: ${count} filas`);
+      this.log.log(`COPY ${table}: ${count} filas${csvPath ? ` → ${csvPath}` : ''}`);
       return count;
     } finally {
+      if (file) await new Promise<void>((res) => file.end(() => res()));
       client.release();
     }
   }

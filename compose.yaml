@@ -154,11 +154,16 @@ services:
     build:
       context: analytics/seed
     env_file: [".env.${APP_ENV:-development}"]
+    # Escribe los CSV en el host con el UID/GID del usuario (no root).
+    user: "${HOST_UID:-1000}:${HOST_GID:-1000}"
     environment:
       APP_ENV: ${APP_ENV:-development}
       SEED_ALLOW: ${SEED_ALLOW:-0}
       DATABASE_URL: postgresql://${POSTGRES_USER:-intt_user}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}@db:5451/${POSTGRES_DB:-intt_encuesta}?schema=public
       API_BASE_URL: http://api:3151
+    volumes:
+      # Los CSV generados quedan en el host (inspección / recarga).
+      - ./analytics/seed/data:/app/data
     depends_on:
       db:
         condition: service_healthy

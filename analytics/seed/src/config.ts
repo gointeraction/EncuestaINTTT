@@ -18,6 +18,11 @@ export interface CliFlags {
   command: string;
   profile?: string;
   seed?: string;
+  /** overrides de volumen (opcionales): --surveys, --questions, --responses, --legacy */
+  surveys?: string;
+  questions?: string;
+  responses?: string;
+  legacy?: string;
 }
 
 /** Carga y VALIDA la configuración. Las guardas abortan fuera de development. — MUST */
@@ -42,12 +47,18 @@ export function loadConfig(flags: CliFlags): SeedConfig {
   }
 
   const profileName = flags.profile ?? 'small';
-  const profile = PROFILES[profileName as ProfileName];
-  if (!profile) {
+  const base = PROFILES[profileName as ProfileName];
+  if (!base) {
     throw new Error(
       `Perfil inválido: "${profileName}". Usa uno de: ${Object.keys(PROFILES).join(' | ')}.`,
     );
   }
+  const profile: Profile = {
+    surveys: num(flags.surveys, base.surveys),
+    questionsPerSurvey: num(flags.questions, base.questionsPerSurvey),
+    responses: num(flags.responses, base.responses),
+    legacy: num(flags.legacy, base.legacy),
+  };
 
   return {
     appEnv,
@@ -68,4 +79,10 @@ function databaseNameOf(url: string): string {
   } catch {
     return '';
   }
+}
+
+function num(value: string | undefined, fallback: number): number {
+  if (value === undefined) return fallback;
+  const n = Number(value);
+  return Number.isFinite(n) && n >= 0 ? Math.floor(n) : fallback;
 }

@@ -1,4 +1,6 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
+import { mkdirSync } from 'node:fs';
+import { join } from 'node:path';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { PgService } from '../core/pg.service.js';
 import { RESET_TABLES, SEED_USER_COLUMNS, seedUserRow, tables } from '../core/dataset.js';
@@ -20,6 +22,9 @@ export class SeedCommand {
       `seed en "${this.config.databaseName}" · perfil=${this.config.profileName} · semilla=${this.config.rngSeed}`,
     );
 
+    const dataDir = process.env.SEED_DATA_DIR ?? join(process.cwd(), 'data');
+    mkdirSync(dataDir, { recursive: true });
+
     const t0 = Date.now();
     await this.pg.truncate(RESET_TABLES);
 
@@ -31,9 +36,10 @@ export class SeedCommand {
     );
 
     for (const table of tables(this.config.rngSeed, this.config.profile)) {
-      await this.pg.copy(table.name, table.columns, table.rows());
+      const csv = join(dataDir, `${table.name.split('.').pop()}.csv`);
+      await this.pg.copy(table.name, table.columns, table.rows(), csv);
     }
 
-    this.log.log(`seed completado en ${((Date.now() - t0) / 1000).toFixed(1)}s`);
+    this.log.log(`seed completado en ${((Date.now() - t0) / 1000).toFixed(1)}s · CSV en ${dataDir}`);
   }
 }

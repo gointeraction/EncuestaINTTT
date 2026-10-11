@@ -42,3 +42,10 @@ docker compose --env-file .env.development run --rm seed reset
 - **RNG determinista** por fila → ids y valores reproducibles entre tablas (semilla fija).
 - Tablas: `public.users` (upsert) · `surveys` · `questions` · `question_options` · `responses` ·
   `answers` · `legacy_survey_responses`.
+
+## Salida CSV
+
+`seed` (y `generate`) escriben **cada tabla a `data/<tabla>.csv`** mientras cargan por `COPY`.
+En Docker, `./analytics/seed/data` se monta en `/app/data` (por eso quedan en el host, con tu
+UID/GID). Esos CSV son la "data" del seeder: sirven para inspección y para recargar. Están
+**gitignored** (volúmenes grandes); versiona solo fixtures pequeños en `data/fixtures/`.

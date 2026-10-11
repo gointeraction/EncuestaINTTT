@@ -20,7 +20,15 @@ function parseArgs(argv: string[]): CliFlags {
       flags[k] = v ?? rest[++i] ?? 'true';
     }
   }
-  return { command, profile: flags.profile, seed: flags.seed };
+  return {
+    command,
+    profile: flags.profile,
+    seed: flags.seed,
+    surveys: flags.surveys,
+    questions: flags.questions,
+    responses: flags.responses,
+    legacy: flags.legacy,
+  };
 }
 
 async function main(): Promise<void> {
