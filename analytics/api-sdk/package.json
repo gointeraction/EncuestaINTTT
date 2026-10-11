@@ -1,0 +1,12 @@
+{
+  "name": "encuestaintt-api-sdk",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Cliente tipado (Angular) generado por Orval desde el OpenAPI del back-office analítico.",
+  "scripts": {
+    "generate": "orval --config ./orval.config.ts"
+  },
+  "devDependencies": {
+    "orval": "^7.13.2"
+  }
+}
