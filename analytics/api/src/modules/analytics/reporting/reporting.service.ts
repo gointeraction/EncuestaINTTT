@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
+import { PRIMARY_QUESTIONNAIRE } from '../read-model/questionnaires.js';
 
 export interface Page<T> {
   items: T[];
@@ -96,19 +97,22 @@ export class ReportingService {
     }));
   }
 
-  /** Tabla cruzada entre dos preguntas de Visión Cero (read-only sobre la captura legacy). */
+  /** Tabla cruzada entre dos preguntas del cuestionario (read-only sobre la captura real). */
   async crossTab(surveyId: string, questionA: string, questionB: string): Promise<unknown> {
-    const cells = await this.prisma.$queryRaw<Array<{ v1: string; v2: string; n: number }>>`
-      SELECT
-        COALESCE(answers::jsonb ->> ${questionA}, '') AS v1,
-        COALESCE(answers::jsonb ->> ${questionB}, '') AS v2,
-        COUNT(*)::int AS n
-      FROM public.legacy_survey_responses
-      WHERE answers IS NOT NULL
-      GROUP BY v1, v2
-      ORDER BY n DESC
-      LIMIT 500
-    `;
+    const src = PRIMARY_QUESTIONNAIRE.source;
+    const cells = await this.prisma.$queryRawUnsafe<Array<{ v1: string; v2: string; n: number }>>(
+      `SELECT
+         COALESCE("${src.answersField}"::jsonb ->> $1, '') AS v1,
+         COALESCE("${src.answersField}"::jsonb ->> $2, '') AS v2,
+         COUNT(*)::int AS n
+       FROM ${src.table}
+       WHERE "${src.answersField}" IS NOT NULL
+       GROUP BY v1, v2
+       ORDER BY n DESC
+       LIMIT 500`,
+      questionA,
+      questionB,
+    );
     const categoriesA = [...new Set(cells.map((c) => c.v1))];
     const categoriesB = [...new Set(cells.map((c) => c.v2))];
     return { surveyId, questionA, questionB, categoriesA, categoriesB, cells };

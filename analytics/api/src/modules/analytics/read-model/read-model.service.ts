@@ -1,66 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
-
-/** Etiquetas de las preguntas de Visión Cero (ids reales; fuente: src/lib/survey-data.ts). */
-const LABELS: Record<string, string> = {
-  estado: 'Estado',
-  municipio: 'Municipio',
-  edad: '¿Cuál es tu edad?',
-  sexo: 'Sexo',
-  ubicacion: '¿En qué estado y municipio resides?',
-  ocupacion: 'Ocupación principal',
-  nivel_educativo: 'Nivel educativo alcanzado',
-  anos_conduciendo: '¿Cuántos años llevas conduciendo motocicleta?',
-  licencia: '¿Posees licencia de conducción vigente?',
-  categoria_licencia: '¿Qué categoría de licencia tienes?',
-  motivo_no_licencia: '¿Por qué no tienes licencia?',
-  frecuencia_conduccion: '¿Con qué frecuencia conduces la motocicleta?',
-  dejo_conducir_razon: '¿Por qué dejaste de conducir motocicleta?',
-  uso_principal: '¿Cuál es el uso principal de tu motocicleta?',
-  uso_otro: 'Especifica otro uso',
-  km_diarios: '¿Cuántos kilómetros recorres al día?',
-  horas_diarias: '¿Cuántas horas al día conduces?',
-  plataforma_delivery: '¿Para qué plataforma(s) trabajas?',
-  pasajeros_dia: '¿Cuántos pasajeros transportas al día?',
-  conduccion_nocturna: '¿Conduces de noche (después de las 9 pm)?',
-  clima_lluvia: '¿Conduces con lluvia o condiciones adversas?',
-  casco_usa: '¿Usas casco al conducir?',
-  casco_tipo: '¿Qué tipo de casco usas?',
-  casco_certificado: '¿Tu casco está certificado (DOT, ECE, SNELL)?',
-  motivo_no_casco: '¿Por qué no usas casco?',
-  equipamiento_adicional: '¿Qué otros elementos de protección usas?',
-  elementos_moto: '¿Qué elementos de seguridad tiene tu motocicleta?',
-  velocidad_opinion: '¿Conduces a una velocidad adecuada al límite? (1-5)',
-  uso_celular: '¿Usas el celular mientras conduces?',
-  alcohol_conduccion: '¿Has conducido tras consumir alcohol?',
-  pasajeros_extra: '¿Transportas a más de un pasajero?',
-  rebases_peatones: '¿Respetas el paso de peatones? (1-5)',
-  presion_tiempo: '¿Sientes presión por el tiempo al conducir?',
-  fatiga: '¿Conduces aunque sientas fatiga o sueño?',
-  ha_tenido_siniestro: '¿Has tenido un siniestro con motocicleta?',
-  siniestro_gravedad: 'Gravedad del siniestro más reciente',
-  siniestro_ano: 'Año del siniestro más reciente',
-  siniestro_causas: 'Factores que causaron el siniestro',
-  siniestro_atencion: '¿Recibiste atención médica tras el siniestro?',
-  familiar_relacion: 'Parentesco con la víctima',
-  familiar_siniestro_tipo: 'Resultado del siniestro del familiar',
-  causas_principales: 'Causas principales de siniestros',
-  medidas_efectivas: 'Medidas más efectivas',
-  efectividad_control: 'Efectividad del control de tránsito (1-5)',
-  percepcion_seguridad: 'Percepción de seguridad al conducir (1-5)',
-  estado_vias: 'Estado general de las vías (1-5)',
-  senalizacion: 'Claridad de la señalización (1-5)',
-  iluminacion: 'Iluminación de vías nocturnas',
-  problemas_via: 'Problemas de infraestructura frecuentes',
-  conoce_limites_velocidad: '¿Conoces los límites de velocidad?',
-  conoce_alcoholemia: '¿Conoces las normas de alcoholemia?',
-  conoce_sanciones: '¿Conoces las sanciones de tránsito?',
-  recibio_capacitacion: '¿Recibiste capacitación formal?',
-  propuesta_principal: 'Acción más urgente para reducir siniestros',
-  apoyo_vision_cero: '¿Apoyas la política Visión Cero?',
-  disposicion_participar: '¿Dispuesto a participar en campañas?',
-  comentario_final: 'Comentario final',
-};
+import { QUESTIONNAIRES, PRIMARY_QUESTIONNAIRE, type Questionnaire } from './questionnaires.js';
 
 interface QuestionAgg {
   id: string;
@@ -70,49 +10,40 @@ interface QuestionAgg {
   average: number | null;
 }
 
-const VISION_CERO = { id: 'vision-cero', title: 'Visión Cero — Motocicletas' };
-
-/** Etiquetas de los tipos de conductor (fuente: src/lib/survey-data.ts). */
-const DRIVER_LABELS: Record<string, string> = {
-  motociclista_activo: 'Motociclista activo',
-  delivery: 'Delivery / Mensajero',
-  mototaxista: 'Mototaxista',
-  ex_motociclista: 'Ex motociclista',
-  familiar: 'Familiar de víctima',
-  otro_conductor: 'Otro conductor / peatón',
-};
-
 /**
- * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de
- * la CAPTURA REAL (`public.legacy_survey_responses`, SOLO LECTURA). Visión Cero = UNA encuesta
- * con `driverType` + `answers` (JSON). No escribe en public.
+ * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de la
+ * CAPTURA REAL, según el REGISTRO de cuestionarios (A2: questionnaires-registry.md). Hoy hay un
+ * cuestionario (Visión Cero); con N, se itera QUESTIONNAIRES. No escribe en public.
  */
 @Injectable()
 export class ReadModelService {
   constructor(private readonly prisma: PrismaService) {}
 
   listSurveys(): Promise<Array<{ id: string; title: string }>> {
-    return Promise.resolve([VISION_CERO]);
+    return Promise.resolve(QUESTIONNAIRES.map((q) => ({ id: q.id, title: q.title })));
   }
 
   async summarizeGlobal(): Promise<number> {
-    const [tot] = await this.prisma.$queryRaw<Array<{ total: number; sorteo: number }>>`
-      SELECT COUNT(*)::int AS total,
-             COUNT(*) FILTER (WHERE "participaSorteo")::int AS sorteo
-      FROM public.legacy_survey_responses
-    `;
-    const byDriverType = await this.prisma.$queryRaw<Array<{ id: string; responses: number }>>`
-      SELECT "driverType" AS id, COUNT(*)::int AS responses
-      FROM public.legacy_survey_responses
-      GROUP BY 1
-      ORDER BY 2 DESC
-    `;
-    const byChannel = await this.prisma.$queryRaw<Array<{ id: string; responses: number }>>`
-      SELECT COALESCE(channel, 'public') AS id, COUNT(*)::int AS responses
-      FROM public.legacy_survey_responses
-      GROUP BY 1
-      ORDER BY 2 DESC
-    `;
+    const q = PRIMARY_QUESTIONNAIRE;
+    const total = await this.summarizeGlobalOf(q);
+    return total;
+  }
+
+  private async summarizeGlobalOf(q: Questionnaire): Promise<number> {
+    const src = q.source;
+    const [tot] = await this.prisma.$queryRawUnsafe<Array<{ total: number; sorteo: number }>>(
+      `SELECT COUNT(*)::int AS total,
+              COUNT(*) FILTER (WHERE "${src.sorteoField}")::int AS sorteo
+       FROM ${src.table}`,
+    );
+    const bySeg = await this.prisma.$queryRawUnsafe<Array<{ id: string; responses: number }>>(
+      `SELECT "${src.segmentsField}" AS id, COUNT(*)::int AS responses
+       FROM ${src.table} GROUP BY 1 ORDER BY 2 DESC`,
+    );
+    const byChannel = await this.prisma.$queryRawUnsafe<Array<{ id: string; responses: number }>>(
+      `SELECT COALESCE("${src.channelField}", 'public') AS id, COUNT(*)::int AS responses
+       FROM ${src.table} GROUP BY 1 ORDER BY 2 DESC`,
+    );
     const total = tot?.total ?? 0;
     const payload = {
       totalSurveys: 1,
@@ -120,9 +51,10 @@ export class ReadModelService {
       completed: total,
       abandoned: 0,
       sorteo: tot?.sorteo ?? 0,
-      bySurvey: [{ ...VISION_CERO, responses: total }],
-      byDriverType: byDriverType.map((d) => ({ ...d, label: DRIVER_LABELS[d.id] ?? d.id })),
-      byChannel,
+      bySurvey: [{ id: q.id, title: q.title, responses: total }],
+      byDriverType: bySeg.map((d) => ({ ...d, label: q.segments[d.id] ?? d.id })),
+      byChannel: byChannel.map((c) => ({ ...c, label: q.channels[c.id] ?? c.id })),
+      questionnaire: q.id,
       generatedAt: new Date().toISOString(),
     };
     await this.prisma.globalDashboard.upsert({
@@ -134,35 +66,42 @@ export class ReadModelService {
   }
 
   async summarizeSurvey(surveyId: string): Promise<number> {
-    const rows = await this.prisma.$queryRaw<Array<{ answers: string; driverType: string }>>`
-      SELECT answers, "driverType" AS "driverType" FROM public.legacy_survey_responses LIMIT 200000
-    `;
-    const { questions, total } = aggregate(rows);
+    const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
+    const rows = await this.prisma.$queryRawUnsafe<Array<{ answers: string; seg: string }>>(
+      `SELECT "${q.source.answersField}" AS answers, "${q.source.segmentsField}" AS seg
+       FROM ${q.source.table} LIMIT 200000`,
+    );
+    const { questions, total } = aggregate(q, rows);
     const payload = {
-      surveyId,
-      title: VISION_CERO.title,
+      surveyId: q.id,
+      title: q.title,
       totals: { responses: total },
-      byDriverType: byDriver(rows),
+      byDriverType: bySegment(rows),
       questions,
       generatedAt: new Date().toISOString(),
     };
     await this.prisma.surveySummaryReport.upsert({
-      where: { surveyId },
-      create: { surveyId, totalCount: total, summaryData: JSON.stringify(payload) },
+      where: { surveyId: q.id },
+      create: { surveyId: q.id, totalCount: total, summaryData: JSON.stringify(payload) },
       update: { totalCount: total, summaryData: JSON.stringify(payload), calculatedAt: new Date() },
     });
     return total;
   }
 }
 
-function byDriver(rows: Array<{ driverType: string }>): Array<{ id: string; responses: number }> {
+function bySegment(rows: Array<{ seg: string }>): Array<{ id: string; responses: number }> {
   const m = new Map<string, number>();
-  for (const r of rows) m.set(r.driverType, (m.get(r.driverType) ?? 0) + 1);
-  return [...m.entries()].map(([id, responses]) => ({ id, responses })).sort((a, b) => b.responses - a.responses);
+  for (const r of rows) m.set(r.seg, (m.get(r.seg) ?? 0) + 1);
+  return [...m.entries()]
+    .map(([id, responses]) => ({ id, responses }))
+    .sort((a, b) => b.responses - a.responses);
 }
 
-/** Agrega el JSON `answers` de todas las filas (categóricas y numéricas). */
-function aggregate(rows: Array<{ answers: string }>): { questions: QuestionAgg[]; total: number } {
+/** Agrega el JSON de respuestas (categóricas y numéricas) del cuestionario. */
+function aggregate(
+  q: Questionnaire,
+  rows: Array<{ answers: string }>,
+): { questions: QuestionAgg[]; total: number } {
   const cats = new Map<string, Map<string, number>>();
   const nums = new Map<string, { sum: number; count: number }>();
   let total = 0;
@@ -195,14 +134,23 @@ function aggregate(rows: Array<{ answers: string }>): { questions: QuestionAgg[]
   for (const [k, m] of cats) {
     questions.push({
       id: k,
-      label: LABELS[k] ?? k,
+      label: q.labels[k] ?? k,
       kind: 'choice',
-      options: [...m.entries()].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count).slice(0, 30),
+      options: [...m.entries()]
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => b.count - a.count)
+        .slice(0, 30),
       average: null,
     });
   }
   for (const [k, n] of nums) {
-    questions.push({ id: k, label: LABELS[k] ?? k, kind: 'numeric', options: [], average: n.count ? n.sum / n.count : null });
+    questions.push({
+      id: k,
+      label: q.labels[k] ?? k,
+      kind: 'numeric',
+      options: [],
+      average: n.count ? n.sum / n.count : null,
+    });
   }
   questions.sort((a, b) => a.id.localeCompare(b.id));
   return { questions, total };

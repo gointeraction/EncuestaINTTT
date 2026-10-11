@@ -11,12 +11,6 @@ import {
 import { GLOBAL_STATE, type GlobalStateContract } from './business/contracts/global.state.contract';
 import { GlobalStateService } from './business/state/global.state.service';
 
-const CHANNEL_LABELS: Record<string, string> = {
-  public: 'Autoservicio',
-  kiosk: 'Kiosco',
-  surveyor: 'Encuestador',
-};
-
 /**
  * @akuri-page
  * page: global
@@ -82,7 +76,7 @@ const CHANNEL_LABELS: Record<string, string> = {
               <h3 class="gb__title">Por canal</h3>
               <ul class="gb__list">
                 @for (c of g.byChannel; track c.id) {
-                  <li><span>{{ channelLabel(c.id) }}</span><b>{{ c.responses }}</b></li>
+                  <li><span>{{ c.label ?? c.id }}</span><b>{{ c.responses }}</b></li>
                 }
               </ul>
             </ds-container>
@@ -127,10 +121,6 @@ export class GlobalPage {
       seo: { title: 'Panel global · INTT' },
     });
     void this.state.load();
-  }
-
-  channelLabel(id: string): string {
-    return CHANNEL_LABELS[id] ?? id;
   }
 
   summarize(): void {
