@@ -30,9 +30,17 @@ import {
 } from 'rxjs';
 
 import type {
+  AdminUsersControllerPasswordRequestsParams,
+  AdminUsersControllerPatchRequestBody,
+  AdminUsersControllerPatchUserBody,
+  AdminUsersControllerUsersParams,
   IdentityControllerLogin200,
   IdentityControllerLoginBody,
   IdentityControllerMe200,
+  IdentityControllerPasswordRequestBody,
+  IdentityControllerPasswordResetBody,
+  IdentityControllerPasswordStatusParams,
+  IdentityControllerRegisterBody,
   IdentityControllerSession200,
   ReportingControllerAnomaliesParams,
   ReportingControllerCrossTabParams,
@@ -76,6 +84,51 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
+ identityControllerRegister<TData = void>(identityControllerRegisterBody: IdentityControllerRegisterBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ identityControllerRegister<TData = void>(identityControllerRegisterBody: IdentityControllerRegisterBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ identityControllerRegister<TData = void>(identityControllerRegisterBody: IdentityControllerRegisterBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  identityControllerRegister<TData = void>(
+    identityControllerRegisterBody: IdentityControllerRegisterBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/auth/staff/register`,
+      identityControllerRegisterBody,options
+    );
+  }
+
+ identityControllerPasswordRequest<TData = void>(identityControllerPasswordRequestBody: IdentityControllerPasswordRequestBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ identityControllerPasswordRequest<TData = void>(identityControllerPasswordRequestBody: IdentityControllerPasswordRequestBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ identityControllerPasswordRequest<TData = void>(identityControllerPasswordRequestBody: IdentityControllerPasswordRequestBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  identityControllerPasswordRequest<TData = void>(
+    identityControllerPasswordRequestBody: IdentityControllerPasswordRequestBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/auth/staff/password/request`,
+      identityControllerPasswordRequestBody,options
+    );
+  }
+
+ identityControllerPasswordStatus<TData = void>(params: DeepNonNullable<IdentityControllerPasswordStatusParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ identityControllerPasswordStatus<TData = void>(params: DeepNonNullable<IdentityControllerPasswordStatusParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ identityControllerPasswordStatus<TData = void>(params: DeepNonNullable<IdentityControllerPasswordStatusParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  identityControllerPasswordStatus<TData = void>(
+    params: DeepNonNullable<IdentityControllerPasswordStatusParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/auth/staff/password/status`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+ identityControllerPasswordReset<TData = void>(identityControllerPasswordResetBody: IdentityControllerPasswordResetBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ identityControllerPasswordReset<TData = void>(identityControllerPasswordResetBody: IdentityControllerPasswordResetBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ identityControllerPasswordReset<TData = void>(identityControllerPasswordResetBody: IdentityControllerPasswordResetBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  identityControllerPasswordReset<TData = void>(
+    identityControllerPasswordResetBody: IdentityControllerPasswordResetBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/auth/staff/password/reset`,
+      identityControllerPasswordResetBody,options
+    );
+  }
+
  identityControllerLogout<TData = void>( options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
  identityControllerLogout<TData = void>( options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
  identityControllerLogout<TData = void>( options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
@@ -103,6 +156,60 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
      options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
       `/auth/staff/me`,options
+    );
+  }
+
+ adminUsersControllerUsers<TData = void>(params: DeepNonNullable<AdminUsersControllerUsersParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ adminUsersControllerUsers<TData = void>(params: DeepNonNullable<AdminUsersControllerUsersParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ adminUsersControllerUsers<TData = void>(params: DeepNonNullable<AdminUsersControllerUsersParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  adminUsersControllerUsers<TData = void>(
+    params: DeepNonNullable<AdminUsersControllerUsersParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/admin/users`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+ adminUsersControllerPatchUser<TData = void>(id: string,
+    adminUsersControllerPatchUserBody: AdminUsersControllerPatchUserBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ adminUsersControllerPatchUser<TData = void>(id: string,
+    adminUsersControllerPatchUserBody: AdminUsersControllerPatchUserBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ adminUsersControllerPatchUser<TData = void>(id: string,
+    adminUsersControllerPatchUserBody: AdminUsersControllerPatchUserBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  adminUsersControllerPatchUser<TData = void>(
+    id: string,
+    adminUsersControllerPatchUserBody: AdminUsersControllerPatchUserBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.patch<TData>(
+      `/admin/users/${id}`,
+      adminUsersControllerPatchUserBody,options
+    );
+  }
+
+ adminUsersControllerPasswordRequests<TData = void>(params: DeepNonNullable<AdminUsersControllerPasswordRequestsParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ adminUsersControllerPasswordRequests<TData = void>(params: DeepNonNullable<AdminUsersControllerPasswordRequestsParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ adminUsersControllerPasswordRequests<TData = void>(params: DeepNonNullable<AdminUsersControllerPasswordRequestsParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  adminUsersControllerPasswordRequests<TData = void>(
+    params: DeepNonNullable<AdminUsersControllerPasswordRequestsParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/admin/password-requests`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+ adminUsersControllerPatchRequest<TData = void>(id: string,
+    adminUsersControllerPatchRequestBody: AdminUsersControllerPatchRequestBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ adminUsersControllerPatchRequest<TData = void>(id: string,
+    adminUsersControllerPatchRequestBody: AdminUsersControllerPatchRequestBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ adminUsersControllerPatchRequest<TData = void>(id: string,
+    adminUsersControllerPatchRequestBody: AdminUsersControllerPatchRequestBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  adminUsersControllerPatchRequest<TData = void>(
+    id: string,
+    adminUsersControllerPatchRequestBody: AdminUsersControllerPatchRequestBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.patch<TData>(
+      `/admin/password-requests/${id}`,
+      adminUsersControllerPatchRequestBody,options
     );
   }
 
@@ -245,9 +352,17 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
 };
 
 export type IdentityControllerLoginClientResult = NonNullable<IdentityControllerLogin200>
+export type IdentityControllerRegisterClientResult = NonNullable<void>
+export type IdentityControllerPasswordRequestClientResult = NonNullable<void>
+export type IdentityControllerPasswordStatusClientResult = NonNullable<void>
+export type IdentityControllerPasswordResetClientResult = NonNullable<void>
 export type IdentityControllerLogoutClientResult = NonNullable<void>
 export type IdentityControllerSessionClientResult = NonNullable<IdentityControllerSession200>
 export type IdentityControllerMeClientResult = NonNullable<IdentityControllerMe200>
+export type AdminUsersControllerUsersClientResult = NonNullable<void>
+export type AdminUsersControllerPatchUserClientResult = NonNullable<void>
+export type AdminUsersControllerPasswordRequestsClientResult = NonNullable<void>
+export type AdminUsersControllerPatchRequestClientResult = NonNullable<void>
 export type HealthControllerCheckClientResult = NonNullable<void>
 export type PublicReadControllerListSurveysClientResult = NonNullable<void>
 export type SummarizationControllerSummarizeClientResult = NonNullable<void>

@@ -6,11 +6,19 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './adminUsersControllerPasswordRequestsParams';
+export * from './adminUsersControllerPatchRequestBody';
+export * from './adminUsersControllerPatchUserBody';
+export * from './adminUsersControllerUsersParams';
 export * from './identityControllerLogin200';
 export * from './identityControllerLogin200User';
 export * from './identityControllerLoginBody';
 export * from './identityControllerMe200';
 export * from './identityControllerMe200User';
+export * from './identityControllerPasswordRequestBody';
+export * from './identityControllerPasswordResetBody';
+export * from './identityControllerPasswordStatusParams';
+export * from './identityControllerRegisterBody';
 export * from './identityControllerSession200';
 export * from './identityControllerSession200User';
 export * from './reportingControllerAnomaliesParams';

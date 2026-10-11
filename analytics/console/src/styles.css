@@ -5,5 +5,8 @@
 @import "./app/shared/design/theme.css";
 @import "./app/shared/design/tokens/index.css";
 
+/* Tarjetas de autenticación (login / registro / recuperación). */
+@import "./auth.css";
+
 /* Escaneo de templates del proyecto (Tailwind v4). */
 @source "./";

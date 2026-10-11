@@ -9,6 +9,14 @@ export const AUTH_ROUTES: Routes = [
     loadComponent: () => import('./pages/login/login.page').then((m) => m.LoginPage),
   },
   {
+    path: 'registro',
+    loadComponent: () => import('./pages/registro/registro.page').then((m) => m.RegistroPage),
+  },
+  {
+    path: 'recuperar',
+    loadComponent: () => import('./pages/recuperar/recuperar.page').then((m) => m.RecuperarPage),
+  },
+  {
     path: 'welcome',
     canActivate: [sessionGuard],
     loadComponent: () => import('./pages/welcome/welcome.page').then((m) => m.WelcomePage),
