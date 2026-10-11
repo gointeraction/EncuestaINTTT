@@ -122,15 +122,15 @@ export interface BarChartData {
           </div>
         }
         <div class="ds-chart__grid">
-          @for (c of categories(); track $index) {
+          @for (c of categories(); track $index; let ci = $index) {
             <div class="ds-chart__col">
               @for (s of series(); track s.name; let si = $index) {
                 <div class="ds-chart__bar-group">
                   <div
                     class="ds-chart__bar"
-                    [style.height]="barHeight(s.data[$index] ?? 0) + '%'"
+                    [style.height]="barHeight(s.data[ci] ?? 0) + '%'"
                     [style.background]="swatch(si)"
-                    title="{{ s.name }}: {{ s.data[$index] ?? 0 }}"
+                    title="{{ s.name }}: {{ s.data[ci] ?? 0 }}"
                   ></div>
                 </div>
               }
