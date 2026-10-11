@@ -1,0 +1,4 @@
+# Placeholder: scripts SQL de inicialización (se ejecutan una sola vez, al crear
+# el volumen de PostgreSQL). El esquema lo sincroniza el servicio `migrate` con
+# Prisma (`prisma db push` / `migrate deploy`), así que normalmente está vacío.
+# Coloca aquí, por ejemplo, `01-roles.sql` si necesitas usuarios/extensiones extra.

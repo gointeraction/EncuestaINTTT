@@ -1,0 +1,113 @@
+# =============================================================================
+# EncuestaINTTT — despliegue autocontenido en UN solo compose.
+#   docker compose up -d --build
+# Servicios: db (PostgreSQL) · cache (Redis) · migrate (one-shot) · app · proxy
+# Los datos viven COLOCALIZADOS en el repo, bajo ./.data/ (gitignored).
+# =============================================================================
+name: encuesta-intt
+
+x-database-url: &database_url
+  DATABASE_URL: postgresql://${POSTGRES_USER:-intt_user}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}@db:5432/${POSTGRES_DB:-intt_encuesta}?schema=public
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-intt_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}
+      POSTGRES_DB: ${POSTGRES_DB:-intt_encuesta}
+    # PGDATA vive con el repo (bind mount, no named volume).
+    volumes:
+      - ./.data/postgres:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    command: >
+      postgres
+        -c shared_buffers=512MB
+        -c max_connections=200
+        -c effective_cache_size=1536MB
+        -c work_mem=16MB
+        -c random_page_cost=1.1
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-intt_user} -d ${POSTGRES_DB:-intt_encuesta}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [intt-internal]
+
+  cache:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - ./.data/redis:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks: [intt-internal]
+
+  # One-shot: sincroniza el esquema Prisma y termina (app espera su éxito).
+  migrate:
+    build:
+      context: .
+      target: migrator
+    env_file: [.env]
+    environment:
+      <<: *database_url
+      DB_SYNC: ${DB_SYNC:-push}          # push | deploy
+      IMPORT_BACKUP: ${IMPORT_BACKUP:-0} # 1 = importa db/sqlite_backup.json
+      SUMMARIZE: ${SUMMARIZE:-0}         # 1 = precalcula el dashboard
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: "no"
+    networks: [intt-internal]
+
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        NEXT_PUBLIC_APP_URL: ${NEXT_PUBLIC_APP_URL:-https://encuesta.intt.gob.ve}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+    restart: unless-stopped
+    env_file: [.env]
+    environment:
+      <<: *database_url
+      REDIS_URL: redis://cache:6379
+      NODE_ENV: production
+      PORT: "3000"
+      HOSTNAME: 0.0.0.0
+    volumes:
+      # Persistencia del almacén local de respaldo (resiliencia).
+      - ./db:/app/db
+    depends_on:
+      db:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:3000/api >/dev/null 2>&1 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    networks: [intt-internal]
+
+  proxy:
+    image: nginx:1.24-alpine
+    restart: unless-stopped
+    ports:
+      - "${HTTP_PORT:-80}:80"
+    volumes:
+      - ./deploy/nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      app:
+        condition: service_started
+    networks: [intt-internal, intt-edge]
+
+networks:
+  intt-internal: {}
+  intt-edge: {}

@@ -1,0 +1,39 @@
+# Build context exclusions — keep the image small and reproducible.
+node_modules
+.next
+out
+build
+
+# VCS / meta
+.git
+.gitignore
+.git-hooks
+
+# Container/deploy descriptors (not needed inside the app image)
+Dockerfile
+.dockerignore
+compose.yaml
+.env
+.env.*
+!.env.example
+
+# Runtime data (colocated, never baked into the image)
+.data
+db/*.log
+
+# Docs & corpora (not needed at runtime)
+docs
+.akuri
+examples
+download
+mini-services
+.zscripts
+skills
+
+# Tests / dev artifacts
+tests
+coverage
+*.log
+*.tar
+*.snapshots
+.DS_Store
