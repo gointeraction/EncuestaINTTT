@@ -26,6 +26,6 @@ export class ConsoleNavSection {
     { label: 'Cruzados', route: '/reportes-cruzados' },
     { label: 'Anomalías', route: '/anomalias' },
     { label: 'Participantes', route: '/participantes' },
-    { label: 'Datos', route: '/seed' },
+    { label: 'Datos', route: '/datos' },
   ];
 }
