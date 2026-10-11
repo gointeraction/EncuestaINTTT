@@ -16,6 +16,7 @@ import { SessionService } from '../../core/session.service';
       <button type="button" (click)="loadSources()">Fuentes</button>
       <button type="button" (click)="loadGlobal()">Panel global</button>
       <button type="button" (click)="summarize()">Recalcular sumarización</button>
+      <a href="/panel">Panel por encuesta</a>
       <button type="button" (click)="logout()">Salir</button>
     </p>
 

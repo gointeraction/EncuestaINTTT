@@ -13,5 +13,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./modules/dashboard/dashboard.component').then((m) => m.DashboardComponent),
   },
+  {
+    path: 'panel',
+    canActivate: [sessionGuard],
+    loadComponent: () =>
+      import('./modules/analytics/panel-encuesta/panel-encuesta.component').then(
+        (m) => m.PanelEncuestaComponent,
+      ),
+  },
   { path: '**', redirectTo: '' },
 ];
