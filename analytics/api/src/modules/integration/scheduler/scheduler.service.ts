@@ -1,11 +1,12 @@
 import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { SummarizationService } from '../../analytics/read-model/summarization.service.js';
+import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
 const INTERVAL_MS = 60 * 60 * 1000; // 1 h
 
 /**
- * SchedulerService — job de sumarización PROGRAMADO del back-office (cada hora),
- * con una primera corrida diferida. No compite con la captura.
+ * SchedulerService — jobs PROGRAMADOS del back-office (cada hora): sumarización y
+ * purga de sesiones de staff expiradas. Con una primera corrida diferida.
  */
 @Injectable()
 export class SchedulerService implements OnModuleInit, OnModuleDestroy {
@@ -14,7 +15,10 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
   private bootTimer?: NodeJS.Timeout;
   private running = false;
 
-  constructor(private readonly summarization: SummarizationService) {}
+  constructor(
+    private readonly summarization: SummarizationService,
+    private readonly prisma: PrismaService,
+  ) {}
 
   onModuleInit(): void {
     this.timer = setInterval(() => void this.tick(), INTERVAL_MS);
@@ -31,8 +35,12 @@ export class SchedulerService implements OnModuleInit, OnModuleDestroy {
     this.running = true;
     try {
       await this.summarization.run('all');
+      const purged = await this.prisma.staffSession.deleteMany({
+        where: { expiresAt: { lt: new Date() } },
+      });
+      if (purged.count > 0) this.logger.log(`purged ${purged.count} expired sessions`);
     } catch (err) {
-      this.logger.error('scheduled summarization failed', err as Error);
+      this.logger.error('scheduled job failed', err as Error);
     } finally {
       this.running = false;
     }

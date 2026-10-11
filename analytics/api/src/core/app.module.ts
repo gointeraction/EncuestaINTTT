@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { PrismaModule } from './prisma/prisma.module.js';
+import { RedisModule } from './redis/redis.module.js';
 import { AccessAuditModule } from '../modules/platform/access-audit/access-audit.module.js';
 import { IdentityModule } from '../modules/platform/identity/identity.module.js';
 import { HealthModule } from '../modules/platform/health/health.module.js';
@@ -18,6 +19,7 @@ import { ExportModule } from '../modules/analytics/export/export.module.js';
 @Module({
   imports: [
     PrismaModule,
+    RedisModule,
     AccessAuditModule,
     IdentityModule,
     HealthModule,

@@ -12,6 +12,7 @@ import { ApiBody, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import type { Request, Response } from 'express';
 import { Public } from '../../../shared/decorators/public.decorator.js';
 import { STAFF_SESSION_COOKIE, readStaffSession } from '../../../shared/security/cookies.js';
+import { LoginRateLimitGuard } from '../../../shared/guards/login-rate-limit.guard.js';
 import type { StaffSessionUser } from '../../../shared/contracts/index.js';
 import { AccessAuditService } from '../access-audit/access-audit.service.js';
 import { IdentityService } from './identity.service.js';
@@ -43,6 +44,7 @@ export class IdentityController {
   ) {}
 
   @Public()
+  @UseGuards(LoginRateLimitGuard)
   @Post('login')
   @ApiBody({
     schema: {
