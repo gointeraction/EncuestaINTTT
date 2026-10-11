@@ -67,6 +67,14 @@ WRITE INFO: un **cuestionario** (registro) declara:
 | `analysis` | read models y métricas a construir |
 | `channels` | canales admitidos (`public`/`kiosk`/`surveyor`) |
 
+WRITE INFO: **preguntas AUTOCONTESTADAS (derivadas)**: una pregunta que se responde a partir de
+**una o más respuestas previas** mediante un **algoritmo**. En el registro se declaran con `id`,
+`label`, `sources[]` (preguntas de origen) y la regla: `bins` (agrupa un numérico por rangos) o
+`compute` (algoritmo a medida → valor categórico). Ejemplos de Visión Cero: `rango_edad` (de
+`edad`), `rango_anos_conduciendo` (de `anos_conduciendo`), etc. Se emiten como preguntas
+categóricas de primera clase (aparecen en el catálogo y se pueden **cruzar/filtrar** como
+cualquier otra).
+
 ### SECTION 02-MAPEO-ACTUAL-VISION-CERO
 
 WRITE INFO: el primer cuestionario:

@@ -23,6 +23,25 @@ export interface Questionnaire {
   channels: Record<string, string>;
   /** pregunta-id → etiqueta. */
   labels: Record<string, string>;
+  /** Rangos (límites) por pregunta numérica → se presenta agrupada por rango. */
+  bins?: Record<string, number[]>;
+  /**
+   * Preguntas AUTOCONTESTADAS (derivadas): se responden a partir de UNA O MÁS respuestas
+   * previas mediante un ALGORITMO. Declaran sus `sources`; el valor se obtiene con `bins`
+   * (agrupa un numérico) o con `compute` (algoritmo a medida → valor categórico).
+   */
+  derived?: DerivedQuestion[];
+}
+
+export interface DerivedQuestion {
+  id: string;
+  label: string;
+  /** Ids de las preguntas de origen (una o más). */
+  sources: string[];
+  /** Agrupa por rangos (una sola fuente numérica). */
+  bins?: number[];
+  /** Algoritmo sobre las respuestas de origen → valor derivado (categórico) o null. */
+  compute?: (answers: Record<string, unknown>) => string | null;
 }
 
 /** Etiquetas de canal/modalidad (ver glossary: CAWI / presencial). */
@@ -119,6 +138,21 @@ export const QUESTIONNAIRES: Questionnaire[] = [
     segments: DRIVER_LABELS,
     channels: CHANNEL_LABELS,
     labels: VISION_CERO_LABELS,
+    bins: {
+      edad: [14, 25, 35, 45, 55, 100],
+      anos_conduciendo: [0, 5, 10, 15, 20, 100],
+      km_diarios: [0, 25, 50, 75, 100, 1000],
+      horas_diarias: [0, 2, 4, 6, 8, 24],
+      pasajeros_dia: [0, 1, 3, 5, 20, 100],
+    },
+    // Preguntas autocontestadas (derivadas) a partir de una respuesta numérica.
+    derived: [
+      { id: 'rango_edad', label: 'Rango de edad', sources: ['edad'], bins: [14, 25, 35, 45, 55, 100] },
+      { id: 'rango_anos_conduciendo', label: 'Años conduciendo (rango)', sources: ['anos_conduciendo'], bins: [0, 5, 10, 15, 20, 100] },
+      { id: 'rango_km_diarios', label: 'Km diarios (rango)', sources: ['km_diarios'], bins: [0, 25, 50, 75, 100, 1000] },
+      { id: 'rango_horas_diarias', label: 'Horas diarias (rango)', sources: ['horas_diarias'], bins: [0, 2, 4, 6, 8, 24] },
+      { id: 'rango_pasajeros_dia', label: 'Pasajeros por día (rango)', sources: ['pasajeros_dia'], bins: [0, 1, 3, 5, 20, 100] },
+    ],
   },
 ];
 
