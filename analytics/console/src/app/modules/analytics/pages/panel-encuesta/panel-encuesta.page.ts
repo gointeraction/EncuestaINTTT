@@ -173,8 +173,8 @@ interface ChartVm {
         @if (state.timeline().length > 1) {
           <ds-container kind="section" name="timeline">
             <ds-chart-card
-              title="Respuestas en el tiempo"
-              subtitle="Total y completadas por día"
+              title="Cuestionarios en el tiempo"
+              subtitle="Cuestionarios respondidos por día"
               [categories]="timelineChart().categories"
               [series]="timelineChart().series"
             />
@@ -310,10 +310,7 @@ export class PanelEncuestaPage {
     const points = this.state.timeline();
     return {
       categories: points.map((p) => p.day),
-      series: [
-        { name: 'Respuestas', data: points.map((p) => p.total) },
-        { name: 'Completadas', data: points.map((p) => p.completed) },
-      ],
+      series: [{ name: 'Cuestionarios', data: points.map((p) => p.total) }],
     };
   });
 
