@@ -2,6 +2,7 @@ import type { Questionnaire } from './questionnaires.js';
 
 export interface QuestionAgg {
   id: string;
+  type: string;
   label: string;
   kind: 'choice' | 'numeric' | 'text';
   options: Array<{ value: string; count: number }>;
@@ -61,6 +62,7 @@ export function aggregateAnswers(
   rows: Array<{ answers: string }>,
 ): { questions: QuestionAgg[]; total: number } {
   const cats = new Map<string, Map<string, number>>();
+  const multi = new Set<string>();
   const nums = new Map<string, { sum: number; count: number }>();
   let total = 0;
   for (const row of rows) {
@@ -73,6 +75,7 @@ export function aggregateAnswers(
     total++;
     for (const [k, v] of Object.entries(obj)) {
       if (Array.isArray(v)) {
+        multi.add(k);
         const m = cats.get(k) ?? new Map<string, number>();
         for (const x of v) m.set(String(x), (m.get(String(x)) ?? 0) + 1);
         cats.set(k, m);
@@ -92,6 +95,7 @@ export function aggregateAnswers(
   for (const [k, m] of cats) {
     questions.push({
       id: k,
+      type: multi.has(k) ? 'multi_choice' : 'single_choice',
       label: q.labels[k] ?? k,
       kind: 'choice',
       options: [...m.entries()]
@@ -104,6 +108,7 @@ export function aggregateAnswers(
   for (const [k, n] of nums) {
     questions.push({
       id: k,
+      type: 'number',
       label: q.labels[k] ?? k,
       kind: 'numeric',
       options: [],

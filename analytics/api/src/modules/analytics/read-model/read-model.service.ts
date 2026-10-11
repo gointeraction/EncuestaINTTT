@@ -64,7 +64,15 @@ export class ReadModelService {
     const payload = {
       surveyId: q.id,
       title: q.title,
-      totals: { responses: total },
+      totals: {
+        total,
+        responses: total,
+        completed: total,
+        abandoned: 0,
+        in_progress: 0,
+        completionRate: total ? 1 : 0,
+        abandonmentRate: 0,
+      },
       byDriverType: bySegment(rows),
       questions,
       generatedAt: new Date().toISOString(),
@@ -93,7 +101,15 @@ export class ReadModelService {
     return {
       surveyId: q.id,
       segment: { dimension, value },
-      totals: { responses: total },
+      totals: {
+        total,
+        responses: total,
+        completed: total,
+        abandoned: 0,
+        in_progress: 0,
+        completionRate: total ? 1 : 0,
+        abandonmentRate: 0,
+      },
       byDriverType: bySegment(rows),
       questions,
       generatedAt: new Date().toISOString(),
