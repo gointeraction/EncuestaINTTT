@@ -21,6 +21,9 @@
                   },
                   "password": {
                     "type": "string"
+                  },
+                  "turnstileToken": {
+                    "type": "string"
                   }
                 }
               }

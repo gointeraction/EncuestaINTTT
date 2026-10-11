@@ -133,6 +133,8 @@ services:
       PORT: "3151"
       STAFF_ADMIN_EMAIL: ${STAFF_ADMIN_EMAIL:-admin@intt.gob.ve}
       STAFF_ADMIN_PASSWORD: ${STAFF_ADMIN_PASSWORD:-VisionCero2026!}
+      # Turnstile del login de la consola (misma clave que la captura; vacío/1x = sin exigir).
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
     depends_on:
       db:
         condition: service_healthy

@@ -13,6 +13,7 @@ export class LoginDataService {
       this.api.identityControllerLogin({
         email: credentials.email,
         password: credentials.password,
+        turnstileToken: credentials.turnstileToken,
       }),
     );
     const u = (res as unknown as { user?: Partial<StaffUser> })?.user;

@@ -9,4 +9,5 @@
 export type IdentityControllerLoginBody = {
   email: string;
   password: string;
+  turnstileToken?: string;
 };

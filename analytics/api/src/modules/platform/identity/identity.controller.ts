@@ -16,11 +16,13 @@ import { LoginRateLimitGuard } from '../../../shared/guards/login-rate-limit.gua
 import type { StaffSessionUser } from '../../../shared/contracts/index.js';
 import { AccessAuditService } from '../access-audit/access-audit.service.js';
 import { IdentityService } from './identity.service.js';
+import { verifyTurnstileToken } from './turnstile.js';
 import { SessionGuard } from './session.guard.js';
 
 interface LoginBody {
   email?: string;
   password?: string;
+  turnstileToken?: string;
 }
 type RequestWithUser = Request & { staffUser?: StaffSessionUser };
 
@@ -50,16 +52,23 @@ export class IdentityController {
     schema: {
       type: 'object',
       required: ['email', 'password'],
-      properties: { email: { type: 'string' }, password: { type: 'string' } },
+      properties: {
+        email: { type: 'string' },
+        password: { type: 'string' },
+        turnstileToken: { type: 'string' },
+      },
     },
   })
   @ApiOkResponse({
     schema: { type: 'object', properties: { user: STAFF_USER_SCHEMA } },
   })
-  async login(@Body() body: LoginBody, @Res({ passthrough: true }) res: Response) {
+  async login(@Body() body: LoginBody, @Req() req: Request, @Res({ passthrough: true }) res: Response) {
     const email = typeof body?.email === 'string' ? body.email.trim().toLowerCase() : '';
     const password = typeof body?.password === 'string' ? body.password : '';
     if (!email || !password) throw new UnauthorizedException('Credenciales inválidas');
+
+    const captchaOk = await verifyTurnstileToken(body?.turnstileToken, req.ip);
+    if (!captchaOk) throw new UnauthorizedException('Verificación de seguridad inválida');
 
     const result = await this.identity.login(email, password);
     if (!result) throw new UnauthorizedException('Credenciales inválidas');

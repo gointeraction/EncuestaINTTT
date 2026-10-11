@@ -9,5 +9,5 @@ export const LOGIN_STATE = new InjectionToken<LoginStateContract>('LOGIN_STATE')
 export interface LoginStateContract {
   readonly status: Signal<LoginStatus>;
   readonly error: Signal<string | null>;
-  login(email: string, password: string): Promise<boolean>;
+  login(email: string, password: string, turnstileToken?: string): Promise<boolean>;
 }

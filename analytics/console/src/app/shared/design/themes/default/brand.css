@@ -32,4 +32,21 @@
   /* Self-hosted variable font (Georama, wght 100–900) — fonts/font-faces.css */
   --ds-font-sans: "Georama", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --ds-font-brand: "Georama", system-ui, sans-serif;
+
+  /* ── LOGIN (réplica fiel de put.intt.gob.ve/login.php) ────────────── */
+  --ds-color-login-action: #1a56db;          /* botón «Iniciar sesión» */
+  --ds-color-login-action-hover: #123fa8;
+  --ds-color-login-link: #2b50b6;            /* enlaces */
+  --ds-color-login-title: #1a1a2e;           /* «Bienvenido» */
+  --ds-color-login-muted: #999999;           /* subtítulo y notas */
+  --ds-color-login-label: #444444;           /* etiquetas de campo */
+  --ds-color-login-field-text: #555555;
+  --ds-color-login-field-border: #e0e0e0;
+  --ds-color-login-card-bg: rgba(255, 255, 255, 0.97);
+  --ds-color-login-icon-bg: rgba(238, 241, 251, 0.34);
+  --ds-color-login-error: #d32f2f;
+  --ds-color-login-error-bg: #ffebee;
+  --ds-color-login-ok: #4caf50;
+  --ds-color-login-footer: #cccccc;
+  --ds-color-login-shadow: rgba(10, 26, 58, 0.25);
 }

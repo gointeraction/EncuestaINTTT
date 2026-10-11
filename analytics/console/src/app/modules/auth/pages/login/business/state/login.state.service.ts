@@ -11,11 +11,11 @@ export class LoginStateService implements LoginStateContract {
   readonly status = signal<LoginStatus>('idle');
   readonly error = signal<string | null>(null);
 
-  async login(email: string, password: string): Promise<boolean> {
+  async login(email: string, password: string, turnstileToken?: string): Promise<boolean> {
     this.status.set('submitting');
     this.error.set(null);
     try {
-      const result = await this.data.login({ email, password });
+      const result = await this.data.login({ email, password, turnstileToken });
       if (!result.user) {
         this.error.set('Credenciales inválidas.');
         this.status.set('error');
