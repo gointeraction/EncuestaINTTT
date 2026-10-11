@@ -13,6 +13,13 @@
  *    - brand-* / sand-* → older showcase scales (primary / accent)
  */
 
+/* ── DARK MODE — driven by the APP theme (`data-theme`), NOT the OS. ──
+   The token system switches on [data-theme="dark"]; binding Tailwind's `dark:*`
+   variant to the SAME switch keeps DS components (which use `dark:*`) consistent
+   with it. Without this, an OS in dark mode darkens a component while the app
+   stays in light theme (e.g. a dark input on a white card). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme {
   /* ── RESPONSIVE TIERS — MIRROR de tokens/primitives/breakpoints.css ──
      Las media queries de las utilidades Tailwind NO pueden usar var(); por eso
