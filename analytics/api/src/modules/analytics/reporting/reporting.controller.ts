@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiQuery, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import type { StaffSessionUser } from '../../../shared/contracts/index.js';
 import { SessionGuard } from '../../platform/identity/session.guard.js';
@@ -17,10 +17,32 @@ export class ReportingController {
     private readonly accessAudit: AccessAuditService,
   ) {}
 
+  @ApiQuery({ name: 'dimension', required: false })
+  @ApiQuery({ name: 'value', required: false })
   @Get('surveys/:id/dashboard')
-  async survey(@Param('id') id: string, @Req() req: RequestWithUser) {
-    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/dashboard`, req.staffUser?.id);
-    return this.reporting.surveyDashboard(id);
+  async survey(
+    @Param('id') id: string,
+    @Query('dimension') dimension: string,
+    @Query('value') value: string,
+    @Req() req: RequestWithUser,
+  ) {
+    const auditPath = dimension && value
+      ? `analytics/surveys/${id}/dashboard?dimension=${dimension}&value=${value}`
+      : `analytics/surveys/${id}/dashboard`;
+    await this.accessAudit.registrarLectura(auditPath, req.staffUser?.id);
+    return this.reporting.surveyDashboard(id, dimension, value);
+  }
+
+  @Get('surveys/:id/dimensions')
+  async dimensions(@Param('id') id: string, @Req() req: RequestWithUser) {
+    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/dimensions`, req.staffUser?.id);
+    return this.reporting.dimensions(id);
+  }
+
+  @Get('surveys/:id/timeline')
+  async timeline(@Param('id') id: string, @Req() req: RequestWithUser) {
+    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/timeline`, req.staffUser?.id);
+    return this.reporting.timeline(id);
   }
 
   @Get('surveys/:id/cross-tab')

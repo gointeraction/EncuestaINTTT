@@ -1,163 +1,79 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 
-interface SurveyTotals {
-  total: number;
-  completed: number;
-  abandoned: number;
-  in_progress: number;
+/** Etiquetas de las preguntas de Visión Cero (ids reales de la captura). */
+const LABELS: Record<string, string> = {
+  edad: 'Edad',
+  sexo: 'Sexo',
+  estado: 'Estado',
+  nivel_educativo: 'Nivel educativo',
+  anos_conduciendo: 'Años conduciendo',
+  licencia: 'Licencia vigente',
+  frecuencia_conduccion: 'Frecuencia de conducción',
+  uso_principal: 'Uso principal',
+  km_diarios: 'Km diarios',
+  horas_diarias: 'Horas diarias',
+  conduccion_nocturna: 'Conducción nocturna',
+  clima_lluvia: 'Conduce con lluvia',
+  casco_usa: 'Uso del casco',
+  casco_certificado: 'Casco certificado',
+  ha_tenido_siniestro: '¿Ha tenido siniestro?',
+  siniestro_gravedad: 'Gravedad del siniestro',
+  causas_principales: 'Causas principales',
+  medidas_efectivas: 'Medidas efectivas',
+  percepcion_seguridad: 'Percepción de seguridad',
+  efectividad_control: 'Efectividad del control',
+  uso_celular: 'Uso del celular',
+  alcohol_conduccion: 'Alcohol y conducción',
+  estado_vias: 'Estado de las vías',
+  senalizacion: 'Señalización vial',
+  velocidad_opinion: 'Respeto al límite de velocidad',
+  rebases_peatones: 'Respeto a peatones',
+  apoyo_vision_cero: 'Apoyo a Visión Cero',
+  disposicion_participar: 'Disposición a participar',
+};
+
+interface QuestionAgg {
+  id: string;
+  label: string;
+  kind: 'choice' | 'numeric' | 'text';
+  options: Array<{ value: string; count: number }>;
+  average: number | null;
 }
 
-interface QuestionRow {
-  id: string;
-  type: string;
-  label: string;
-  position: number;
-}
+const VISION_CERO = { id: 'vision-cero', title: 'Visión Cero — Motocicletas' };
 
 /**
- * ReadModelService — calcula y persiste los read models (esquema `analytics`)
- * a partir de la captura (esquema `public`, SOLO LECTURA). No escribe en public.
+ * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de
+ * la CAPTURA REAL (`public.legacy_survey_responses`, SOLO LECTURA). Visión Cero = UNA encuesta
+ * con `driverType` + `answers` (JSON). No escribe en public.
  */
 @Injectable()
 export class ReadModelService {
   constructor(private readonly prisma: PrismaService) {}
 
   listSurveys(): Promise<Array<{ id: string; title: string }>> {
-    return this.prisma.$queryRaw<Array<{ id: string; title: string }>>`
-      SELECT id::text AS id, title
-      FROM public.surveys
-      ORDER BY created_at DESC
-      LIMIT 500
-    `;
-  }
-
-  async summarizeSurvey(surveyId: string): Promise<number> {
-    const [row] = await this.prisma.$queryRaw<SurveyTotals[]>`
-      SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE status = 'completed')::int AS completed,
-        COUNT(*) FILTER (WHERE status = 'abandoned')::int AS abandoned,
-        COUNT(*) FILTER (WHERE status = 'in_progress')::int AS in_progress
-      FROM public.responses
-      WHERE survey_id = ${surveyId}
-    `;
-    const totals: SurveyTotals = row ?? { total: 0, completed: 0, abandoned: 0, in_progress: 0 };
-    const questions = await this.questionBreakdown(surveyId);
-    const payload = {
-      surveyId,
-      totals: {
-        ...totals,
-        completionRate: totals.total ? totals.completed / totals.total : 0,
-        abandonmentRate: totals.total ? totals.abandoned / totals.total : 0,
-      },
-      questions,
-      generatedAt: new Date().toISOString(),
-    };
-    await this.prisma.surveySummaryReport.upsert({
-      where: { surveyId },
-      create: { surveyId, totalCount: totals.total, summaryData: JSON.stringify(payload) },
-      update: {
-        totalCount: totals.total,
-        summaryData: JSON.stringify(payload),
-        calculatedAt: new Date(),
-      },
-    });
-    return totals.total;
-  }
-
-  /** Desglose por pregunta: conteos (opción), promedio+distribución (escala), comentarios (texto). */
-  private async questionBreakdown(surveyId: string): Promise<unknown[]> {
-    const questions = await this.prisma.$queryRaw<QuestionRow[]>`
-      SELECT id::text AS id, type, label, position
-      FROM public.questions
-      WHERE survey_id = ${surveyId}
-      ORDER BY position ASC
-      LIMIT 200
-    `;
-    const out: unknown[] = [];
-    for (const q of questions) {
-      const base = { id: q.id, type: q.type, label: q.label, position: q.position };
-      if (q.type === 'single_choice' || q.type === 'dropdown') {
-        const options = await this.prisma.$queryRaw<Array<{ value: string; count: number }>>`
-          SELECT COALESCE(value_text, '') AS value, COUNT(*)::int AS count
-          FROM public.answers
-          WHERE question_id = ${q.id}
-          GROUP BY value
-          ORDER BY count DESC
-          LIMIT 50
-        `;
-        out.push({ ...base, kind: 'choice', options });
-      } else if (q.type === 'multi_choice') {
-        const options = await this.prisma.$queryRaw<Array<{ value: string; count: number }>>`
-          SELECT opt AS value, COUNT(*)::int AS count
-          FROM public.answers a, jsonb_array_elements_text(a.value_options) AS opt
-          WHERE a.question_id = ${q.id} AND a.value_options IS NOT NULL
-          GROUP BY opt
-          ORDER BY count DESC
-          LIMIT 50
-        `;
-        out.push({ ...base, kind: 'choice', options });
-      } else if (q.type === 'scale' || q.type === 'rating') {
-        const distribution = await this.prisma.$queryRaw<
-          Array<{ value: number; count: number }>
-        >`
-          SELECT value_numeric::float8 AS value, COUNT(*)::int AS count
-          FROM public.answers
-          WHERE question_id = ${q.id} AND value_numeric IS NOT NULL
-          GROUP BY value_numeric
-          ORDER BY value_numeric ASC
-        `;
-        let weighted = 0;
-        let count = 0;
-        for (const d of distribution) {
-          weighted += Number(d.value) * d.count;
-          count += d.count;
-        }
-        out.push({ ...base, kind: 'numeric', average: count ? weighted / count : null, distribution });
-      } else {
-        const comments = await this.prisma.$queryRaw<Array<{ value: string }>>`
-          SELECT value_text AS value
-          FROM public.answers
-          WHERE question_id = ${q.id} AND value_text IS NOT NULL
-          ORDER BY created_at DESC
-          LIMIT 10
-        `;
-        out.push({ ...base, kind: 'text', comments: comments.map((c) => c.value) });
-      }
-    }
-    return out;
+    return Promise.resolve([VISION_CERO]);
   }
 
   async summarizeGlobal(): Promise<number> {
-    const [surveys] = await this.prisma.$queryRaw<Array<{ total: number }>>`
-      SELECT COUNT(*)::int AS total FROM public.surveys
+    const [tot] = await this.prisma.$queryRaw<Array<{ total: number }>>`
+      SELECT COUNT(*)::int AS total FROM public.legacy_survey_responses
     `;
-    const [responses] = await this.prisma.$queryRaw<
-      Array<{ total: number; completed: number; abandoned: number }>
-    >`
-      SELECT
-        COUNT(*)::int AS total,
-        COUNT(*) FILTER (WHERE status = 'completed')::int AS completed,
-        COUNT(*) FILTER (WHERE status = 'abandoned')::int AS abandoned
-      FROM public.responses
+    const byDriverType = await this.prisma.$queryRaw<Array<{ id: string; responses: number }>>`
+      SELECT "driverType" AS id, COUNT(*)::int AS responses
+      FROM public.legacy_survey_responses
+      GROUP BY 1
+      ORDER BY 2 DESC
     `;
-    const bySurvey = await this.prisma.$queryRaw<
-      Array<{ id: string; title: string; responses: number }>
-    >`
-      SELECT s.id::text AS id, s.title, COUNT(r.id)::int AS responses
-      FROM public.surveys s
-      LEFT JOIN public.responses r ON r.survey_id = s.id
-      GROUP BY s.id, s.title
-      ORDER BY responses DESC
-      LIMIT 100
-    `;
+    const total = tot?.total ?? 0;
     const payload = {
-      totalSurveys: surveys?.total ?? 0,
-      totalResponses: responses?.total ?? 0,
-      completed: responses?.completed ?? 0,
-      abandoned: responses?.abandoned ?? 0,
-      bySurvey,
+      totalSurveys: 1,
+      totalResponses: total,
+      completed: total,
+      abandoned: 0,
+      bySurvey: [{ ...VISION_CERO, responses: total }],
+      byDriverType,
       generatedAt: new Date().toISOString(),
     };
     await this.prisma.globalDashboard.upsert({
@@ -165,6 +81,80 @@ export class ReadModelService {
       create: { id: 'latest', payload: JSON.stringify(payload) },
       update: { payload: JSON.stringify(payload) },
     });
-    return payload.totalResponses;
+    return total;
   }
+
+  async summarizeSurvey(surveyId: string): Promise<number> {
+    const rows = await this.prisma.$queryRaw<Array<{ answers: string; driverType: string }>>`
+      SELECT answers, "driverType" AS "driverType" FROM public.legacy_survey_responses LIMIT 200000
+    `;
+    const { questions, total } = aggregate(rows);
+    const payload = {
+      surveyId,
+      title: VISION_CERO.title,
+      totals: { responses: total },
+      byDriverType: byDriver(rows),
+      questions,
+      generatedAt: new Date().toISOString(),
+    };
+    await this.prisma.surveySummaryReport.upsert({
+      where: { surveyId },
+      create: { surveyId, totalCount: total, summaryData: JSON.stringify(payload) },
+      update: { totalCount: total, summaryData: JSON.stringify(payload), calculatedAt: new Date() },
+    });
+    return total;
+  }
+}
+
+function byDriver(rows: Array<{ driverType: string }>): Array<{ id: string; responses: number }> {
+  const m = new Map<string, number>();
+  for (const r of rows) m.set(r.driverType, (m.get(r.driverType) ?? 0) + 1);
+  return [...m.entries()].map(([id, responses]) => ({ id, responses })).sort((a, b) => b.responses - a.responses);
+}
+
+/** Agrega el JSON `answers` de todas las filas (categóricas y numéricas). */
+function aggregate(rows: Array<{ answers: string }>): { questions: QuestionAgg[]; total: number } {
+  const cats = new Map<string, Map<string, number>>();
+  const nums = new Map<string, { sum: number; count: number }>();
+  let total = 0;
+  for (const row of rows) {
+    let obj: Record<string, unknown>;
+    try {
+      obj = JSON.parse(row.answers) as Record<string, unknown>;
+    } catch {
+      continue;
+    }
+    total++;
+    for (const [k, v] of Object.entries(obj)) {
+      if (Array.isArray(v)) {
+        const m = cats.get(k) ?? new Map<string, number>();
+        for (const x of v) m.set(String(x), (m.get(String(x)) ?? 0) + 1);
+        cats.set(k, m);
+      } else if (typeof v === 'number') {
+        const n = nums.get(k) ?? { sum: 0, count: 0 };
+        n.sum += v;
+        n.count++;
+        nums.set(k, n);
+      } else if (v !== null && v !== undefined && v !== '') {
+        const m = cats.get(k) ?? new Map<string, number>();
+        m.set(String(v), (m.get(String(v)) ?? 0) + 1);
+        cats.set(k, m);
+      }
+    }
+  }
+  const questions: QuestionAgg[] = [];
+  for (const [k, m] of cats) {
+    questions.push({
+      id: k,
+      label: LABELS[k] ?? k,
+      kind: 'choice',
+      options: [...m.entries()].map(([value, count]) => ({ value, count })).sort((a, b) => b.count - a.count).slice(0, 30),
+      average: null,
+    });
+  }
+  for (const [k, n] of nums) {
+    questions.push({ id: k, label: LABELS[k] ?? k, kind: 'numeric', options: [], average: n.count ? n.sum / n.count : null });
+  }
+  questions.sort((a, b) => a.id.localeCompare(b.id));
+  return { questions, total };
 }
