@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Smoke test del back-office analítico (EncuestaINTTT).
+ * Smoke test del back-office analítico (EncuestaINTTT) + consola.
  * Ejecuta contra el API a través del proxy de la consola.
  *   node tests/smoke-backoffice.mjs            # por defecto http://localhost:4301/api
  *   API=http://localhost:3151 node tests/smoke-backoffice.mjs
@@ -8,6 +8,7 @@
  */
 
 const API = (process.env.API ?? 'http://localhost:4301/api').replace(/\/$/, '');
+const CONSOLE = API.replace(/\/api$/, '');
 const EMAIL = process.env.STAFF_EMAIL ?? 'admin@intt.gob.ve';
 const PASSWORD = process.env.STAFF_PASSWORD ?? 'StaffAdmin2026!';
 
@@ -30,11 +31,12 @@ function assert(cond, msg) {
 }
 
 async function main() {
-  const health = () => fetch(`${API}/health`);
   let cookie = '';
+  const withCookie = (path, init = {}) =>
+    fetch(`${API}${path}`, { ...init, headers: { ...(init.headers ?? {}), cookie } });
 
   await check('GET /health {db,redis}', async () => {
-    const r = await health();
+    const r = await fetch(`${API}/health`);
     assert(r.ok, `status ${r.status}`);
     const j = await r.json();
     assert(j.db === true && j.redis === true, `db=${j.db} redis=${j.redis}`);
@@ -48,14 +50,10 @@ async function main() {
       body: JSON.stringify({ email: EMAIL, password: PASSWORD }),
     });
     assert(r.status === 201, `status ${r.status}`);
-    const setCookie = r.headers.get('set-cookie') ?? '';
-    cookie = setCookie.split(';')[0];
+    cookie = (r.headers.get('set-cookie') ?? '').split(';')[0];
     assert(cookie.startsWith('staff_session='), 'sin cookie de sesión');
     return cookie.slice(0, 24) + '…';
   });
-
-  const withCookie = (path, init = {}) =>
-    fetch(`${API}${path}`, { ...init, headers: { ...(init.headers ?? {}), cookie } });
 
   await check('GET /auth/staff/session (con cookie)', async () => {
     const r = await withCookie('/auth/staff/session');
@@ -98,17 +96,51 @@ async function main() {
   });
 
   await check('GET /analytics/surveys/:id/cross-tab', async () => {
-    const r = await withCookie('/analytics/surveys/00000000-0000-0000-0000-000000000000/cross-tab?q1=a&q2=b');
+    const r = await withCookie(
+      '/analytics/surveys/00000000-0000-0000-0000-000000000000/cross-tab?q1=a&q2=b',
+    );
     assert(r.status === 200, `status ${r.status}`);
     const j = await r.json();
     assert(Array.isArray(j.cells), 'sin cells');
     return `cells=${j.cells.length}`;
   });
 
+  await check('GET /analytics/surveys/:id/export (CSV)', async () => {
+    const r = await withCookie(
+      '/analytics/surveys/00000000-0000-0000-0000-000000000000/export',
+    );
+    assert(r.status === 200, `status ${r.status}`);
+    const ct = r.headers.get('content-type') ?? '';
+    assert(ct.includes('text/csv'), `content-type ${ct}`);
+    return ct;
+  });
+
   await check('GET /analytics/... sin sesión -> 401', async () => {
     const r = await fetch(`${API}/analytics/global/dashboard`);
     assert(r.status === 401, `status ${r.status}`);
     return '401';
+  });
+
+  for (const route of ['/', '/panel', '/reportes-cruzados', '/participantes', '/login']) {
+    await check(`CONSOLA ${route} -> 200 (SPA)`, async () => {
+      const r = await fetch(`${CONSOLE}${route}`);
+      assert(r.status === 200, `status ${r.status}`);
+      return '200';
+    });
+  }
+
+  await check('RATE-LIMIT: 11 intentos malos -> 429 (último)', async () => {
+    let last = 0;
+    for (let i = 0; i < 11; i++) {
+      const r = await fetch(`${API}/auth/staff/login`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ email: EMAIL, password: 'incorrecta' }),
+      });
+      last = r.status;
+    }
+    assert(last === 429, `último status ${last}`);
+    return '429';
   });
 
   console.log(`\nRESULT: ${passed} passed, ${failed} failed`);
