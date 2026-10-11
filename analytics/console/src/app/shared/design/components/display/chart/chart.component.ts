@@ -131,7 +131,11 @@ export interface BarChartData {
                     [style.height]="barHeight(s.data[ci] ?? 0) + '%'"
                     [style.background]="swatch(si)"
                     title="{{ s.name }}: {{ s.data[ci] ?? 0 }}"
-                  ></div>
+                  >
+                    @if (s.data[ci] != null) {
+                      <span class="ds-chart__bar-value">{{ s.data[ci] }}</span>
+                    }
+                  </div>
                 </div>
               }
               <span class="ds-chart__cat">{{ c }}</span>
@@ -152,14 +156,20 @@ export interface BarChartData {
       display: flex; align-items: stretch; gap: var(--ds-gap-md);
       height: 180px;
       border-bottom: 1px solid var(--ds-viz-axis-line);
-      padding-top: var(--ds-space-2);
+      padding-top: var(--ds-space-4);
     }
     .ds-chart__col { flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--ds-gap-xs); }
     .ds-chart__bar-group { flex: 1; width: 100%; display: flex; align-items: flex-end; gap: 2px; }
     .ds-chart__bar {
       flex: 1; border-radius: var(--ds-radius-sm) var(--ds-radius-sm) 0 0;
       transition: height var(--ds-duration-normal) var(--ds-ease-standard);
-      min-height: 2px;
+      min-height: 2px; position: relative;
+    }
+    /* Valor encima de cada barra (gráfico agrupado). */
+    .ds-chart__bar-value {
+      position: absolute; bottom: 100%; left: 50%; transform: translateX(-50%);
+      margin-bottom: 3px; font-size: var(--ds-text-caption); font-weight: 600;
+      color: var(--ds-viz-tick); white-space: nowrap; line-height: 1;
     }
     .ds-chart__cat { font-size: var(--ds-text-caption); color: var(--ds-viz-tick); white-space: nowrap; }
     .ds-chart__shell {
