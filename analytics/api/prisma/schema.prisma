@@ -1,0 +1,116 @@
+// Esquema Prisma del BACK-OFFICE analítico.
+// Dueño ÚNICAMENTE del esquema `analytics`; el esquema `public` (captura) solo se
+// LEE (vía SQL de solo lectura con el rol del back-office). Ver
+// .akuri/00-manifest/data-model.md (SECTION 07) y analytics-platform.md.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["analytics"]
+}
+
+// ─── platform: identidad y auditoría del personal ───────────────────────────
+
+model StaffRole {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  permissions String[]
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@schema("analytics")
+  @@map("staff_roles")
+}
+
+model StaffUser {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  roleId       String   @map("role_id")
+  status       String   @default("active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  @@schema("analytics")
+  @@map("staff_users")
+}
+
+model StaffSession {
+  id        String   @id @default(uuid())
+  userId    String   @map("user_id")
+  tokenHash String   @map("token_hash")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@schema("analytics")
+  @@map("staff_sessions")
+}
+
+model AccessAudit {
+  id      BigInt   @id @default(autoincrement())
+  actorId String?  @map("actor_id")
+  recurso String
+  accion  String
+  momento DateTime @default(now())
+
+  @@schema("analytics")
+  @@map("access_audit")
+}
+
+// ─── analytics: read models y reportes (derivados de public) ─────────────────
+
+model SurveySummaryReport {
+  id           String   @id @default(uuid())
+  surveyId     String   @map("survey_id")
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+  totalCount   Int      @default(0) @map("total_count")
+  summaryData  String   @map("summary_data") @db.Text
+
+  @@schema("analytics")
+  @@map("report_survey_summaries")
+}
+
+model SummarizationRun {
+  id         String    @id @default(uuid())
+  scope      String
+  status     String    @default("running")
+  records    Int       @default(0)
+  startedAt  DateTime  @default(now()) @map("started_at")
+  finishedAt DateTime? @map("finished_at")
+
+  @@schema("analytics")
+  @@map("summarization_runs")
+}
+
+model SurveyDashboard {
+  id        String   @id @default(uuid())
+  surveyId  String   @unique @map("survey_id")
+  payload   String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@schema("analytics")
+  @@map("report_survey_dashboards")
+}
+
+model GlobalDashboard {
+  id        String   @id @default("latest")
+  payload   String   @db.Text
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@schema("analytics")
+  @@map("report_global_dashboard")
+}
+
+model SurveyExport {
+  id        String   @id @default(uuid())
+  surveyId  String   @map("survey_id")
+  actorId   String?  @map("actor_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@schema("analytics")
+  @@map("survey_exports")
+}

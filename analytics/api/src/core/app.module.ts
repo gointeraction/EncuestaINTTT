@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { PrismaModule } from './prisma/prisma.module.js';
 import { HealthModule } from '../modules/platform/health/health.module.js';
 import { PublicReadModule } from '../modules/integration/public-read/public-read.module.js';
 
@@ -8,6 +9,6 @@ import { PublicReadModule } from '../modules/integration/public-read/public-read
  * e `integration` (acceso de solo lectura al esquema public).
  */
 @Module({
-  imports: [HealthModule, PublicReadModule],
+  imports: [PrismaModule, HealthModule, PublicReadModule],
 })
 export class AppModule {}
