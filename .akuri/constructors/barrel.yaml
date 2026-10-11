@@ -1,0 +1,6 @@
+---
+schemaVersion: 1
+barrel: encuestaintt-constructors
+tools:
+  check-constructors: tools/check-constructors.py
+---

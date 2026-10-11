@@ -59,6 +59,7 @@ WRITE INFO: las carpetas del corpus son:
 | `04-testing/` | protocolos de carga/resiliencia con gates deterministas | `oma_check` |
 | `rules/` | reglas del proyecto (RULE + gate) + reglas locales del pack de documentación | `oma_context` / `oma_select` |
 | `rulesets/` | rulesets del proyecto | `oma_context` / `oma_select` |
+| `constructors/` | constructores project-local (L4): orquestadores + how-tos de analítica/reportería/acceso | `oma_check` / construcción |
 | `tools/` | herramientas deterministas del proyecto | `oma_check` / `oma_build` |
 | `docs/` | el corpus funcional: épicas → transversales (features verticales) + reglas locales | pack `akuri-oma-documentation` |
 
