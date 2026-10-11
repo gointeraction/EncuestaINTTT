@@ -72,8 +72,8 @@ notifications, ds). Útil para ajustar/verificar tokens en vivo durante el desar
 ### SECTION 04-ADAPTACION
 
 WRITE INFO: adopción en `analytics/console` — **vendorizado y compilando**:
-  1. Copiado `design/` (144 archivos) + `fab/` (19) + `core/settings/` (seam del host) a
-     `src/app/shared/`.
+  1. Copiado `design/` (144 archivos) + `fab/` (19) a `src/app/shared/`, y el seam del host
+     `core/settings/` a `src/app/core/` (layout Akuri-OMA: `core` + `modules` + `shared`).
   2. **Tailwind v4** añadido (`tailwindcss` + `@tailwindcss/postcss`, `.postcssrc.json`) y estilos
      globales en `src/styles.css`: `@import "tailwindcss"` → `design/theme.css` → `design/tokens/index.css`.
   3. Alias de módulo vía `tsconfig.json` `paths`: `@cifraflow/design`, `@cifraflow/fab`.
@@ -89,7 +89,7 @@ WRITE INFO: adopción en `analytics/console` — **vendorizado y compilando**:
 4. **scope-role** — provee los componentes y tokens de toda la consola analítica.
 5. **capabilities** — kpi-card/kpi-grid, chart, table, filter-bar, layout (header/panels/page-title), navigation, feedback, form.
 6. **depends-on** — `frontend.angular.admin`.
-7. **canonical-files** — `analytics/console/src/app/shared/design/**`, `analytics/console/src/app/shared/fab/**`, `analytics/console/src/app/shared/core/settings/**`, `analytics/console/src/styles.css`, `analytics/console/.postcssrc.json`, `analytics/console/tsconfig.json` (paths).
+7. **canonical-files** — `analytics/console/src/app/shared/design/**`, `analytics/console/src/app/shared/fab/**`, `analytics/console/src/app/core/settings/**` (seam del host), `analytics/console/src/styles.css`, `analytics/console/.postcssrc.json`, `analytics/console/tsconfig.json` (paths).
 8. **compliance** — frontend: design-system-tokens (SSOT), api-sdk-only, no-console-log.
 
 ## Deterministic gate
