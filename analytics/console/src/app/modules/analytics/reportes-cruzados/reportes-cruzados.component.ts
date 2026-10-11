@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { DsContainerComponent, DsHeaderComponent, DsPageTitleComponent } from '@cifraflow/design';
 import { firstValueFrom } from 'rxjs';
 import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../shared/api-sdk';
 
@@ -20,47 +21,58 @@ interface CrossTab {
 @Component({
   selector: 'app-reportes-cruzados',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, DsContainerComponent, DsHeaderComponent, DsPageTitleComponent],
   template: `
-    <h1>Reportes cruzados</h1>
-    <label>Encuesta
-      <select [(ngModel)]="surveyId" (ngModelChange)="onSurvey()">
-        <option value="">Seleccione…</option>
-        @for (s of fuentes(); track s.id) { <option [value]="s.id">{{ s.title }}</option> }
-      </select>
-    </label>
+    <ds-container kind="page" name="reportes-cruzados">
+      <ds-container kind="area" name="header">
+        <ds-header>
+          <div class="ds-h__row">
+            <div class="ds-h__section ds-h__section--grow">
+              <ds-page-title title="Reportes cruzados" subtitle="Analítica · INTT" [showBack]="false" />
+            </div>
+            <div class="ds-h__section ds-h__section--end">
+              <label>Encuesta
+                <select [(ngModel)]="surveyId" (ngModelChange)="onSurvey()">
+                  <option value="">Seleccione…</option>
+                  @for (s of fuentes(); track s.id) { <option [value]="s.id">{{ s.title }}</option> }
+                </select>
+              </label>
+            </div>
+          </div>
+        </ds-header>
+      </ds-container>
 
-    @if (questions().length) {
-      <p>
-        <label>Pregunta A
-          <select [(ngModel)]="q1">
-            @for (q of questions(); track q.id) { <option [value]="q.id">{{ q.label }}</option> }
-          </select>
-        </label>
-        <label>Pregunta B
-          <select [(ngModel)]="q2">
-            @for (q of questions(); track q.id) { <option [value]="q.id">{{ q.label }}</option> }
-          </select>
-        </label>
-        <button type="button" (click)="run()">Cruzar</button>
-      </p>
-    }
-
-    @if (result(); as r) {
-      <table>
-        <thead>
-          <tr><th></th>@for (c of r.categoriesB; track c) { <th>{{ c }}</th> }</tr>
-        </thead>
-        <tbody>
-          @for (ra of r.categoriesA; track ra) {
-            <tr>
-              <th>{{ ra }}</th>
-              @for (cb of r.categoriesB; track cb) { <td>{{ cell(ra, cb) }}</td> }
-            </tr>
+      <ds-container kind="area" name="body">
+        <ds-container kind="section" name="controles">
+          @if (questions().length) {
+            <label>Pregunta A
+              <select [(ngModel)]="q1">
+                @for (q of questions(); track q.id) { <option [value]="q.id">{{ q.label }}</option> }
+              </select>
+            </label>
+            <label>Pregunta B
+              <select [(ngModel)]="q2">
+                @for (q of questions(); track q.id) { <option [value]="q.id">{{ q.label }}</option> }
+              </select>
+            </label>
+            <button type="button" (click)="run()">Cruzar</button>
           }
-        </tbody>
-      </table>
-    }
+        </ds-container>
+
+        @if (result(); as r) {
+          <ds-container kind="section" name="cruce">
+            <table>
+              <thead><tr><th></th>@for (c of r.categoriesB; track c) { <th>{{ c }}</th> }</tr></thead>
+              <tbody>
+                @for (ra of r.categoriesA; track ra) {
+                  <tr><th>{{ ra }}</th>@for (cb of r.categoriesB; track cb) { <td>{{ cell(ra, cb) }}</td> }</tr>
+                }
+              </tbody>
+            </table>
+          </ds-container>
+        }
+      </ds-container>
+    </ds-container>
   `,
 })
 export class ReportesCruzadosComponent {

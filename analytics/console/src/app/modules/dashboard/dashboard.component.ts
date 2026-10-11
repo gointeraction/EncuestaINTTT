@@ -1,5 +1,11 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { DsKpiGridComponent, type DsKpiItem } from '@cifraflow/design';
+import {
+  DsContainerComponent,
+  DsHeaderComponent,
+  DsPageTitleComponent,
+  DsKpiGridComponent,
+  type DsKpiItem,
+} from '@cifraflow/design';
 import { firstValueFrom } from 'rxjs';
 import { EncuestaINTTTBackOfficeAnalíticoService } from '../../shared/api-sdk';
 import { SessionService } from '../../core/session.service';
@@ -15,22 +21,33 @@ interface GlobalPayload {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [DsKpiGridComponent],
+  imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsKpiGridComponent],
   template: `
-    <h1>Panel global</h1>
-    <p>
-      <button type="button" (click)="summarize()">Recalcular sumarización</button>
-      <a href="/panel">Panel por encuesta</a>
-      <a href="/reportes-cruzados">Reportes cruzados</a>
-      <a href="/participantes">Participantes</a>
-    </p>
+    <ds-container kind="page" name="global">
+      <ds-container kind="area" name="header">
+        <ds-header>
+          <div class="ds-h__row">
+            <div class="ds-h__section ds-h__section--grow">
+              <ds-page-title title="Panel global" subtitle="Visión Cero · INTT" [showBack]="false" />
+            </div>
+            <div class="ds-h__section ds-h__section--end">
+              <button type="button" (click)="summarize()">Recalcular sumarización</button>
+            </div>
+          </div>
+        </ds-header>
+      </ds-container>
 
-    @if (kpis().length) {
-      <ds-kpi-grid [items]="kpis()" />
-    } @else {
-      <p>Sin datos. Pulse «Recalcular sumarización».</p>
-    }
-    @if (run(); as r) { <p>{{ r }}</p> }
+      <ds-container kind="area" name="body">
+        <ds-container kind="section" name="kpis">
+          @if (kpis().length) {
+            <ds-kpi-grid [items]="kpis()" />
+          } @else {
+            <p>Sin datos. Pulse «Recalcular sumarización».</p>
+          }
+          @if (run(); as r) { <p>{{ r }}</p> }
+        </ds-container>
+      </ds-container>
+    </ds-container>
   `,
 })
 export class DashboardComponent {
