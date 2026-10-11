@@ -72,6 +72,10 @@ import { ReportesStateService } from './business/state/reportes.state.service';
           @if (state.error(); as e) { <p role="alert" class="rep__error">{{ e }}</p> }
 
           @if (state.result(); as r) {
+            <p class="rep__base">
+              Base pregunta A: <b>{{ r.baseA }}</b> · Base pregunta B: <b>{{ r.baseB }}</b> ·
+              Base del cruce: <b>{{ r.baseBoth }}</b>
+            </p>
             <div class="rep__tablewrap">
               <table class="rep__table">
                 <thead>
@@ -97,6 +101,7 @@ import { ReportesStateService } from './business/state/reportes.state.service';
     .rep__field { display: flex; flex-direction: column; gap: var(--ds-space-1); font-size: var(--ds-text-small); }
     .rep__field select { padding: var(--ds-space-2); border: 1px solid var(--ds-border-subtle); border-radius: var(--ds-radius-md); font-size: var(--ds-text-input); }
     .rep__error { color: var(--ds-color-state-danger); font-size: var(--ds-text-small); }
+    .rep__base { margin: 0; font-size: var(--ds-text-small); color: var(--ds-text-muted); }
     .rep__tablewrap { overflow: auto; border: 1px solid var(--ds-border-subtle); border-radius: var(--ds-radius-md); }
     .rep__table { border-collapse: collapse; font-size: var(--ds-text-small); }
     .rep__table th, .rep__table td { border: 1px solid var(--ds-border-subtle); padding: var(--ds-space-1) var(--ds-space-2); text-align: right; white-space: nowrap; }

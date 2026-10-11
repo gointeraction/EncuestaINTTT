@@ -19,6 +19,9 @@ export interface CrossTabResult {
   surveyId: string;
   questionA: string;
   questionB: string;
+  baseA: number;
+  baseB: number;
+  baseBoth: number;
   categoriesA: string[];
   categoriesB: string[];
   cells: CrossTabCell[];

@@ -240,20 +240,22 @@ export class PanelEncuestaPage {
   readonly kpis = computed<DsKpiItem[]>(() => {
     const t = this.state.dashboard()?.totals;
     if (!t) return [];
-    return [
-      { label: 'Respuestas', value: t.total, icon: 'file-text', tone: 'neutral' },
+    const items: DsKpiItem[] = [
+      { label: 'Cuestionarios (muestra)', value: t.total, icon: 'file-text', tone: 'neutral' },
       { label: 'Finalización', value: `${Math.round((t.completionRate ?? 0) * 100)}%`, icon: 'check', tone: 'success' },
       { label: 'Abandono', value: `${Math.round((t.abandonmentRate ?? 0) * 100)}%`, icon: 'alert-circle', tone: 'danger' },
       { label: 'En curso', value: t.in_progress, icon: 'activity', tone: 'info' },
     ];
+    // Base de cálculo de la pregunta enfocada (cambia por pregunta y con los filtros).
+    const q = this.state.selected();
+    if (q) items.push({ label: 'Base (pregunta)', value: questionBase(q), icon: 'file-text', tone: 'info' });
+    return items;
   });
 
   readonly questionKpis = computed<DsKpiItem[]>(() => {
     const q = this.state.selected();
     if (!q) return [];
-    const items: DsKpiItem[] = [
-      { label: 'Respuestas (base)', value: questionBase(q), icon: 'file-text', tone: 'neutral' },
-    ];
+    const items: DsKpiItem[] = [];
     if (q.kind === 'numeric' && q.average != null) {
       items.push({ label: 'Promedio', value: q.average.toFixed(2), icon: 'activity', tone: 'info' });
     }

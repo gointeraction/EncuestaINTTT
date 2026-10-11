@@ -27,6 +27,8 @@ export interface QuestionAnalytics {
   label: string;
   position?: number;
   kind: QuestionKind;
+  /** Nº de cuestionarios que respondieron esta pregunta (base de cálculo). */
+  base?: number;
   options?: OptionCount[];
   distribution?: DistributionPoint[];
   average?: number | null;
@@ -89,8 +91,9 @@ export interface TimelinePoint {
   completed: number;
 }
 
-/** Base aplicable de una pregunta (suma de sus categorías observadas). */
+/** Base aplicable de una pregunta (nº de cuestionarios que la respondieron). */
 export function questionBase(q: QuestionAnalytics): number {
+  if (q.base != null) return q.base;
   if (q.kind === 'choice') return (q.options ?? []).reduce((s, o) => s + o.count, 0);
   if (q.kind === 'numeric') return (q.distribution ?? []).reduce((s, d) => s + d.count, 0);
   return (q.comments ?? []).length;
