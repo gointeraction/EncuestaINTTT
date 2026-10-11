@@ -28,7 +28,7 @@ export const ANALYTICS_ROUTES: Routes = [
   {
     path: 'participantes',
     loadComponent: () =>
-      import('./pages/participantes/participantes.component').then((m) => m.ParticipantesComponent),
+      import('./pages/participantes/participantes.page').then((m) => m.ParticipantesPage),
   },
   {
     path: 'datos',
