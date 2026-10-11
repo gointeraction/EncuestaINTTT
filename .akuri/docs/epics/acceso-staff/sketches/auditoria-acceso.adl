@@ -1,0 +1,16 @@
+# Page: auditoria-acceso — layout 'console'.
+PAGE auditoria-acceso
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION filtros
+      COMPONENT fecha | use=date | bind=data.filters.fecha
+      COMPONENT actor | use=input | bind=data.filters.actor
+    END
+    SECTION eventos
+      COMPONENT tabla | use=table | bind=data.eventos
+      COMPONENT paginacion | use=pagination | bind=data.page
+      STATE | name=cargando|vacio|error
+    END
+  END
+END

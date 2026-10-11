@@ -1,0 +1,15 @@
+# Page: login-staff — layout 'auth'.
+PAGE login-staff
+  USES | layout=auth
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION acceso
+      CONTENT titulo | bind=text.title | tag=h1
+      COMPONENT correo | use=input | bind=data.correo
+      COMPONENT clave | use=input | bind=data.clave
+      COMPONENT entrar | use=button-primary | bind=data.actions.entrar
+      COMPONENT error | use=alert | bind=data.error
+      STATE | name=idle|autenticando|error|autenticado
+    END
+  END
+END

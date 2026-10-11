@@ -1,0 +1,12 @@
+# Page: sesion-guard — layout 'auth'.
+PAGE sesion-guard
+  USES | layout=auth
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION verificacion
+      CONTENT mensaje | bind=text.message | tag=p
+      COMPONENT spinner | use=spinner
+      STATE | name=verificando|autenticado|expirado
+    END
+  END
+END

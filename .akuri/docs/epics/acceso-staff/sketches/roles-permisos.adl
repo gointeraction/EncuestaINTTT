@@ -1,0 +1,17 @@
+# Page: roles-permisos — layout 'console'.
+PAGE roles-permisos
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION lista
+      COMPONENT filtro | use=filter-bar | bind=data.filters
+      COMPONENT tabla | use=table | bind=data.miembros
+      COMPONENT paginacion | use=pagination | bind=data.page
+    END
+    SECTION asignacion
+      COMPONENT miembro | use=select | bind=data.selected
+      COMPONENT rol | use=select | bind=data.rol
+      COMPONENT guardar | use=button-primary | bind=data.actions.guardar
+    END
+  END
+END
