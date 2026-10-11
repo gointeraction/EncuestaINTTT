@@ -7,6 +7,7 @@ export interface ReportQuestion {
   id: string;
   label: string;
   kind?: string;
+  position?: number;
 }
 
 export interface CrossTabCell {

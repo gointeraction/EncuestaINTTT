@@ -5,6 +5,10 @@ export interface QuestionAgg {
   type: string;
   label: string;
   kind: 'choice' | 'numeric' | 'text';
+  /** true si es una pregunta AUTOCONTESTADA (derivada). */
+  derived?: boolean;
+  /** Número de referencia (orden en el cuestionario) para ubicarla en selectores. */
+  position?: number;
   /** Nº de cuestionarios que respondieron ESTA pregunta (la base de cálculo). */
   base: number;
   options: Array<{ value: string; count: number }>;
@@ -166,12 +170,25 @@ export function aggregateAnswers(
       type: 'single_choice',
       label: d.label,
       kind: 'choice',
+      derived: true,
       base: options.reduce((s, o) => s + o.count, 0),
       options,
       average: null,
     });
   }
-  questions.sort((a, b) => a.id.localeCompare(b.id));
+  // Orden estable: primero las preguntas del cuestionario (por el orden del registro),
+  // luego las autocontestadas; se numera cada pregunta (referencia para los selectores).
+  const order = new Map(Object.keys(q.labels).map((k, i) => [k, i]));
+  questions.sort((a, b) => {
+    if (!!a.derived !== !!b.derived) return a.derived ? 1 : -1;
+    const oa = order.get(a.id);
+    const ob = order.get(b.id);
+    if (oa != null && ob != null) return oa - ob;
+    return a.id.localeCompare(b.id);
+  });
+  questions.forEach((x, i) => {
+    x.position = i + 1;
+  });
   return { questions, total };
 }
 

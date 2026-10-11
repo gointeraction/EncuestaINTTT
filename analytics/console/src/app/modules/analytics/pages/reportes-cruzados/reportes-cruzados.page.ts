@@ -57,12 +57,12 @@ import { ReportesStateService } from './business/state/reportes.state.service';
             <div class="rep__row">
               <label class="rep__field">Pregunta A
                 <select [value]="state.q1()" (change)="state.setQ1(value($event))">
-                  @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.label }}</option> }
+                  @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.position ? q.position + '. ' : '' }}{{ q.label }}</option> }
                 </select>
               </label>
               <label class="rep__field">Pregunta B
                 <select [value]="state.q2()" (change)="state.setQ2(value($event))">
-                  @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.label }}</option> }
+                  @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.position ? q.position + '. ' : '' }}{{ q.label }}</option> }
                 </select>
               </label>
               <ds-button [loading]="state.loading()" (click)="state.run()">Cruzar</ds-button>

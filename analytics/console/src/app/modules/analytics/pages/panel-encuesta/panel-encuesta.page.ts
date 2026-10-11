@@ -248,7 +248,10 @@ export class PanelEncuestaPage {
       {
         label: 'Pregunta',
         value: 'pregunta',
-        options: this.state.filtered().map((q) => ({ label: q.label, value: q.id })),
+        options: this.state.filtered().map((q) => ({
+          label: (q.position ? q.position + '. ' : '') + q.label,
+          value: q.id,
+        })),
       },
       {
         label: 'Segmento',

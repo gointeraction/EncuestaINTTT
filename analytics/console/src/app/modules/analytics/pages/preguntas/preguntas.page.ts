@@ -70,6 +70,20 @@ import { PreguntasStateService } from './business/state/preguntas.state.service'
           />
           @if (state.error(); as e) { <p role="alert" class="preg__error">{{ e }}</p> }
         </ds-container>
+
+        @if (state.derivedRows().length) {
+          <ds-container kind="section" name="derivadas" style="margin-top: var(--ds-space-6)">
+            <ds-data-table-card
+              title="Preguntas autocontestadas (derivadas)"
+              subtitle="Se responden a partir de las respuestas anteriores, con un algoritmo"
+              [columns]="columns"
+              [rows]="rowsDer()"
+              rowsTrack="id"
+              (rowClick)="open($event)"
+              emptyTitle="Sin preguntas derivadas"
+            />
+          </ds-container>
+        }
       </ds-container>
     </ds-container>
   `,
@@ -96,6 +110,17 @@ export class PreguntasPage {
 
   readonly rows = computed<DsTableRow[]>(() =>
     this.state.rows().map((r) => ({
+      id: r.id,
+      position: r.position,
+      label: r.label,
+      type: r.type,
+      visual: r.visual,
+      base: r.base,
+    })),
+  );
+
+  readonly rowsDer = computed<DsTableRow[]>(() =>
+    this.state.derivedRows().map((r) => ({
       id: r.id,
       position: r.position,
       label: r.label,

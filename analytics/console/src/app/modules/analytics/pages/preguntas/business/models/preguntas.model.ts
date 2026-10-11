@@ -21,6 +21,11 @@ export interface QuestionAnalytics {
   type: string;
   label: string;
   kind: QuestionKind;
+  /** true si es autocontestada (derivada). */
+  derived?: boolean;
+  /** Número de referencia (orden en el cuestionario). */
+  position?: number;
+  base?: number;
   options?: OptionCount[];
   distribution?: DistributionPoint[];
   average?: number | null;

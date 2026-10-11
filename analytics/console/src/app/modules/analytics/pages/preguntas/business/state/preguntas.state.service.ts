@@ -22,22 +22,34 @@ export class PreguntasStateService implements PreguntasStateContract {
 
   private readonly questions = signal<QuestionAnalytics[]>([]);
 
-  readonly rows = computed<QuestionRow[]>(() => {
+  private readonly filtered = computed<QuestionAnalytics[]>(() => {
     const text = this.search().trim().toLowerCase();
     const type = this.typeFilter();
-    return this.questions()
-      .filter(
-        (q) => (!text || q.label.toLowerCase().includes(text)) && (!type || q.type === type),
-      )
-      .map((q, i) => ({
-        id: q.id,
-        position: i + 1,
-        label: q.label,
-        type: q.type,
-        visual: visualForm(q),
-        base: questionBase(q),
-      }));
+    return this.questions().filter(
+      (q) => (!text || q.label.toLowerCase().includes(text)) && (!type || q.type === type),
+    );
   });
+
+  private toRows(list: QuestionAnalytics[]): QuestionRow[] {
+    return list.map((q, i) => ({
+      id: q.id,
+      position: q.position ?? i + 1,
+      label: q.label,
+      type: q.type,
+      visual: visualForm(q),
+      base: questionBase(q),
+    }));
+  }
+
+  /** Preguntas del cuestionario (originales). */
+  readonly rows = computed<QuestionRow[]>(() =>
+    this.toRows(this.filtered().filter((q) => !q.derived)),
+  );
+
+  /** Preguntas autocontestadas (derivadas). */
+  readonly derivedRows = computed<QuestionRow[]>(() =>
+    this.toRows(this.filtered().filter((q) => q.derived)),
+  );
 
   async load(): Promise<void> {
     this.loading.set(true);
