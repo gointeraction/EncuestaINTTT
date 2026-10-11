@@ -53,7 +53,7 @@ WRITE INFO: each layer holds technologies; each technology is a **folder**; each
 ├── README.md                 ← declaration of elements (L2) + this index
 ├── persistence/              ← LAYER: prisma/ postgresql/ redis/
 ├── backend/                  ← LAYER: nextjs-api/ nestjs/ (back-office)
-├── frontend/                 ← LAYER: nextjs/ react/ tailwind-shadcn/ zustand/ angular/ orval/
+├── frontend/                 ← LAYER: nextjs/ react/ tailwind-shadcn/ zustand/ angular/ design-system/ orval/
 ├── infrastructure/           ← LAYER: docker/ docker-compose/ nginx/ pm2/
 └── security/                 ← LAYER: turnstile/
 ```
@@ -72,6 +72,7 @@ WRITE INFO: each element declared once, with its `element-id` as the binding key
 | `backend.nestjs.analytics` | backend | (planned) NestJS 12 — back-office analítico/reportería/acceso (ver `analytics-platform.md`) |
 | `frontend.angular.admin` | frontend | (planned) Angular 22 — consola de análisis y auth del personal |
 | `library.orval` | frontend | (planned) generador del `api-sdk` desde el OpenAPI del back-office |
+| `frontend.design-system` | frontend | (planned) design system de la consola (cifraflow `design` + `fab`), adaptado a INTT |
 | `persistence.prisma` | persistence | Prisma ORM 6 (schema of record, transactional client) |
 | `persistence.postgresql` | persistence | PostgreSQL 16/18 operational DB (`@db.Text` JSON) |
 | `persistence.redis` | persistence | Redis 7 cache + rate-limit store (declared in docker-compose) |
