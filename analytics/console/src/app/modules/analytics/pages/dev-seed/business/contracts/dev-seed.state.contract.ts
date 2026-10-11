@@ -11,5 +11,7 @@ export interface DevSeedStateContract {
   load(req: SeedRequest): Promise<void>;
   reset(): Promise<void>;
   summarize(): Promise<void>;
+  fixtures(perType: number): Promise<void>;
+  loadFixtures(): Promise<void>;
   refresh(): Promise<void>;
 }
