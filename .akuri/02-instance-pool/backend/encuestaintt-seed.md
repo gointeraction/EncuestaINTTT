@@ -83,10 +83,10 @@ WRITE INFO: es una aplicación NestJS **standalone** (`NestFactory.createApplica
 
 ## boundaries (ver `00-manifest/environments.md`)
 
-- **Siembra (escribe)**: SOLO la base de datos de `development` (`intt_encuesta_dev`); tablas de
-  la captura que alimentan la reportería (p.ej. `public.survey*`, `public.*responses`,
-  `public.answers`) y, opcionalmente, ejecuta la sumarización para poblar los read models
-  `analytics.global_dashboard` / `analytics.survey_summary_report`.
+- **Siembra (escribe)**: SOLO la base de datos de `development` (`intt_encuesta_dev`); la tabla
+  REAL de Visión Cero `public.legacy_survey_responses` (`driverType` + `answers` JSON + sorteo),
+  y luego ejecuta la sumarización para poblar los read models
+  `analytics.report_global_dashboard` / `analytics.report_survey_summaries`.
 - **Borra (reset)**: SOLO las tablas sembradas, en orden de dependencias (`TRUNCATE`), en
   `development`.
 - **Lee**: esquema de captura para conocer la forma esperada y el `api-sdk` para los contratos.

@@ -1,0 +1,3 @@
+- URL: http://localhost:4301/login (haz recarga dura Ctrl/Cmd+Shift+R por el caché)                    
+     - Correo: admin@intt.gob.ve                                                                            
+     - Clave: StaffAdmin2026!     

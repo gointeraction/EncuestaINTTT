@@ -3,6 +3,10 @@
 Aplicación **NestJS standalone** (sin HTTP) que siembra datos simulados en la base de datos de
 **desarrollo** para probar el back-office (KPI, reportería, volumen). Borra y recarga a voluntad.
 
+> Emula la **forma REAL** de la encuesta Visión Cero: la tabla
+> **`public.legacy_survey_responses`** (`driverType` + `answers` JSON + sorteo). NO siembra el
+> esquema normalizado (`surveys/responses/answers`), que la encuesta real no usa.
+
 > SOLO `development`. Las guardas abortan si `APP_ENV != development`, `SEED_ALLOW != 1` o la
 > base conectada no está en la allowlist `*dev*`. Ver `.akuri/00-manifest/environments.md`.
 

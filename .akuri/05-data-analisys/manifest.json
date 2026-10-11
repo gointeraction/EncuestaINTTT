@@ -1,0 +1,13 @@
+{
+  "a3_repo_rel": "../..",
+  "question_source": "src/lib/survey-data.ts",
+  "required_filter_ids": ["edad", "sexo", "ubicacion", "nivel_educativo"],
+  "required_driver_types": [
+    "motociclista_activo",
+    "delivery",
+    "mototaxista",
+    "ex_motociclista",
+    "familiar",
+    "otro_conductor"
+  ]
+}

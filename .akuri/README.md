@@ -57,6 +57,7 @@ WRITE INFO: las carpetas del corpus son:
 | `02-instance-pool/` | instancias declaradas | `oma_instances` |
 | `03-real-value/` | capacidades reales del backend Next.js | documentación técnica |
 | `04-testing/` | protocolos de carga/resiliencia con gates deterministas | `oma_check` |
+| `05-data-analisys/` | presentación estadística de resultados (clases de pregunta, filtros, camino de análisis y catálogo visual) con gate determinista | `oma_check` / pack de documentación |
 | `rules/` | reglas del proyecto (RULE + gate) + reglas locales del pack de documentación | `oma_context` / `oma_select` |
 | `rulesets/` | rulesets del proyecto | `oma_context` / `oma_select` |
 | `constructors/` | constructores project-local (L4): orquestadores + how-tos de analítica/reportería/acceso | `oma_check` / construcción |

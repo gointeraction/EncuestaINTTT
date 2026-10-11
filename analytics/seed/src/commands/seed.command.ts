@@ -3,7 +3,7 @@ import { mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { PgService } from '../core/pg.service.js';
-import { RESET_TABLES, SEED_USER_COLUMNS, seedUserRow, tables } from '../core/dataset.js';
+import { RESET_TABLES, tables } from '../core/dataset.js';
 import { assertDevDatabase } from '../core/guards.js';
 import { PROFILES, withOverride, type Profile, type ProfileName } from '../profiles.js';
 
@@ -16,7 +16,7 @@ export interface SeedOptions {
   seed?: number;
 }
 
-/** seed — TRUNCATE acotado + carga masiva (COPY) del dataset simulado (+ CSV a disco). */
+/** seed — TRUNCATE acotado + carga masiva (COPY) del dataset Visión Cero (+ CSV a disco). */
 @Injectable()
 export class SeedCommand {
   private readonly log = new Logger('seed');
@@ -29,7 +29,9 @@ export class SeedCommand {
   async run(opts: SeedOptions = {}): Promise<void> {
     await assertDevDatabase(this.pg, this.config);
 
-    const base: Profile = opts.profile ? PROFILES[opts.profile as ProfileName] ?? this.config.profile : this.config.profile;
+    const base: Profile = opts.profile
+      ? PROFILES[opts.profile as ProfileName] ?? this.config.profile
+      : this.config.profile;
     const profile = withOverride(base, {
       surveys: opts.surveys,
       questionsPerSurvey: opts.questionsPerSurvey,
@@ -39,7 +41,7 @@ export class SeedCommand {
     const rngSeed = opts.seed ?? this.config.rngSeed;
 
     this.log.warn(
-      `seed en "${this.config.databaseName}" · encuestas=${profile.surveys} respuestas=${profile.responses} semilla=${rngSeed}`,
+      `seed Visión Cero en "${this.config.databaseName}" · respuestas=${profile.responses} semilla=${rngSeed}`,
     );
 
     const dataDir = process.env.SEED_DATA_DIR ?? join(process.cwd(), 'data');
@@ -47,13 +49,6 @@ export class SeedCommand {
 
     const t0 = Date.now();
     await this.pg.truncate(RESET_TABLES);
-
-    const cols = SEED_USER_COLUMNS;
-    const placeholders = cols.map((_, i) => `$${i + 1}`).join(', ');
-    await this.pg.run(
-      `INSERT INTO public.users (${cols.join(', ')}) VALUES (${placeholders}) ON CONFLICT (id) DO NOTHING`,
-      seedUserRow(rngSeed),
-    );
 
     for (const table of tables(rngSeed, profile)) {
       const csv = join(dataDir, `${table.name.split('.').pop()}.csv`);
