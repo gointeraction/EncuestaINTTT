@@ -1,0 +1,12 @@
+# Page: acceso-datos-encuesta — layout 'console'.
+PAGE acceso-datos-encuesta
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION fuentes
+      COMPONENT selector | use=select | bind=data.fuente
+      COMPONENT listado | use=table | bind=data.encuestas
+      STATE | name=cargando|vacio|error
+    END
+  END
+END

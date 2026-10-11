@@ -1,0 +1,14 @@
+# Page: exportacion-datos — layout 'console'.
+PAGE exportacion-datos
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION acciones
+      COMPONENT filtros | use=filter-bar | bind=data.filters
+      COMPONENT descargar | use=button-primary | bind=data.actions.exportar
+      COMPONENT confirmacion | use=modal | bind=data.confirmacion
+      COMPONENT avisoPii | use=alert | bind=data.aviso
+      STATE | name=listo|preparando|error
+    END
+  END
+END

@@ -1,0 +1,16 @@
+# Page: panel-encuesta — layout 'console'.
+PAGE panel-encuesta
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION indicadores
+      COMPONENT kpis | use=kpi-grid | bind=data.kpis
+    END
+    SECTION desglose
+      COMPONENT barras | use=chart | bind=data.porPregunta
+      COMPONENT tabla | use=table | bind=data.tabla
+      COMPONENT comentarios | use=recent-list | bind=data.comentarios
+      STATE | name=cargando|vacio|error
+    END
+  END
+END

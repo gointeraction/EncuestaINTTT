@@ -1,0 +1,15 @@
+# Page: panel-global — layout 'console'.
+PAGE panel-global
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION indicadores
+      COMPONENT kpis | use=kpi-grid | bind=data.kpis
+    END
+    SECTION distribuciones
+      COMPONENT porTipo | use=chart | bind=data.porTipoConductor
+      COMPONENT porEstado | use=table | bind=data.porEstado
+      STATE | name=cargando|vacio|error
+    END
+  END
+END

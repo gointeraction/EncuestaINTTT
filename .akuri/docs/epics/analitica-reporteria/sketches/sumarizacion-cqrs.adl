@@ -1,0 +1,13 @@
+# Page: sumarizacion-cqrs — layout 'console'.
+PAGE sumarizacion-cqrs
+  USES | layout=console
+  THEME | ds=intt | mode=light
+  AREA body
+    SECTION estado
+      CONTENT frescura | bind=text.frescura | tag=p
+      COMPONENT recalc | use=button-primary | bind=data.actions.recalcular
+      COMPONENT aviso | use=alert | bind=data.aviso
+      STATE | name=vigente|recalculando|desactualizado|error
+    END
+  END
+END
