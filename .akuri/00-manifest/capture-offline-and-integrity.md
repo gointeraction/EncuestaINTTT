@@ -144,11 +144,18 @@ la sigue leyendo.
 ### SECTION 08-FASES
 
 WRITE INFO:
-- **F1 (online robusto + anti-duplicados)**: `clientSubmissionId` + ingesta idempotente;
-  validación server-side de `answers`/`driverType`; índice único de cédula del sorteo;
-  persistencia de progreso + **outbox** (resuelve también la durabilidad del audit).
+- **F1 (online robusto + anti-duplicados) — HECHO (2026-10-11, A3)**: `clientSubmissionId` +
+  ingesta **idempotente**; validación **server-side** de `answers`/`driverType`; índice único de
+  cédula del sorteo; canal + `capturedAt` en el envelope. Implementación:
+  - Validación: `vision-cero/src/lib/validation/vision-cero.ts` (driverType ∈ catálogo;
+    `answers` contra `appliesTo`/`showIf` + requeridos + tipos/opciones → 422; tope 256 KB) invocada
+    en `vision-cero/src/app/api/survey/submit/route.ts`.
+  - Idempotencia: columna única `legacy_survey_responses.client_submission_id`; el cliente envía el
+    id (`vision-cero/src/components/survey/sorteo-form.tsx`); un reintento devuelve el MISMO resultado.
+  - Sorteo: índice único parcial `vision-cero/deploy/sql/02-capture-unique-cedula.sql` → 409.
+  - Pendiente de F1: **persistencia de progreso + outbox** (se materializa en F2).
 - **F2 (offline real, PWA)**: service worker + IndexedDB + flush al reconectar; **PoW** offline +
-  Turnstile online; `surveyVersion`.
+  Turnstile online; `surveyVersion`; persistencia de borrador + **outbox**.
 - **F3 (canales confiables + anti-fraude)**: registro/firma de dispositivos kiosco/encuestador,
   cuotas y **panel de anomalías**.
 
