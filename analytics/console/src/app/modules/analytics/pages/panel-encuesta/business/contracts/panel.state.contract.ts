@@ -24,6 +24,7 @@ export interface PanelStateContract {
   readonly selected: Signal<QuestionAnalytics | null>;
   readonly filters: Signal<FilterSet>;
   readonly filterQuestions: Signal<FilterQuestion[]>;
+  readonly sampleTotal: Signal<number>;
   readonly filtering: Signal<boolean>;
   loadSources(initialQuestionId?: string): Promise<void>;
   selectSurvey(id: string): Promise<void>;

@@ -242,18 +242,19 @@ export class PanelEncuestaPage {
   });
 
   readonly kpis = computed<DsKpiItem[]>(() => {
-    const t = this.state.dashboard()?.totals;
-    if (!t) return [];
-    // Solo se aceptan cuestionarios COMPLETOS y VÁLIDOS → no hay finalización/abandono/en curso.
+    const muestra = this.state.sampleTotal();
+    if (!muestra) return [];
+    // MUESTRA = total de la encuesta (sin filtrar). BASE = cuestionarios que aplican al
+    // filtro + responden la pregunta enfocada.
     const items: DsKpiItem[] = [
-      { label: 'Cuestionarios (muestra)', value: t.total, icon: 'file-text', tone: 'neutral' },
+      { label: 'Cuestionarios (muestra)', value: muestra, icon: 'file-text', tone: 'neutral' },
     ];
     const q = this.state.selected();
     if (q) {
       const base = questionBase(q);
-      items.push({ label: 'Base (pregunta)', value: base, icon: 'check-circle', tone: 'info' });
-      if (base < t.total) {
-        items.push({ label: 'No aplica / sin dato', value: t.total - base, icon: 'alert-circle', tone: 'neutral' });
+      items.push({ label: 'Base (filtro · pregunta)', value: base, icon: 'check-circle', tone: 'info' });
+      if (base < muestra) {
+        items.push({ label: 'No aplica / sin dato', value: muestra - base, icon: 'alert-circle', tone: 'neutral' });
       }
     }
     return items;

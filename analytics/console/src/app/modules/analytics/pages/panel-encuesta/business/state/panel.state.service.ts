@@ -29,6 +29,8 @@ export class PanelStateService implements PanelStateContract {
   readonly filters = this.filterState.filters;
   /** Catálogo SIN filtrar (todas las opciones) para el constructor de filtros. */
   private readonly catalog = signal<QuestionAnalytics[]>([]);
+  /** Total de la MUESTRA (sin filtrar) para el KPI «Cuestionarios (muestra)». */
+  readonly sampleTotal = signal(0);
   readonly filtering = signal(false);
 
   /** Preguntas filtrables: id/etiqueta/posición + sus opciones (por etiqueta visible). */
@@ -116,6 +118,7 @@ export class PanelStateService implements PanelStateContract {
       ]);
       this.dashboard.set(dashboard);
       this.catalog.set(dashboard?.questions ?? []);
+      this.sampleTotal.set(dashboard?.totals?.total ?? 0);
       this.dimensions.set(dimensions);
     } finally {
       this.loading.set(false);
