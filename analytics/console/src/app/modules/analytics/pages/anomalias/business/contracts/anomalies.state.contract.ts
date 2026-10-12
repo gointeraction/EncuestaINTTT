@@ -7,5 +7,6 @@ export const ANOMALIES_STATE = new InjectionToken<AnomaliesStateContract>('ANOMA
 export interface AnomaliesStateContract {
   readonly loading: Signal<boolean>;
   readonly payload: Signal<AnomaliesPayload | null>;
-  load(): Promise<void>;
+  readonly day: Signal<string>;
+  load(day?: string): Promise<void>;
 }

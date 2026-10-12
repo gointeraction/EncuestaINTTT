@@ -11,11 +11,15 @@ export class AnomaliesStateService implements AnomaliesStateContract {
 
   readonly loading = signal(false);
   readonly payload = signal<AnomaliesPayload | null>(null);
+  readonly day = signal('');
 
-  async load(): Promise<void> {
+  /** Si se indica `day`, la serie por hora se limita a ese día. */
+  async load(day?: string): Promise<void> {
+    const selected = day ?? this.day();
+    this.day.set(selected);
     this.loading.set(true);
     try {
-      this.payload.set(await this.data.anomalies(this.active.activeId()));
+      this.payload.set(await this.data.anomalies(this.active.activeId(), selected));
     } finally {
       this.loading.set(false);
     }

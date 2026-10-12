@@ -34,6 +34,9 @@ import type {
   AdminUsersControllerPatchRequestBody,
   AdminUsersControllerPatchUserBody,
   AdminUsersControllerUsersParams,
+  ExportControllerExportLongParams,
+  ExportControllerExportRawParams,
+  ExportControllerExportSurveyParams,
   IdentityControllerLogin200,
   IdentityControllerLoginBody,
   IdentityControllerMe200,
@@ -383,33 +386,51 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
- exportControllerExportSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- exportControllerExportSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- exportControllerExportSurvey<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+ exportControllerExportSurvey<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportSurveyParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ exportControllerExportSurvey<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportSurveyParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ exportControllerExportSurvey<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportSurveyParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
   exportControllerExportSurvey<TData = void>(
-    id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    id: string,
+    params: DeepNonNullable<ExportControllerExportSurveyParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
-      `/analytics/surveys/${id}/export`,options
+      `/analytics/surveys/${id}/export`,{
+    ...options,
+        params: {...params, ...options?.params},}
     );
   }
 
- exportControllerExportLong<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- exportControllerExportLong<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- exportControllerExportLong<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+ exportControllerExportLong<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportLongParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ exportControllerExportLong<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportLongParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ exportControllerExportLong<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportLongParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
   exportControllerExportLong<TData = void>(
-    id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    id: string,
+    params: DeepNonNullable<ExportControllerExportLongParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
-      `/analytics/surveys/${id}/export-long`,options
+      `/analytics/surveys/${id}/export-long`,{
+    ...options,
+        params: {...params, ...options?.params},}
     );
   }
 
- exportControllerExportRaw<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- exportControllerExportRaw<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- exportControllerExportRaw<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+ exportControllerExportRaw<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportRawParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ exportControllerExportRaw<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportRawParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ exportControllerExportRaw<TData = void>(id: string,
+    params: DeepNonNullable<ExportControllerExportRawParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
   exportControllerExportRaw<TData = void>(
-    id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    id: string,
+    params: DeepNonNullable<ExportControllerExportRawParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
-      `/analytics/surveys/${id}/export-raw`,options
+      `/analytics/surveys/${id}/export-raw`,{
+    ...options,
+        params: {...params, ...options?.params},}
     );
   }
 

@@ -115,8 +115,8 @@ export class ReportingService {
   }
 
   /** Panel de anomalías (anti-fraude). */
-  anomalies(surveyId: string): Promise<unknown> {
-    return this.readModel.anomalies(surveyId);
+  anomalies(surveyId: string, day?: string): Promise<unknown> {
+    return this.readModel.anomalies(surveyId, day);
   }
 
   /** Tabla cruzada entre dos preguntas del cuestionario (read-only sobre la captura real). */

@@ -147,9 +147,9 @@ export class ReportingController {
   }
 
   @Get('anomalies')
-  async anomalies(@Query('survey') survey: string, @Req() req: RequestWithUser) {
+  async anomalies(@Query('survey') survey: string, @Query('day') day: string, @Req() req: RequestWithUser) {
     await this.accessAudit.registrarLectura('analytics/anomalies', req.staffUser?.id);
-    return this.reporting.anomalies(survey ?? '');
+    return this.reporting.anomalies(survey ?? '', day ?? undefined);
   }
 
   @Get('surveys/:id/cross-tab')

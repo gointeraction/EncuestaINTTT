@@ -151,7 +151,7 @@ export class ReadModelService {
   }
 
   /** Panel de anomalías (anti-fraude): por dispositivo, respuestas duplicadas y picos por hora. */
-  async anomalies(surveyId: string): Promise<unknown> {
+  async anomalies(surveyId: string, day?: string): Promise<unknown> {
     const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
     const src = q.source;
     const deviceField = src.deviceField ?? 'device_id';
@@ -173,11 +173,26 @@ export class ReadModelService {
          FROM ${src.table} GROUP BY 1 HAVING COUNT(*) > 1
        ) t`,
     );
-    const hourly = await this.prisma.$queryRawUnsafe<Array<{ hour: string; count: number }>>(
-      `SELECT to_char(date_trunc('hour', ${timeExpr}), 'YYYY-MM-DD HH24:00') AS hour, COUNT(*)::int AS count
-       FROM ${src.table} WHERE ${timeExpr} >= now() - interval '48 hours'
+    // Por DÍA (últimos 90) — para el gráfico diario y el selector de día.
+    const daily = await this.prisma.$queryRawUnsafe<Array<{ day: string; count: number }>>(
+      `SELECT to_char(date_trunc('day', ${timeExpr}), 'YYYY-MM-DD') AS day, COUNT(*)::int AS count
+       FROM ${src.table} WHERE ${timeExpr} >= now() - interval '90 days'
        GROUP BY 1 ORDER BY 1`,
     );
-    return { byDevice, duplicateAnswers: { groups: dup?.groups ?? 0, max: dup?.max ?? 0 }, hourly };
+    // Por HORA: si se indica un día, solo ese día; si no, las últimas 48 h.
+    const validDay = typeof day === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(day) ? day : '';
+    const hourly = validDay
+      ? await this.prisma.$queryRawUnsafe<Array<{ hour: string; count: number }>>(
+          `SELECT to_char(date_trunc('hour', ${timeExpr}), 'YYYY-MM-DD HH24:00') AS hour, COUNT(*)::int AS count
+           FROM ${src.table} WHERE ${timeExpr}::date = $1::date
+           GROUP BY 1 ORDER BY 1`,
+          validDay,
+        )
+      : await this.prisma.$queryRawUnsafe<Array<{ hour: string; count: number }>>(
+          `SELECT to_char(date_trunc('hour', ${timeExpr}), 'YYYY-MM-DD HH24:00') AS hour, COUNT(*)::int AS count
+           FROM ${src.table} WHERE ${timeExpr} >= now() - interval '48 hours'
+           GROUP BY 1 ORDER BY 1`,
+        );
+    return { byDevice, duplicateAnswers: { groups: dup?.groups ?? 0, max: dup?.max ?? 0 }, daily, hourly, day: validDay };
   }
 }

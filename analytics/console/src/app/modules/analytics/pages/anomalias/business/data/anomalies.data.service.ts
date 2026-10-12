@@ -8,8 +8,8 @@ import type { AnomaliesPayload } from '../models/anomalies.model';
 export class AnomaliesDataService {
   private readonly api = inject(EncuestaINTTTBackOfficeAnalíticoService);
 
-  async anomalies(surveyId: string): Promise<AnomaliesPayload | null> {
-    const res = await firstValueFrom(this.api.reportingControllerAnomalies({ survey: surveyId }));
+  async anomalies(surveyId: string, day = ''): Promise<AnomaliesPayload | null> {
+    const res = await firstValueFrom(this.api.reportingControllerAnomalies({ survey: surveyId, day }));
     return (res as unknown as AnomaliesPayload) ?? null;
   }
 }

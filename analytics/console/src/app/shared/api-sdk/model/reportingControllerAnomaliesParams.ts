@@ -8,4 +8,5 @@
 
 export type ReportingControllerAnomaliesParams = {
 survey: string;
+day: string;
 };

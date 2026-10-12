@@ -81,12 +81,33 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
           </div>
 
           @if (a.hourly.length > 1) {
+            @if (a.daily.length > 1) {
+              <ds-container kind="section" name="daily" style="margin-top: var(--ds-space-6)">
+                <div class="an__scroll">
+                  <div class="an__chart" [style.min-width.px]="a.daily.length * 48">
+                    <ds-chart-card
+                      title="Picos por día"
+                      subtitle="Cuestionarios por día (últimos 90)"
+                      [categories]="dailyChart().categories"
+                      [series]="dailyChart().series"
+                    />
+                  </div>
+                </div>
+              </ds-container>
+            }
+
             <ds-container kind="section" name="hourly" style="margin-top: var(--ds-space-6)">
+              <label class="an__day">Día
+                <select class="ds-select" [value]="state.day()" (change)="state.load($any($event.target).value)">
+                  <option value="">Últimas 48 h</option>
+                  @for (d of days(); track d.day) { <option [value]="d.day">{{ d.day }}</option> }
+                </select>
+              </label>
               <div class="an__scroll">
                 <div class="an__chart" [style.min-width.px]="a.hourly.length * 48">
                   <ds-chart-card
                     title="Picos por hora"
-                    subtitle="Cuestionarios por hora (últimas 48 h)"
+                    [subtitle]="state.day() ? 'Cuestionarios por hora · ' + state.day() : 'Cuestionarios por hora (últimas 48 h)'"
                     [categories]="hourlyChart().categories"
                     [series]="hourlyChart().series"
                   />
@@ -104,6 +125,7 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       margin-top: var(--ds-space-6);
     }
+    .an__day { display: inline-flex; align-items: center; gap: var(--ds-space-2); margin-bottom: var(--ds-space-3); font-size: var(--ds-text-small); color: var(--ds-text-muted); }
     .an__scroll { overflow-x: auto; padding-bottom: var(--ds-space-2); }
     .an__chart { display: block; }
     .an__title { margin: 0 0 var(--ds-space-3); font-size: var(--ds-text-heading-4); color: var(--ds-surface-page-on); }
@@ -132,6 +154,14 @@ export class AnomaliasPage {
     ];
   });
 
+  readonly dailyChart = computed<{ categories: string[]; series: DsChartSeries[] }>(() => {
+    const points = this.state.payload()?.daily ?? [];
+    return {
+      categories: points.map((p) => p.day),
+      series: [{ name: 'Cuestionarios', data: points.map((p) => p.count) }],
+    };
+  });
+
   readonly hourlyChart = computed<{ categories: string[]; series: DsChartSeries[] }>(() => {
     const points = this.state.payload()?.hourly ?? [];
     return {
@@ -139,6 +169,8 @@ export class AnomaliasPage {
       series: [{ name: 'Cuestionarios', data: points.map((p) => p.count) }],
     };
   });
+
+  readonly days = computed(() => this.state.payload()?.daily ?? []);
 
   constructor() {
     inject(ThemeService).pageMetadata.set({
