@@ -25,9 +25,9 @@ export class ConsoleNavSection {
     { label: 'Preguntas', route: '/analitica/preguntas' },
     { label: 'Panel', route: '/analitica/panel' },
     { label: 'Cruzados', route: '/analitica/reportes-cruzados' },
-    { label: 'Anomalías', route: '/analitica/anomalias' },
     { label: 'Participantes', route: '/analitica/participantes' },
     { label: 'Encuestas', route: '/analitica/encuestas' },
+    { label: 'Anomalías', route: '/analitica/anomalias' },
     { label: 'Exportar', route: '/analitica/exportar' },
   ];
 }
