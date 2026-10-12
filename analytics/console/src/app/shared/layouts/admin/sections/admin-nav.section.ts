@@ -22,5 +22,6 @@ export class AdminNavSection {
   protected readonly items: DsNavItem[] = [
     { label: 'Inicio', route: '/bienvenida' },
     { label: 'Usuarios y solicitudes', route: '/admin' },
+    { label: 'Dispositivos', route: '/admin/devices' },
   ];
 }

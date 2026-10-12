@@ -7,4 +7,8 @@ export const ADMIN_ROUTES: Routes = [
     path: '',
     loadComponent: () => import('./pages/usuarios/usuarios.page').then((m) => m.UsuariosPage),
   },
+  {
+    path: 'devices',
+    loadComponent: () => import('./pages/devices/devices.page').then((m) => m.DevicesPage),
+  },
 ];

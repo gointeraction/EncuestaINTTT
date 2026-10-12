@@ -34,6 +34,8 @@ import type {
   AdminUsersControllerPatchRequestBody,
   AdminUsersControllerPatchUserBody,
   AdminUsersControllerUsersParams,
+  DevicesControllerCreateBody,
+  DevicesControllerUpdateBody,
   ExportControllerExportLongParams,
   ExportControllerExportRawParams,
   ExportControllerExportSurveyParams,
@@ -226,6 +228,52 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
      options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
       `/health`,options
+    );
+  }
+
+ devicesControllerList<TData = void>( options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ devicesControllerList<TData = void>( options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ devicesControllerList<TData = void>( options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  devicesControllerList<TData = void>(
+     options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/admin/devices`,options
+    );
+  }
+
+ devicesControllerCreate<TData = void>(devicesControllerCreateBody: DevicesControllerCreateBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ devicesControllerCreate<TData = void>(devicesControllerCreateBody: DevicesControllerCreateBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ devicesControllerCreate<TData = void>(devicesControllerCreateBody: DevicesControllerCreateBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  devicesControllerCreate<TData = void>(
+    devicesControllerCreateBody: DevicesControllerCreateBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/admin/devices`,
+      devicesControllerCreateBody,options
+    );
+  }
+
+ devicesControllerUpdate<TData = void>(id: string,
+    devicesControllerUpdateBody: DevicesControllerUpdateBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ devicesControllerUpdate<TData = void>(id: string,
+    devicesControllerUpdateBody: DevicesControllerUpdateBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ devicesControllerUpdate<TData = void>(id: string,
+    devicesControllerUpdateBody: DevicesControllerUpdateBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  devicesControllerUpdate<TData = void>(
+    id: string,
+    devicesControllerUpdateBody: DevicesControllerUpdateBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.patch<TData>(
+      `/admin/devices/${id}`,
+      devicesControllerUpdateBody,options
+    );
+  }
+
+ devicesControllerRegenerateSecret<TData = void>(id: string, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ devicesControllerRegenerateSecret<TData = void>(id: string, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ devicesControllerRegenerateSecret<TData = void>(id: string, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  devicesControllerRegenerateSecret<TData = void>(
+    id: string, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/admin/devices/${id}/secret`,undefined,options
     );
   }
 
@@ -459,6 +507,10 @@ export type AdminUsersControllerPatchUserClientResult = NonNullable<void>
 export type AdminUsersControllerPasswordRequestsClientResult = NonNullable<void>
 export type AdminUsersControllerPatchRequestClientResult = NonNullable<void>
 export type HealthControllerCheckClientResult = NonNullable<void>
+export type DevicesControllerListClientResult = NonNullable<void>
+export type DevicesControllerCreateClientResult = NonNullable<void>
+export type DevicesControllerUpdateClientResult = NonNullable<void>
+export type DevicesControllerRegenerateSecretClientResult = NonNullable<void>
 export type PublicReadControllerListSurveysClientResult = NonNullable<void>
 export type SummarizationControllerSummarizeClientResult = NonNullable<void>
 export type SummarizationControllerStatusClientResult = NonNullable<void>

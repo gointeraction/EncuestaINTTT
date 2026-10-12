@@ -26,3 +26,8 @@ ALTER DEFAULT PRIVILEGES IN SCHEMA analytics GRANT ALL ON SEQUENCES TO intt_anal
 GRANT USAGE ON SCHEMA public TO intt_analytics;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO intt_analytics;
 ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO intt_analytics;
+
+-- Excepción CONTROLADA: el back-office GESTIONA los dispositivos de captura
+-- (alta/edición/desactivación de kioscos y encuestadores). El resto de `public` sigue
+-- en solo-lectura para `intt_analytics`.
+GRANT INSERT, UPDATE ON public.capture_devices TO intt_analytics;
