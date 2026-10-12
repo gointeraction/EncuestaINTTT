@@ -12,6 +12,12 @@ export class WelcomeStateService implements WelcomeStateContract {
   private readonly active = inject(ActiveSurveyService);
 
   readonly surveyTitle = computed(() => this.active.active()?.title ?? 'Visión Cero');
+  readonly surveys = this.active.surveys;
+  readonly activeSurveyId = this.active.activeId;
+
+  setSurvey(id: string): void {
+    this.active.setActive(id);
+  }
 
   constructor() {
     void this.active.load();

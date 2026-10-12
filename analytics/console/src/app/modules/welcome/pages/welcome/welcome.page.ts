@@ -1,4 +1,5 @@
 import { Component, effect, inject } from '@angular/core';
+import { NgOptimizedImage } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { DsContainerComponent, DsIconComponent, ThemeService } from '@cifraflow/design';
 import { WELCOME_STATE, type WelcomeStateContract } from './business/contracts/welcome.state.contract';
@@ -15,77 +16,94 @@ import { WelcomeStateService } from './business/state/welcome.state.service';
 @Component({
   selector: 'app-welcome-page',
   standalone: true,
-  imports: [RouterLink, DsContainerComponent, DsIconComponent],
+  imports: [NgOptimizedImage, RouterLink, DsContainerComponent, DsIconComponent],
   providers: [WelcomeStateService, { provide: WELCOME_STATE, useExisting: WelcomeStateService }],
   template: `
     <ds-container kind="page" name="welcome">
-      <ds-container kind="area" name="body" class="hub">
-        <div class="hub__head">
-          <p class="hub__eyebrow">Encuesta actual</p>
-          <h1 class="hub__title">{{ state.surveyTitle() }}</h1>
-          <p class="hub__subtitle">
-            Elige un área. Solo verás las que tu cuenta y el entorno permiten.
+      <ds-container kind="area" name="body" class="auth-bg">
+        <ds-container kind="block" name="welcome-card" class="auth-card">
+          <div class="auth-icon">
+            <img
+              ngSrc="assets/intt-logo-login.png"
+              width="180"
+              height="56"
+              alt="INTT — Instituto Nacional de Transporte Terrestre"
+              priority
+            />
+          </div>
+          <h2 class="auth-title">Bienvenido</h2>
+          <p class="auth-subtitle">
+            Selecciona la encuesta y el área con la que quieres trabajar.
           </p>
-        </div>
-        <div class="hub__grid">
-          @for (d of state.destinations(); track d.id) {
-            <a class="hub__card" [routerLink]="d.route">
-              <ds-icon [name]="d.icon" class="hub__icon" />
-              <h2 class="hub__card-title">{{ d.label }}</h2>
-              <p class="hub__card-text">{{ d.description }}</p>
-            </a>
-          }
-        </div>
+
+          <div class="wlb__survey">
+            <label for="welcome-survey">Encuesta / cuestionario</label>
+            @if (state.surveys().length) {
+              <select
+                id="welcome-survey"
+                [value]="state.activeSurveyId()"
+                (change)="state.setSurvey($any($event.target).value)"
+              >
+                @for (s of state.surveys(); track s.id) {
+                  <option [value]="s.id">{{ s.title }}</option>
+                }
+              </select>
+            } @else {
+              <p class="wlb__onlyone">{{ state.surveyTitle() }}</p>
+            }
+          </div>
+
+          <div class="wlb__dests">
+            @for (d of state.destinations(); track d.id) {
+              <a class="wlb__dest" [routerLink]="d.route">
+                <ds-icon [name]="d.icon" class="wlb__dest-icon" />
+                <span class="wlb__dest-body">
+                  <b>{{ d.label }}</b>
+                  <small>{{ d.description }}</small>
+                </span>
+              </a>
+            }
+          </div>
+
+          <p class="auth-footer">© 2026 TODOS LOS DERECHOS RESERVADOS</p>
+        </ds-container>
       </ds-container>
     </ds-container>
   `,
   styles: `
     :host { display: block; height: 100%; }
-    .hub {
-      min-height: 100%;
+    .wlb__survey { display: flex; flex-direction: column; gap: var(--ds-space-1); text-align: left; margin-bottom: var(--ds-space-4); }
+    .wlb__survey label { font-size: 13px; font-weight: 600; color: var(--ds-color-login-label); }
+    .wlb__survey select {
+      height: 46px;
+      padding: 0 var(--ds-space-4);
+      border: 1px solid var(--ds-color-login-field-border);
+      border-radius: 999px;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--ds-color-login-field-text);
+      background: var(--ds-color-login-card-bg);
+      outline: none;
+    }
+    .wlb__survey select:focus { border-color: var(--ds-color-login-link); }
+    .wlb__onlyone { margin: 0; height: 46px; display: flex; align-items: center; padding: 0 var(--ds-space-4); border: 1px solid var(--ds-color-login-field-border); border-radius: 999px; font-size: 13px; color: var(--ds-color-login-field-text); }
+    .wlb__dests { display: flex; flex-direction: column; gap: var(--ds-space-2); }
+    .wlb__dest {
       display: flex;
-      flex-direction: column;
       align-items: center;
-      justify-content: center;
-      gap: var(--ds-space-8);
-      padding: var(--ds-space-8) var(--ds-space-4);
-      box-sizing: border-box;
-    }
-    .hub__head { text-align: center; max-width: 40rem; }
-    .hub__eyebrow {
-      margin: 0 0 var(--ds-space-1);
-      font-size: var(--ds-text-caption);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      color: var(--ds-color-brand-secondary);
-    }
-    .hub__title { margin: 0 0 var(--ds-space-2); font-size: var(--ds-text-heading-2); color: var(--ds-surface-page-on); }
-    .hub__subtitle { margin: 0; font-size: var(--ds-text-body); color: var(--ds-text-muted); }
-    .hub__grid {
-      display: grid;
-      gap: var(--ds-space-5);
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      width: 100%;
-      max-width: var(--ds-container-lg);
-    }
-    .hub__card {
-      display: flex;
-      flex-direction: column;
-      gap: var(--ds-space-2);
-      padding: var(--ds-space-5);
-      background: var(--ds-surface-card);
-      color: var(--ds-surface-card-on);
-      border: 1px solid var(--ds-border-subtle);
-      border-radius: var(--ds-radius-lg);
-      box-shadow: var(--ds-shadow-sm);
+      gap: var(--ds-space-3);
+      padding: var(--ds-space-3) var(--ds-space-4);
+      border: 1px solid var(--ds-color-login-field-border);
+      border-radius: 14px;
       text-decoration: none;
-      transition: box-shadow 0.15s, transform 0.15s;
+      color: var(--ds-color-login-title);
+      transition: border-color 0.15s, background 0.15s;
     }
-    .hub__card:hover { box-shadow: var(--ds-shadow-md); transform: translateY(-2px); }
-    .hub__icon { color: var(--ds-color-brand-primary); }
-    .hub__card-title { margin: 0; font-size: var(--ds-text-heading-4); }
-    .hub__card-text { margin: 0; font-size: var(--ds-text-small); color: var(--ds-text-muted); }
+    .wlb__dest:hover { border-color: var(--ds-color-login-link); background: var(--ds-color-login-icon-bg); }
+    .wlb__dest-icon { color: var(--ds-color-login-action); flex-shrink: 0; }
+    .wlb__dest-body { display: flex; flex-direction: column; text-align: left; }
+    .wlb__dest-body b { font-size: var(--ds-text-body); }
+    .wlb__dest-body small { font-size: 12px; color: var(--ds-color-login-muted); }
   `,
 })
 export class WelcomePage {
