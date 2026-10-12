@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import {
-  DsButtonComponent,
   DsContainerComponent,
   DsEmptyStateComponent,
   DsHeaderComponent,
@@ -26,8 +25,7 @@ import { FilterBuilderComponent } from '../../../../shared/components/filter-bui
     DsContainerComponent,
     DsHeaderComponent,
     DsPageTitleComponent,
-    DsButtonComponent,
-    FilterBuilderComponent,
+      FilterBuilderComponent,
     DsEmptyStateComponent,
   ],
   providers: [ReportesStateService, { provide: REPORTES_STATE, useExisting: ReportesStateService }],
@@ -63,21 +61,6 @@ import { FilterBuilderComponent } from '../../../../shared/components/filter-bui
             />
           </div>
 
-          @if (state.questions().length) {
-            <div class="rep__row">
-              <label class="rep__field">Pregunta A
-                <select class="ds-select" [value]="state.q1()" (change)="state.setQ1(value($event))">
-                  @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.position ? q.position + '. ' : '' }}{{ q.label }}</option> }
-                </select>
-              </label>
-              <label class="rep__field">Pregunta B
-                <select class="ds-select" [value]="state.q2()" (change)="state.setQ2(value($event))">
-                  @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.position ? q.position + '. ' : '' }}{{ q.label }}</option> }
-                </select>
-              </label>
-              <ds-button [loading]="state.loading()" (click)="state.run()">Cruzar</ds-button>
-            </div>
-          }
 
           @if (state.error(); as e) { <p role="alert" class="rep__error">{{ e }}</p> }
 

@@ -26,7 +26,14 @@ export class ReportesStateService implements ReportesStateContract {
     })),
   );
 
-  setFilters(filters: FilterSet): void { this.filterState.set(filters); }
+  setFilters(filters: FilterSet): void {
+    this.filterState.set(filters);
+    // La TABLA se construye con las preguntas de los filtros (las 2 primeras = dimensiones).
+    const qs = filters.conditions.map((c) => c.questionId).filter((id) => !!id);
+    if (qs[0]) this.q1.set(qs[0]);
+    if (qs[1]) this.q2.set(qs[1]);
+    void this.run();
+  }
 
   async loadSources(): Promise<void> {
     try {
