@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, input } from '@angular/core';
+import { NumPipe } from '../../../system/pipes/num.pipe';
 
 export type DsChartType = 'grouped' | 'donut' | 'bar' | 'hbars';
 
@@ -31,6 +32,7 @@ export interface BarChartData {
 @Component({
   selector: 'ds-chart',
   standalone: true,
+  imports: [NumPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     @if (type() === 'donut') {
@@ -63,7 +65,7 @@ export interface BarChartData {
               />
             }
             <circle [attr.cx]="center()" [attr.cy]="center()" [attr.r]="centerRadius()" [attr.fill]="centerFill()"/>
-            <text [attr.x]="center()" [attr.y]="textY()" text-anchor="middle" [attr.font-size]="fontSize()" font-weight="700" [attr.fill]="centerTextColor()" font-family="var(--ds-font-sans)">{{ total() }}</text>
+            <text [attr.x]="center()" [attr.y]="textY()" text-anchor="middle" [attr.font-size]="fontSize()" font-weight="700" [attr.fill]="centerTextColor()" font-family="var(--ds-font-sans)">{{ total() | num }}</text>
             <text [attr.x]="center()" [attr.y]="labelY()" text-anchor="middle" font-size="10" font-weight="600" style="fill: var(--ds-text-muted)" font-family="var(--ds-font-sans)">{{ totalLabel() }}</text>
           </svg>
           <div class="ds-chart__legend-list">
@@ -73,7 +75,7 @@ export interface BarChartData {
                   <span class="ds-chart__swatch" [style.background]="seg.color"></span>
                   <span class="ds-chart__legend-name ds-chart__legend-name--truncate">{{ seg.label }}</span>
                 </div>
-                <span class="ds-chart__legend-value">{{ seg.percent }}% ({{ seg.value }})</span>
+                <span class="ds-chart__legend-value">{{ seg.percent }}% ({{ seg.value | num }})</span>
               </div>
             }
           </div>
@@ -103,7 +105,7 @@ export interface BarChartData {
           <svg viewBox="0 0 400 180" class="w-full h-full" preserveAspectRatio="none">
             @for (y of yLabels; track y.value) {
               <line [attr.x1]="chartLeft" [attr.y1]="y.y" [attr.x2]="chartRight" [attr.y2]="y.y" stroke="var(--ds-border-subtle)" stroke-dasharray="4"/>
-              <text [attr.x]="chartLeft - 8" [attr.y]="y.y + 4" font-size="9" fill="var(--ds-text-muted)" text-anchor="end">{{ y.value }}</text>
+              <text [attr.x]="chartLeft - 8" [attr.y]="y.y + 4" font-size="9" fill="var(--ds-text-muted)" text-anchor="end">{{ y.value | num }}</text>
             }
             @for (d of data(); track d.month; let i = $index) {
               <rect [attr.x]="barX(i)" [attr.y]="barY(d.completed)" [attr.width]="barWidth()" [attr.height]="barPxHeight(d.completed)" rx="4" [attr.fill]="d.isCurrent ? currentMonthColor() : completedColor()"/>
@@ -124,7 +126,7 @@ export interface BarChartData {
                     [style.width]="barHeight(series()[0]?.data[ci] ?? 0) + '%'"
                     [style.background]="swatch(0)"></span>
             </span>
-            <span class="ds-hb__value">{{ series()[0]?.data[ci] ?? 0 }}</span>
+            <span class="ds-hb__value">{{ series()[0]?.data[ci] | num }}</span>
           </div>
         }
       </div>
@@ -145,10 +147,10 @@ export interface BarChartData {
                     class="ds-chart__bar"
                     [style.height]="barHeight(s.data[ci] ?? 0) + '%'"
                     [style.background]="swatch(si)"
-                    title="{{ s.name }}: {{ s.data[ci] ?? 0 }}"
+                    title="{{ s.name }}: {{ s.data[ci] | num }}"
                   >
                     @if (s.data[ci] != null) {
-                      <span class="ds-chart__bar-value">{{ s.data[ci] }}</span>
+                      <span class="ds-chart__bar-value">{{ s.data[ci] | num }}</span>
                     }
                   </div>
                 </div>

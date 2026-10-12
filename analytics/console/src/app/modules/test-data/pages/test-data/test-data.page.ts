@@ -5,6 +5,7 @@ import {
   DsHeaderComponent,
   DsPageTitleComponent,
   ThemeService,
+  NumPipe,
 } from '@cifraflow/design';
 import { TEST_DATA_STATE, type TestDataStateContract } from './business/contracts/test-data.state.contract';
 import { TestDataStateService } from './business/state/test-data.state.service';
@@ -22,7 +23,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
 @Component({
   selector: 'app-test-data-page',
   standalone: true,
-  imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
+  imports: [NumPipe, DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
   providers: [TestDataStateService, { provide: TEST_DATA_STATE, useExisting: TestDataStateService }],
   template: `
     <ds-container kind="page" name="test-data">
@@ -53,9 +54,9 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
               @if (s.elapsedMs != null) { · última operación <b>{{ s.elapsedMs }} ms</b> }
             </p>
             <ul class="td__counts">
-              <li>Encuestas <b>{{ s.counts.encuestas }}</b></li>
-              <li>Participantes (sorteo) <b>{{ s.counts.participantes }}</b></li>
-              <li>Dispositivos <b>{{ s.counts.dispositivos }}</b></li>
+              <li>Encuestas <b>{{ s.counts.encuestas | num }}</b></li>
+              <li>Participantes (sorteo) <b>{{ s.counts.participantes | num }}</b></li>
+              <li>Dispositivos <b>{{ s.counts.dispositivos | num }}</b></li>
             </ul>
           }
           <div class="td__actions">
@@ -88,7 +89,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
                 @for (d of state.datasets(); track d.name) {
                   <tr>
                     <td>{{ d.name }}</td>
-                    <td>{{ d.rows }}</td>
+                    <td>{{ d.rows | num }}</td>
                     <td>{{ fmtBytes(d.bytes) }}</td>
                     <td>{{ fmtDate(d.modifiedAt) }}</td>
                     <td class="td__row-actions">
@@ -108,7 +109,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
         <ds-container kind="section" name="fixtures" class="td">
           <h3 class="td__h">Fixtures por tipo de conductor · realistas</h3>
           <p class="td__meta">
-            {{ state.fixtures().length }} archivo(s) · <b>{{ state.fixtureTotal() }}</b> encuestas.
+            {{ state.fixtures().length }} archivo(s) · <b>{{ state.fixtureTotal() | num }}</b> encuestas.
             «Cargar CSV» los copia a <code>legacy_survey_responses</code> + <code>capture_devices</code>.
           </p>
           <div class="td__actions">
@@ -126,7 +127,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
                 @for (f of state.fixtures(); track f.name) {
                   <tr>
                     <td>{{ f.name }}</td>
-                    <td>{{ f.rows }}</td>
+                    <td>{{ f.rows | num }}</td>
                     <td>{{ fmtBytes(f.bytes) }}</td>
                     <td>{{ fmtDate(f.modifiedAt) }}</td>
                     <td class="td__row-actions">

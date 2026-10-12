@@ -5,6 +5,7 @@ import {
   DsHeaderComponent,
   DsPageTitleComponent,
   ThemeService,
+  NumPipe,
 } from '@cifraflow/design';
 import { PARTICIPANTS_STATE, type ParticipantsStateContract } from './business/contracts/participants.state.contract';
 import { ParticipantsStateService } from './business/state/participants.state.service';
@@ -20,7 +21,7 @@ import { ParticipantsStateService } from './business/state/participants.state.se
 @Component({
   selector: 'app-participantes-page',
   standalone: true,
-  imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
+  imports: [NumPipe, DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
   providers: [
     ParticipantsStateService,
     { provide: PARTICIPANTS_STATE, useExisting: ParticipantsStateService },
@@ -45,7 +46,7 @@ import { ParticipantsStateService } from './business/state/participants.state.se
         <ds-container kind="section" name="lista">
           @if (state.page(); as p) {
             <p class="pt__meta">
-              {{ p.total }} participantes · página {{ p.page }} de {{ p.totalPages }}
+              {{ p.total | num }} participantes · página {{ p.page | num }} de {{ p.totalPages | num }}
             </p>
             <table class="pt__table">
               <thead>

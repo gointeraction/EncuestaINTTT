@@ -8,6 +8,7 @@ import {
   ThemeService,
   type DsChartSeries,
   type DsKpiItem,
+  NumPipe,
 } from '@cifraflow/design';
 import { ANOMALIES_STATE, type AnomaliesStateContract } from './business/contracts/anomalies.state.contract';
 import { AnomaliesStateService } from './business/state/anomalies.state.service';
@@ -23,7 +24,7 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
 @Component({
   selector: 'app-anomalias-page',
   standalone: true,
-  imports: [
+  imports: [NumPipe, 
     DsContainerComponent,
     DsHeaderComponent,
     DsPageTitleComponent,
@@ -64,7 +65,7 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
                 @for (d of a.byDevice; track d.id + d.channel) {
                   <li>
                     <span>{{ d.id }} <small>· {{ d.channel }}</small></span>
-                    <b>{{ d.count }}</b>
+                    <b>{{ d.count | num }}</b>
                   </li>
                 }
               </ul>
@@ -73,8 +74,8 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
             <ds-container kind="section" name="duplicates">
               <h3 class="an__title">Respuestas idénticas</h3>
               <ul class="an__list">
-                <li><span>Grupos de respuestas idénticas</span><b>{{ a.duplicateAnswers.groups }}</b></li>
-                <li><span>Máx. repeticiones de un mismo lote</span><b>{{ a.duplicateAnswers.max }}</b></li>
+                <li><span>Grupos de respuestas idénticas</span><b>{{ a.duplicateAnswers.groups | num }}</b></li>
+                <li><span>Máx. repeticiones de un mismo lote</span><b>{{ a.duplicateAnswers.max | num }}</b></li>
               </ul>
             </ds-container>
           </div>

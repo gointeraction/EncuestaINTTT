@@ -14,6 +14,7 @@ import {
   type DsTableColumn,
   type DsTableRow,
   type DonutSegment,
+  NumPipe,
 } from '@cifraflow/design';
 import { PANEL_STATE, type PanelStateContract } from './business/contracts/panel.state.contract';
 import { PanelStateService } from './business/state/panel.state.service';
@@ -59,7 +60,7 @@ interface ChartVm {
 @Component({
   selector: 'app-panel-encuesta',
   standalone: true,
-  imports: [
+  imports: [NumPipe, 
     DsChartCardComponent,
     DsContainerComponent,
     DsDataTableCardComponent,
@@ -180,7 +181,7 @@ interface ChartVm {
                 <div><span>Desv. estándar</span><b>{{ fmt(q.stats.stdDev) }}</b></div>
                 <div><span>Mín</span><b>{{ fmt(q.stats.min) }}</b></div>
                 <div><span>Máx</span><b>{{ fmt(q.stats.max) }}</b></div>
-                <div><span>N</span><b>{{ q.stats.count }}</b></div>
+                <div><span>N</span><b>{{ q.stats.count | num }}</b></div>
               </div>
             </ds-container>
           }
@@ -373,7 +374,7 @@ export class PanelEncuestaPage {
   }
 
   fmt(n: number): string {
-    return Number.isFinite(n) ? n.toFixed(2) : '—';
+    return Number.isFinite(n) ? n.toLocaleString('es-VE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
   }
 
   /** Tipo de respuesta + (si es derivada) su origen + base. */

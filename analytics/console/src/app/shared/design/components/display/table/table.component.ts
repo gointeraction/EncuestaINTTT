@@ -148,6 +148,7 @@ export class DsTableComponent {
   protected cell(col: DsTableColumn, row: DsTableRow): string {
     const v = (row as Record<string, unknown>)[col.key];
     if (col.format) return col.format(v);
+    if (typeof v === 'number' && Number.isFinite(v)) return v.toLocaleString('es-VE');
     return v === null || v === undefined ? '' : String(v);
   }
 }

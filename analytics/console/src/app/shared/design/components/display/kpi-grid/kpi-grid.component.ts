@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { DsIconComponent } from '../icon/icon.component';
+import { NumPipe } from '../../../system/pipes/num.pipe';
 
 export type DsKpiTone = 'neutral' | 'info' | 'success' | 'warning' | 'danger';
 
@@ -49,7 +50,7 @@ const TONE_BG: Record<DsKpiTone, string> = {
 @Component({
   selector: 'ds-kpi-grid',
   standalone: true,
-  imports: [DsIconComponent],
+  imports: [DsIconComponent, NumPipe],
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { style: 'display: block; width: 100%;' },
   template: `
@@ -63,7 +64,7 @@ const TONE_BG: Record<DsKpiTone, string> = {
             </div>
             <div class="ds-kg__info">
               <div class="ds-kg__label">{{ kpi.label }}</div>
-              <div class="ds-kg__value {{ valueClass(kpi.value) }}">{{ kpi.value }}</div>
+              <div class="ds-kg__value {{ valueClass(kpi.value) }}">{{ kpi.value | num }}</div>
               @if (kpi.trend) {
                 <div class="ds-kg__trend" [style.color]="toneColor(kpi)">
                   @if (kpi.trendUp !== undefined) {
@@ -81,7 +82,7 @@ const TONE_BG: Record<DsKpiTone, string> = {
             </div>
             <div class="ds-kg__info">
               <div class="ds-kg__label">{{ kpi.label }}</div>
-              <div class="ds-kg__value {{ valueClass(kpi.value) }}">{{ kpi.value }}</div>
+              <div class="ds-kg__value {{ valueClass(kpi.value) }}">{{ kpi.value | num }}</div>
               @if (kpi.trend) {
                 <div class="ds-kg__trend" [style.color]="toneColor(kpi)">
                   @if (kpi.trendUp !== undefined) {

@@ -9,6 +9,7 @@ import {
   ThemeService,
   type DsChartSeries,
   type DsKpiItem,
+  NumPipe,
 } from '@cifraflow/design';
 import { GLOBAL_STATE, type GlobalStateContract } from './business/contracts/global.state.contract';
 import { GlobalStateService } from './business/state/global.state.service';
@@ -24,7 +25,7 @@ import { GlobalStateService } from './business/state/global.state.service';
 @Component({
   selector: 'app-global-page',
   standalone: true,
-  imports: [
+  imports: [NumPipe, 
     DsContainerComponent,
     DsHeaderComponent,
     DsPageTitleComponent,
@@ -70,7 +71,7 @@ import { GlobalStateService } from './business/state/global.state.service';
               <h3 class="gb__title">Por tipo de conductor</h3>
               <ul class="gb__list">
                 @for (d of g.byDriverType; track d.id) {
-                  <li><span>{{ d.label }}</span><b>{{ d.responses }}</b></li>
+                  <li><span>{{ d.label }}</span><b>{{ d.responses | num }}</b></li>
                 }
               </ul>
             </ds-container>
@@ -79,7 +80,7 @@ import { GlobalStateService } from './business/state/global.state.service';
               <h3 class="gb__title">Por canal</h3>
               <ul class="gb__list">
                 @for (c of g.byChannel; track c.id) {
-                  <li><span>{{ c.label ?? c.id }}</span><b>{{ c.responses }}</b></li>
+                  <li><span>{{ c.label ?? c.id }}</span><b>{{ c.responses | num }}</b></li>
                 }
               </ul>
             </ds-container>
