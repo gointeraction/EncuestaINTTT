@@ -43,6 +43,7 @@ import type {
   IdentityControllerRegisterBody,
   IdentityControllerSession200,
   ReportingControllerAnomaliesParams,
+  ReportingControllerCrossTabFilteredBody,
   ReportingControllerCrossTabParams,
   ReportingControllerFilteredBody,
   ReportingControllerParticipantsParams,
@@ -305,15 +306,18 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
- reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
- reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
- reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
-  reportingControllerAnomalies<TData = void>(
-    params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
-    return this.http.get<TData>(
-      `/analytics/anomalies`,{
-    ...options,
-        params: {...params, ...options?.params},}
+ reportingControllerCrossTabFiltered<TData = void>(id: string,
+    reportingControllerCrossTabFilteredBody: ReportingControllerCrossTabFilteredBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerCrossTabFiltered<TData = void>(id: string,
+    reportingControllerCrossTabFilteredBody: ReportingControllerCrossTabFilteredBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerCrossTabFiltered<TData = void>(id: string,
+    reportingControllerCrossTabFilteredBody: ReportingControllerCrossTabFilteredBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerCrossTabFiltered<TData = void>(
+    id: string,
+    reportingControllerCrossTabFilteredBody: ReportingControllerCrossTabFilteredBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/analytics/surveys/${id}/cross-tab`,
+      reportingControllerCrossTabFilteredBody,options
     );
   }
 
@@ -328,6 +332,18 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     params: DeepNonNullable<ReportingControllerCrossTabParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
     return this.http.get<TData>(
       `/analytics/surveys/${id}/cross-tab`,{
+    ...options,
+        params: {...params, ...options?.params},}
+    );
+  }
+
+ reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerAnomalies<TData = void>(
+    params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.get<TData>(
+      `/analytics/anomalies`,{
     ...options,
         params: {...params, ...options?.params},}
     );
@@ -397,8 +413,9 @@ export type ReportingControllerSurveyClientResult = NonNullable<void>
 export type ReportingControllerDimensionsClientResult = NonNullable<void>
 export type ReportingControllerTimelineClientResult = NonNullable<void>
 export type ReportingControllerFilteredClientResult = NonNullable<void>
-export type ReportingControllerAnomaliesClientResult = NonNullable<void>
+export type ReportingControllerCrossTabFilteredClientResult = NonNullable<void>
 export type ReportingControllerCrossTabClientResult = NonNullable<void>
+export type ReportingControllerAnomaliesClientResult = NonNullable<void>
 export type ReportingControllerGlobalClientResult = NonNullable<void>
 export type ReportingControllerParticipantsClientResult = NonNullable<void>
 export type ExportControllerExportSurveyClientResult = NonNullable<void>

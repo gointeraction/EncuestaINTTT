@@ -617,30 +617,70 @@
         ]
       }
     },
-    "/analytics/anomalies": {
-      "get": {
-        "operationId": "ReportingController_anomalies",
+    "/analytics/surveys/{id}/cross-tab": {
+      "post": {
+        "operationId": "ReportingController_crossTabFiltered",
         "parameters": [
           {
-            "name": "survey",
+            "name": "id",
             "required": true,
-            "in": "query",
+            "in": "path",
             "schema": {
               "type": "string"
             }
           }
         ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "questionA": {
+                    "type": "string"
+                  },
+                  "questionB": {
+                    "type": "string"
+                  },
+                  "combinator": {
+                    "type": "string",
+                    "enum": [
+                      "and",
+                      "or"
+                    ]
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "questionId": {
+                          "type": "string"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
         "responses": {
-          "200": {
+          "201": {
             "description": ""
           }
         },
         "tags": [
           "analytics"
         ]
-      }
-    },
-    "/analytics/surveys/{id}/cross-tab": {
+      },
       "get": {
         "operationId": "ReportingController_crossTab",
         "parameters": [
@@ -662,6 +702,29 @@
           },
           {
             "name": "q2",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/analytics/anomalies": {
+      "get": {
+        "operationId": "ReportingController_anomalies",
+        "parameters": [
+          {
+            "name": "survey",
             "required": true,
             "in": "query",
             "schema": {

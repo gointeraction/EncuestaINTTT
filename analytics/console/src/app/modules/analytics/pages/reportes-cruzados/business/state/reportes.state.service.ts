@@ -1,4 +1,6 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, computed, inject, signal } from '@angular/core';
+import { FilterStateService } from '../../../../../../core/filter-state.service';
+import type { FilterQuestion, FilterSet } from '../../../../../../shared/components/filter-builder/filter-builder.component';
 import { ReportesDataService } from '../data/reportes.data.service';
 import type { ReportesStateContract } from '../contracts/reportes.state.contract';
 import type { CrossTabResult, ReportQuestion, ReportSurveySource } from '../models/reportes.model';
@@ -6,6 +8,7 @@ import type { CrossTabResult, ReportQuestion, ReportSurveySource } from '../mode
 @Injectable()
 export class ReportesStateService implements ReportesStateContract {
   private readonly data = inject(ReportesDataService);
+  private readonly filterState = inject(FilterStateService);
 
   readonly sources = signal<ReportSurveySource[]>([]);
   readonly questions = signal<ReportQuestion[]>([]);
@@ -15,6 +18,15 @@ export class ReportesStateService implements ReportesStateContract {
   readonly q2 = signal('');
   readonly loading = signal(false);
   readonly error = signal<string | null>(null);
+  readonly filters = this.filterState.filters;
+  readonly filterQuestions = computed<FilterQuestion[]>(() =>
+    this.questions().map((q) => ({
+      id: q.id, label: q.label, position: q.position,
+      options: (q.options ?? []).map((o) => ({ value: o.value, label: o.value })),
+    })),
+  );
+
+  setFilters(filters: FilterSet): void { this.filterState.set(filters); }
 
   async loadSources(): Promise<void> {
     try {
@@ -57,7 +69,9 @@ export class ReportesStateService implements ReportesStateContract {
     this.loading.set(true);
     this.error.set(null);
     try {
-      this.result.set(await this.data.crossTab(surveyId, q1, q2));
+      const f = this.filterState.filters();
+      const has = f.conditions.some((c) => c.questionId);
+      this.result.set(has ? await this.data.crossTabFiltered(surveyId, q1, q2, f) : await this.data.crossTab(surveyId, q1, q2));
     } catch {
       this.error.set('No se pudo calcular el cruce.');
     } finally {

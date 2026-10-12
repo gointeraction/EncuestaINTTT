@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
+import { buildConditionsWhere } from '../read-model/answers-analysis.js';
 import { QUESTIONNAIRES, PRIMARY_QUESTIONNAIRE } from '../read-model/questionnaires.js';
 import { AGE_GROUP_LABELS } from '../read-model/answers-analysis.js';
 import { ReadModelService } from '../read-model/read-model.service.js';
@@ -119,18 +120,32 @@ export class ReportingService {
   }
 
   /** Tabla cruzada entre dos preguntas del cuestionario (read-only sobre la captura real). */
-  async crossTab(surveyId: string, questionA: string, questionB: string): Promise<unknown> {
+  async crossTab(
+    surveyId: string,
+    questionA: string,
+    questionB: string,
+    conditions?: Array<{ questionId: string; values: string[] }>,
+    combinator: 'and' | 'or' = 'and',
+  ): Promise<unknown> {
     const src = PRIMARY_QUESTIONNAIRE.source;
+    const qq = PRIMARY_QUESTIONNAIRE;
+    const { sql, params } = buildConditionsWhere(qq, conditions, combinator);
+    const where = sql
+      ? `${sql} AND "${src.answersField}" IS NOT NULL`
+      : `WHERE "${src.answersField}" IS NOT NULL`;
+    const pA = params.length + 1;
+    const pB = params.length + 2;
     const cells = await this.prisma.$queryRawUnsafe<Array<{ v1: string; v2: string; n: number }>>(
       `SELECT
-         COALESCE("${src.answersField}"::jsonb ->> $1, '') AS v1,
-         COALESCE("${src.answersField}"::jsonb ->> $2, '') AS v2,
+         COALESCE("${src.answersField}"::jsonb ->> $${pA}, '') AS v1,
+         COALESCE("${src.answersField}"::jsonb ->> $${pB}, '') AS v2,
          COUNT(*)::int AS n
        FROM ${src.table}
-       WHERE "${src.answersField}" IS NOT NULL
+       ${where}
        GROUP BY v1, v2
        ORDER BY n DESC
        LIMIT 500`,
+      ...params,
       questionA,
       questionB,
     );

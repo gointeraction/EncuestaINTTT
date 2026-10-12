@@ -74,6 +74,39 @@ export class ReportingController {
     return this.reporting.filtered(id, body?.conditions ?? [], combinator);
   }
 
+  @Post('surveys/:id/cross-tab')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        questionA: { type: 'string' },
+        questionB: { type: 'string' },
+        combinator: { type: 'string', enum: ['and', 'or'] },
+        conditions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              questionId: { type: 'string' },
+              values: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
+    },
+  })
+  async crossTabFiltered(
+    @Param('id') id: string,
+    @Body() body: { questionA?: string; questionB?: string; combinator?: string; conditions?: Array<{ questionId: string; values: string[] }> },
+    @Req() req: RequestWithUser,
+  ) {
+    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/cross-tab`, req.staffUser?.id);
+    return this.reporting.crossTab(
+      id, body?.questionA ?? '', body?.questionB ?? '',
+      body?.conditions ?? [], body?.combinator === 'or' ? 'or' : 'and',
+    );
+  }
+
   @Get('anomalies')
   async anomalies(@Query('survey') survey: string, @Req() req: RequestWithUser) {
     await this.accessAudit.registrarLectura('analytics/anomalies', req.staffUser?.id);

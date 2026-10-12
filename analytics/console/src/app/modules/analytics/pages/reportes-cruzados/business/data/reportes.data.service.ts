@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../../../../shared/api-sdk';
+import type { FilterSet } from '../../../../../../shared/components/filter-builder/filter-builder.component';
 import type { CrossTabResult, ReportQuestion, ReportSurveySource } from '../models/reportes.model';
 
 /** Único contacto con el back-office de esta página: el api-sdk. */
@@ -24,6 +25,21 @@ export class ReportesDataService {
   async crossTab(surveyId: string, q1: string, q2: string): Promise<CrossTabResult | null> {
     const res = await firstValueFrom(
       this.api.reportingControllerCrossTab(surveyId, { q1, q2 }),
+    );
+    return (res as unknown as CrossTabResult) ?? null;
+  }
+
+  /** Cruce CON filtros (multi-valor + AND/OR) aplicados sobre los datos. */
+  async crossTabFiltered(surveyId: string, q1: string, q2: string, filters: FilterSet): Promise<CrossTabResult | null> {
+    const res = await firstValueFrom(
+      this.api.reportingControllerCrossTabFiltered(surveyId, {
+        questionA: q1,
+        questionB: q2,
+        combinator: filters.combinator,
+        conditions: filters.conditions
+          .filter((c) => !!c.questionId)
+          .map((c) => ({ questionId: c.questionId, values: c.values })),
+      }),
     );
     return (res as unknown as CrossTabResult) ?? null;
   }

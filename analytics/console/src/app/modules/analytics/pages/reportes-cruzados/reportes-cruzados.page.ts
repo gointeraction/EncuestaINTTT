@@ -9,6 +9,7 @@ import {
 } from '@cifraflow/design';
 import { REPORTES_STATE, type ReportesStateContract } from './business/contracts/reportes.state.contract';
 import { ReportesStateService } from './business/state/reportes.state.service';
+import { FilterBuilderComponent } from '../../../../shared/components/filter-builder/filter-builder.component';
 
 /**
  * @akuri-page
@@ -26,6 +27,7 @@ import { ReportesStateService } from './business/state/reportes.state.service';
     DsHeaderComponent,
     DsPageTitleComponent,
     DsButtonComponent,
+    FilterBuilderComponent,
     DsEmptyStateComponent,
   ],
   providers: [ReportesStateService, { provide: REPORTES_STATE, useExisting: ReportesStateService }],
@@ -53,6 +55,14 @@ import { ReportesStateService } from './business/state/reportes.state.service';
 
       <ds-container kind="area" name="body" class="pg" style="padding-block: var(--ds-space-4)">
         <ds-container kind="section" name="controles" class="rep">
+          <div class="rep__filters">
+            <app-filter-builder
+              [questions]="state.filterQuestions()"
+              [value]="state.filters()"
+              (valueChange)="state.setFilters($event)"
+            />
+          </div>
+
           @if (state.questions().length) {
             <div class="rep__row">
               <label class="rep__field">Pregunta A
@@ -97,6 +107,7 @@ import { ReportesStateService } from './business/state/reportes.state.service';
   `,
   styles: `
     .rep { max-width: 1100px; display: flex; flex-direction: column; gap: var(--ds-space-4); }
+    .rep__filters { margin-bottom: var(--ds-space-4); }
     .rep__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--ds-space-4); }
     .rep__field { display: flex; flex-direction: column; gap: var(--ds-space-1); font-size: var(--ds-text-small); }
     .rep__field select { padding: var(--ds-space-2); border: 1px solid var(--ds-border-subtle); border-radius: var(--ds-radius-md); font-size: var(--ds-text-input); }

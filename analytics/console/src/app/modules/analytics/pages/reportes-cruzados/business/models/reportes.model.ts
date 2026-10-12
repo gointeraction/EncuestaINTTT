@@ -8,6 +8,7 @@ export interface ReportQuestion {
   label: string;
   kind?: string;
   position?: number;
+  options?: Array<{ value: string; count?: number }>;
 }
 
 export interface CrossTabCell {

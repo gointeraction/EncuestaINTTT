@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { PanelDataService } from '../data/panel.data.service';
 import { ActiveSurveyService } from '../../../../../../core/active-survey.service';
+import { FilterStateService } from '../../../../../../core/filter-state.service';
 import type { FilterQuestion, FilterSet } from '../../../../../../shared/components/filter-builder/filter-builder.component';
 import type { PanelStateContract } from '../contracts/panel.state.contract';
 import type {
@@ -14,6 +15,7 @@ import type {
 export class PanelStateService implements PanelStateContract {
   private readonly data = inject(PanelDataService);
   private readonly active = inject(ActiveSurveyService);
+  private readonly filterState = inject(FilterStateService);
 
   readonly sources = signal<SurveySource[]>([]);
   readonly dashboard = signal<SurveyPayload | null>(null);
@@ -24,7 +26,7 @@ export class PanelStateService implements PanelStateContract {
   readonly dimensionId = signal('');
   readonly dimensionValue = signal('');
 
-  readonly filters = signal<FilterSet>({ combinator: 'and', conditions: [] });
+  readonly filters = this.filterState.filters;
   readonly filtering = signal(false);
 
   /** Preguntas filtrables: id/etiqueta/posición + sus opciones (por etiqueta visible). */
@@ -74,7 +76,7 @@ export class PanelStateService implements PanelStateContract {
   }
 
   setFilters(filters: FilterSet): void {
-    this.filters.set(filters);
+    this.filterState.set(filters);
   }
 
   async applyFilters(): Promise<void> {
