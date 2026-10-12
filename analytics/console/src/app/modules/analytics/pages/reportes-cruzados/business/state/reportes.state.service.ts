@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { FilterStateService } from '../../../../../../core/filter-state.service';
+import { ActiveSurveyService } from '../../../../../../core/active-survey.service';
 import type { FilterQuestion, FilterSet } from '../../../../../../shared/components/filter-builder/filter-builder.component';
 import { ReportesDataService } from '../data/reportes.data.service';
 import type { ReportesStateContract } from '../contracts/reportes.state.contract';
@@ -9,6 +10,7 @@ import type { CrossTabResult, ReportQuestion, ReportSurveySource } from '../mode
 export class ReportesStateService implements ReportesStateContract {
   private readonly data = inject(ReportesDataService);
   private readonly filterState = inject(FilterStateService);
+  private readonly active = inject(ActiveSurveyService);
 
   readonly sources = signal<ReportSurveySource[]>([]);
   readonly questions = signal<ReportQuestion[]>([]);
@@ -42,9 +44,11 @@ export class ReportesStateService implements ReportesStateContract {
     try {
       const sources = await this.data.sources();
       this.sources.set(sources);
-      // Auto-selecciona la primera fuente (hoy hay una: Visión Cero) para no salir en blanco.
+      // Usa la ENCUESTA ACTIVA (selector del layout) o la primera, para no salir en blanco.
       if (sources.length > 0 && !this.surveyId()) {
-        await this.setSurvey(sources[0].id);
+        const activeId = this.active.activeId();
+        const id = sources.some((s) => s.id === activeId) ? activeId : sources[0].id;
+        await this.setSurvey(id);
       }
     } catch {
       this.error.set('No se pudieron cargar las encuestas.');

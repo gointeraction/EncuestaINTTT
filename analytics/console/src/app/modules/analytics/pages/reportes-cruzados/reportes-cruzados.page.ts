@@ -37,16 +37,6 @@ import { FilterBuilderComponent } from '../../../../shared/components/filter-bui
             <div class="ds-h__section ds-h__section--grow">
               <ds-page-title title="Reportes cruzados · Encuesta Visión Cero" subtitle="Analítica · INTT" [showBack]="false" />
             </div>
-            <div class="ds-h__section ds-h__section--end">
-              <label class="rep__field">Encuesta
-                <select class="ds-select" [value]="state.surveyId()" (change)="state.setSurvey(value($event))">
-                  <option value="">Seleccione…</option>
-                  @for (s of state.sources(); track s.id) {
-                    <option [value]="s.id">{{ s.title }}</option>
-                  }
-                </select>
-              </label>
-            </div>
           </div>
         </ds-header>
       </ds-container>
