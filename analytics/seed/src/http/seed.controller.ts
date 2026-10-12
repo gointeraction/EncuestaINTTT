@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Inject, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Post, Query } from '@nestjs/common';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { PgService } from '../core/pg.service.js';
 import { SeedCommand, type SeedOptions } from '../commands/seed.command.js';
 import { ResetCommand } from '../commands/reset.command.js';
 import { SummarizeCommand } from '../commands/summarize.command.js';
 import { FixturesCommand } from '../commands/fixtures.command.js';
+import { DatasetsCommand } from '../commands/datasets.command.js';
 import { LoadCommand } from '../commands/load.command.js';
 
 interface StatusRow {
@@ -22,6 +23,7 @@ export class SeedController {
     private readonly reset: ResetCommand,
     private readonly summarize: SummarizeCommand,
     private readonly fixtures: FixturesCommand,
+    private readonly datasets: DatasetsCommand,
     private readonly load: LoadCommand,
     @Inject(SEED_CONFIG) private readonly config: SeedConfig,
   ) {}
@@ -43,49 +45,79 @@ export class SeedController {
 
   @Post('seed')
   async runSeed(@Body() body: SeedOptions) {
+    const t = Date.now();
     await this.seed.run(body ?? {});
-    await this.summarize.run(); // deja los KPI listos
-    return this.status();
+    await this.summarize.run();
+    return { ...(await this.status()), elapsedMs: Date.now() - t };
   }
 
   @Post('reset')
   async runReset() {
+    const t = Date.now();
     await this.reset.run();
-    return this.status();
+    return { ...(await this.status()), elapsedMs: Date.now() - t };
   }
 
   @Post('summarize')
   async runSummarize() {
+    const t = Date.now();
     await this.summarize.run();
-    return this.status();
+    return { ...(await this.status()), elapsedMs: Date.now() - t };
   }
 
-  /** Genera los CSV (uno por tipo de conductor). */
+  // ─── fixtures por tipo de conductor ───────────────────────────────────────
+
   @Post('fixtures')
   async runFixtures(@Body() body: { perType?: number } = {}) {
+    const t = Date.now();
     await this.fixtures.run({ perType: body?.perType });
-    return this.status();
+    return { ...(await this.status()), elapsedMs: Date.now() - t };
   }
 
-  /** Lista los CSV de fixtures (nombre, filas, bytes, fecha). */
   @Get('fixtures')
   async listFixtures() {
     const fixtures = this.fixtures.list();
     return { fixtures, total: fixtures.reduce((s, f) => s + f.rows, 0) };
   }
 
-  /** Borra los CSV de fixtures (todos, o uno por `?name=`). */
   @Delete('fixtures')
   async deleteFixtures(@Query('name') name?: string) {
-    const removed = this.fixtures.remove({ name });
-    return { removed };
+    return { removed: this.fixtures.remove({ name }) };
   }
 
-  /** Carga los CSV de fixtures a la tabla real (misma estrategia que la captura). */
+  // ─── datasets por volumen (10K/100K/500K/1M) ──────────────────────────────
+
+  @Post('datasets')
+  async runDatasets(@Body() body: { only?: string; seed?: number } = {}) {
+    const t = Date.now();
+    await this.datasets.generate({ only: body?.only, seed: body?.seed });
+    return { ...(await this.status()), elapsedMs: Date.now() - t };
+  }
+
+  @Get('datasets')
+  async listDatasets() {
+    const datasets = this.datasets.list();
+    return { datasets, total: datasets.reduce((s, d) => s + d.rows, 0) };
+  }
+
+  @Delete('datasets')
+  async deleteDatasets(@Query('name') name?: string) {
+    return { removed: this.datasets.remove({ name }) };
+  }
+
+  /** Carga a la base: los fixtures (sin `dataset`) o un dataset de volumen concreto. */
   @Post('load')
-  async runLoad() {
-    await this.load.run({});
+  async runLoad(@Body() body: { dataset?: string } = {}) {
+    const t = Date.now();
+    if (body?.dataset) {
+      if (!this.datasets.exists(body.dataset)) {
+        throw new BadRequestException(`Dataset no encontrado: ${body.dataset}`);
+      }
+      await this.load.run({ file: this.datasets.pathOf(body.dataset) });
+    } else {
+      await this.load.run({});
+    }
     await this.summarize.run();
-    return this.status();
+    return { ...(await this.status()), elapsedMs: Date.now() - t };
   }
 }

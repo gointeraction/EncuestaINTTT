@@ -7,6 +7,7 @@ import { ResetCommand } from './commands/reset.command.js';
 import { GenerateCommand } from './commands/generate.command.js';
 import { SummarizeCommand } from './commands/summarize.command.js';
 import { FixturesCommand } from './commands/fixtures.command.js';
+import { DatasetsCommand } from './commands/datasets.command.js';
 import { LoadCommand } from './commands/load.command.js';
 
 const USAGE =
@@ -33,6 +34,8 @@ function parseArgs(argv: string[]): CliFlags {
     legacy: flags.legacy,
     perType: flags['per-type'],
     dir: flags.dir,
+    only: flags.only,
+    dataset: flags.dataset,
   };
 }
 
@@ -91,9 +94,17 @@ async function main(): Promise<void> {
           dir: flags.dir,
         });
         break;
-      case 'load':
-        await ctx.get(LoadCommand).run({ dir: flags.dir });
+      case 'datasets': {
+        const datasets = ctx.get(DatasetsCommand);
+        await datasets.generate({ only: flags.only, seed: flags.seed ? Number(flags.seed) : undefined });
         break;
+      }
+      case 'load': {
+        const load = ctx.get(LoadCommand);
+        const file = flags.dataset ? ctx.get(DatasetsCommand).pathOf(flags.dataset) : undefined;
+        await load.run({ dir: flags.dir, file });
+        break;
+      }
       default:
         console.error(USAGE);
         process.exitCode = 1;

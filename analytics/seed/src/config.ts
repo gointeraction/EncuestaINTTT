@@ -26,6 +26,9 @@ export interface CliFlags {
   /** fixtures/load */
   perType?: string;
   dir?: string;
+  /** datasets */
+  only?: string;
+  dataset?: string;
 }
 
 /** Carga y VALIDA la configuración. Las guardas abortan fuera de development. — MUST */

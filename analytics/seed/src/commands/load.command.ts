@@ -20,27 +20,41 @@ export class LoadCommand {
     @Inject(SEED_CONFIG) private readonly config: SeedConfig,
   ) {}
 
-  async run(opts: { dir?: string } = {}): Promise<void> {
+  async run(opts: { dir?: string; file?: string } = {}): Promise<void> {
     await assertDevDatabase(this.pg, this.config);
-    const dir = opts.dir ?? join(process.cwd(), 'data', 'fixtures');
-    const files = readdirSync(dir)
-      .filter((f) => f.endsWith('.csv'))
-      .sort();
-    if (files.length === 0) {
-      throw new Error(`No hay CSV en ${dir}. Ejecuta \`fixtures\` primero.`);
-    }
-
     await this.pg.truncate(RESET_TABLES);
+
     let total = 0;
-    for (const f of files) {
+    let origin: string;
+    if (opts.file) {
+      // Un único CSV (p.ej. un dataset de volumen).
       total += await this.pg.copyFromFile(
         'public.legacy_survey_responses',
         LEGACY_COLUMNS,
-        join(dir, f),
+        opts.file,
         true,
       );
+      origin = opts.file;
+    } else {
+      const dir = opts.dir ?? join(process.cwd(), 'data', 'fixtures');
+      const files = readdirSync(dir)
+        .filter((f) => f.endsWith('.csv'))
+        .sort();
+      if (files.length === 0) {
+        throw new Error(`No hay CSV en ${dir}. Ejecuta \`fixtures\` primero.`);
+      }
+      for (const f of files) {
+        total += await this.pg.copyFromFile(
+          'public.legacy_survey_responses',
+          LEGACY_COLUMNS,
+          join(dir, f),
+          true,
+        );
+      }
+      origin = `${files.length} CSV en ${dir}`;
     }
+
     const devices = await this.pg.copy('public.capture_devices', DEVICE_COLUMNS, deviceRows());
-    this.log.log(`load: ${total} filas desde ${files.length} CSV · ${devices} dispositivos en ${dir}`);
+    this.log.log(`load: ${total} filas desde ${origin} · ${devices} dispositivos`);
   }
 }

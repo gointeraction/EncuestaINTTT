@@ -12,6 +12,7 @@ export interface SeedStatus {
   environment: string;
   database: string;
   counts: SeedCounts;
+  elapsedMs?: number;
 }
 
 export interface SeedRequest {
@@ -32,6 +33,18 @@ export interface FixtureFile {
 
 export interface FixturesList {
   fixtures: FixtureFile[];
+  total: number;
+}
+
+export interface DatasetFile {
+  name: string;
+  rows: number;
+  bytes: number;
+  modifiedAt: string;
+}
+
+export interface DatasetsList {
+  datasets: DatasetFile[];
   total: number;
 }
 
@@ -80,7 +93,29 @@ export class DevSeedClient {
     );
   }
 
-  load(): Promise<SeedStatus> {
-    return firstValueFrom(this.http.post<SeedStatus>(`${this.base}/load`, {}));
+  /** Lista los CSV de datasets por volumen. */
+  datasetsList(): Promise<DatasetsList> {
+    return firstValueFrom(this.http.get<DatasetsList>(`${this.base}/datasets`));
+  }
+
+  /** Genera los datasets de volumen (todos, o uno por nombre). */
+  generateDatasets(only?: string): Promise<SeedStatus> {
+    return firstValueFrom(
+      this.http.post<SeedStatus>(`${this.base}/datasets`, only ? { only } : {}),
+    );
+  }
+
+  /** Borra los CSV de datasets (todos, o uno por nombre). */
+  deleteDatasets(name?: string): Promise<{ removed: number }> {
+    return firstValueFrom(
+      this.http.delete<{ removed: number }>(`${this.base}/datasets`, {
+        params: name ? { name } : {},
+      }),
+    );
+  }
+
+  /** Carga a la base: los fixtures (sin `dataset`) o un dataset de volumen concreto. */
+  load(dataset?: string): Promise<SeedStatus> {
+    return firstValueFrom(this.http.post<SeedStatus>(`${this.base}/load`, dataset ? { dataset } : {}));
   }
 }

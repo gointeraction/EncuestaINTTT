@@ -1,19 +1,22 @@
 import { Injectable, inject, signal } from '@angular/core';
 import {
   DevSeedClient,
+  type DatasetFile,
   type FixtureFile,
   type SeedRequest,
   type SeedStatus,
 } from '../../../../../../core/dev-seed.client';
-import type { DevSeedStateContract } from '../contracts/dev-seed.state.contract';
+import type { TestDataStateContract } from '../contracts/test-data.state.contract';
 
 @Injectable()
-export class DevSeedStateService implements DevSeedStateContract {
+export class TestDataStateService implements TestDataStateContract {
   private readonly client = inject(DevSeedClient);
 
   readonly status = signal<SeedStatus | null>(null);
   readonly fixtures = signal<FixtureFile[]>([]);
   readonly fixtureTotal = signal(0);
+  readonly datasets = signal<DatasetFile[]>([]);
+  readonly datasetTotal = signal(0);
   readonly busy = signal(false);
   readonly error = signal<string | null>(null);
 
@@ -37,6 +40,17 @@ export class DevSeedStateService implements DevSeedStateContract {
     } catch {
       this.fixtures.set([]);
       this.fixtureTotal.set(0);
+    }
+  }
+
+  private async listDatasets(): Promise<void> {
+    try {
+      const res = await this.client.datasetsList();
+      this.datasets.set(res.datasets);
+      this.datasetTotal.set(res.total);
+    } catch {
+      this.datasets.set([]);
+      this.datasetTotal.set(0);
     }
   }
 
@@ -74,8 +88,30 @@ export class DevSeedStateService implements DevSeedStateContract {
     }
   }
 
+  async generateDatasets(only?: string): Promise<void> {
+    await this.run(() => this.client.generateDatasets(only));
+    await this.listDatasets();
+  }
+
+  async deleteDatasets(name?: string): Promise<void> {
+    this.busy.set(true);
+    this.error.set(null);
+    try {
+      await this.client.deleteDatasets(name);
+    } catch {
+      this.error.set('No se pudieron borrar los datasets.');
+    } finally {
+      this.busy.set(false);
+      await this.listDatasets();
+    }
+  }
+
+  async loadDataset(name: string): Promise<void> {
+    await this.run(() => this.client.load(name));
+  }
+
   async refresh(): Promise<void> {
     await this.run(() => this.client.status());
-    await this.listFixtures();
+    await Promise.all([this.listFixtures(), this.listDatasets()]);
   }
 }

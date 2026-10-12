@@ -38,8 +38,4 @@ export const ANALYTICS_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/participantes/participantes.page').then((m) => m.ParticipantesPage),
   },
-  {
-    path: 'datos',
-    loadComponent: () => import('./pages/dev-seed/dev-seed.page').then((m) => m.DevSeedPage),
-  },
 ];
