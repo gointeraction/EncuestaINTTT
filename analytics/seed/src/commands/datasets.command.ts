@@ -4,41 +4,76 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  rmdirSync,
   statSync,
   unlinkSync,
 } from 'node:fs';
 import { join } from 'node:path';
-import { countLines } from '../core/fs.util.js';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { csvLine } from '../core/csv.js';
-import { LEGACY_COLUMNS, legacyRows } from '../core/vision-cero.js';
+import { LEGACY_COLUMNS, legacyRowsForDriver, type DriverType } from '../core/vision-cero.js';
 
-/** Volúmenes disponibles para pruebas de responsividad. */
-export const VOLUMES = [
-  { name: 'scale-10k', rows: 10_000 },
-  { name: 'scale-100k', rows: 100_000 },
-  { name: 'scale-500k', rows: 500_000 },
-  { name: 'scale-1m', rows: 1_000_000 },
+/** Distribución REALISTA por tipo de conductor (fracción del total de cada muestra). */
+export const DRIVER_WEIGHTS: ReadonlyArray<readonly [DriverType, number]> = [
+  ['motociclista_activo', 0.35],
+  ['delivery', 0.22],
+  ['mototaxista', 0.15],
+  ['ex_motociclista', 0.12],
+  ['familiar', 0.09],
+  ['otro_conductor', 0.07],
+];
+
+/** Muestras por TAMAÑO: cada una es una carpeta con un CSV por tipo de conductor. */
+export const SAMPLES = [
+  { id: 'sample-5k', total: 5_000 },
+  { id: 'sample-50k', total: 50_000 },
+  { id: 'sample-250k', total: 250_000 },
+  { id: 'sample-1m', total: 1_000_000 },
 ] as const;
 
-export interface DatasetFile {
+export interface SampleFile {
   name: string;
+  type: string;
   rows: number;
   bytes: number;
-  modifiedAt: string;
 }
 
-/** Filas a partir del nombre (`scale-100k` → 100000); null si no sigue el patrón. */
-function rowsFromName(name: string): number | null {
-  const m = /scale-(\d+)([km])\.csv$/i.exec(name);
-  if (!m) return null;
-  const n = Number(m[1]);
-  return m[2].toLowerCase() === 'm' ? n * 1_000_000 : n * 1_000;
+export interface SampleInfo {
+  id: string;
+  total: number;
+  rows: number;
+  bytes: number;
+  files: SampleFile[];
+}
+
+/** Filas por tipo de una muestra (deterministas: redondeo del peso × total). */
+export function countsFor(total: number): Array<{ type: DriverType; rows: number }> {
+  return DRIVER_WEIGHTS.map(([type, w]) => ({ type, rows: Math.round(total * w) }));
+}
+
+/** Escribe UNA muestra (carpeta) con un CSV por tipo. */
+async function writeSample(dir: string, total: number, seed: number, log: Logger): Promise<void> {
+  mkdirSync(dir, { recursive: true });
+  const counts = countsFor(total);
+  for (let t = 0; t < counts.length; t++) {
+    const { type, rows } = counts[t];
+    const file = join(dir, `${type}.csv`);
+    const out = createWriteStream(file);
+    out.write(LEGACY_COLUMNS.join(',') + '\n');
+    let n = 0;
+    for (const row of legacyRowsForDriver(seed, t, type, rows)) {
+      out.write(csvLine(row) + '\n');
+      n++;
+    }
+    await new Promise<void>((res, rej) => out.end((e?: Error | null) => (e ? rej(e) : res())));
+    log.log(`${file}: ${n} filas`);
+  }
 }
 
 /**
- * datasets — genera CSV de Visión Cero por VOLUMEN (10K/100K/500K/1M) para medir
- * responsividad. Son grandes: se generan a demanda y NO se versionan.
+ * datasets — genera MUESTRAS por tamaño (carpeta) con un CSV por tipo de conductor,
+ * con cantidades PONDERADAS (distintas por tipo). Sirven para poblar/medir y para
+ * VERIFICAR consistencia (los conteos esperados son deterministas).
  */
 @Injectable()
 export class DatasetsCommand {
@@ -46,76 +81,95 @@ export class DatasetsCommand {
 
   constructor(@Inject(SEED_CONFIG) private readonly config: SeedConfig) {}
 
-  private dir(): string {
+  private base(): string {
     return join(process.env.SEED_DATA_DIR ?? join(process.cwd(), 'data'), 'datasets');
   }
 
-  /** Genera los CSV de volumen (todos, o uno por `only`). */
+  /** Genera las muestras (todas, o una por `only`). */
   async generate(opts: { only?: string; seed?: number } = {}): Promise<void> {
-    const dir = this.dir();
-    mkdirSync(dir, { recursive: true });
+    const base = this.base();
+    mkdirSync(base, { recursive: true });
     const seed = opts.seed ?? this.config.rngSeed;
-    const targets = opts.only ? VOLUMES.filter((v) => v.name === opts.only) : VOLUMES;
+    const targets = opts.only ? SAMPLES.filter((s) => s.id === opts.only) : SAMPLES;
     if (opts.only && targets.length === 0) {
-      throw new Error(`Volumen desconocido: "${opts.only}". Usa: ${VOLUMES.map((v) => v.name).join(' | ')}.`);
+      throw new Error(`Muestra desconocida: "${opts.only}". Usa: ${SAMPLES.map((s) => s.id).join(' | ')}.`);
     }
-    for (const v of targets) {
-      const file = join(dir, `${v.name}.csv`);
-      const out = createWriteStream(file);
-      out.write(LEGACY_COLUMNS.join(',') + '\n');
-      let n = 0;
-      for (const row of legacyRows(seed, v.rows)) {
-        out.write(csvLine(row) + '\n');
-        n++;
-      }
-      await new Promise<void>((res, rej) => out.end((e?: Error | null) => (e ? rej(e) : res())));
-      this.log.log(`${file}: ${n} filas`);
+    for (const s of targets) {
+      await writeSample(join(base, s.id), s.total, seed, this.log);
     }
   }
 
-  /** Lista los CSV de datasets (nombre, filas, bytes, fecha). */
-  list(): DatasetFile[] {
-    const dir = this.dir();
-    if (!existsSync(dir)) return [];
-    return readdirSync(dir)
-      .filter((f) => f.endsWith('.csv'))
+  /** Lista las muestras presentes (carpetas con sus CSV por tipo). */
+  list(): SampleInfo[] {
+    const base = this.base();
+    if (!existsSync(base)) return [];
+    return readdirSync(base)
+      .filter((id) => statSync(join(base, id)).isDirectory())
       .sort()
-      .map((name) => {
-        const path = join(dir, name);
-        const st = statSync(path);
-        // El nombre codifica el volumen → evita leer GB enteros para contar líneas.
-        const rows = rowsFromName(name) ?? Math.max(0, countLines(path) - 1);
-        return { name, rows, bytes: st.size, modifiedAt: st.mtime.toISOString() };
+      .map((id) => {
+        const dir = join(base, id);
+        const files: SampleFile[] = readdirSync(dir)
+          .filter((f) => f.endsWith('.csv'))
+          .sort()
+          .map((f) => {
+            const path = join(dir, f);
+            return { name: f, type: f.replace(/\.csv$/, ''), rows: 0, bytes: statSync(path).size };
+          });
+        // Las filas se derivan de la muestra (determinista) si su `total` se conoce.
+        const total = SAMPLES.find((s) => s.id === id)?.total ?? 0;
+        const counts = total ? countsFor(total) : [];
+        for (const file of files) {
+          file.rows = counts.find((c) => c.type === file.type)?.rows ?? 0;
+        }
+        return {
+          id,
+          total,
+          rows: files.reduce((s, f) => s + f.rows, 0),
+          bytes: files.reduce((s, f) => s + f.bytes, 0),
+          files,
+        };
       });
   }
 
-  pathOf(name: string): string {
-    const dir = this.dir();
-    if (!name.endsWith('.csv') || /[/\\]|\.\./.test(name)) throw new Error('Nombre inválido');
-    return join(dir, name);
+  /** Carpeta de una muestra (para cargarla como directorio). */
+  sampleDir(id: string): string {
+    if (!/^[a-z0-9-]+$/i.test(id)) throw new Error('Nombre inválido');
+    return join(this.base(), id);
   }
 
-  exists(name: string): boolean {
+  exists(id: string): boolean {
     try {
-      return existsSync(this.pathOf(name));
+      return existsSync(this.sampleDir(id));
     } catch {
       return false;
     }
   }
 
-  /** Borra los CSV de datasets (todos, o uno por nombre). */
+  /** Borra una muestra (carpeta completa, o un CSV si `name` = `<id>/<tipo>.csv`). */
   remove(opts: { name?: string } = {}): number {
-    const dir = this.dir();
-    if (!existsSync(dir)) return 0;
-    if (opts.name && (!opts.name.endsWith('.csv') || /[/\\]|\.\./.test(opts.name))) return 0;
-    const names = opts.name ? [opts.name] : readdirSync(dir).filter((f) => f.endsWith('.csv'));
-    let removed = 0;
-    for (const name of names) {
-      const path = join(dir, name);
+    const base = this.base();
+    if (!existsSync(base)) return 0;
+    const name = opts.name ?? '';
+    if (name.includes('/')) {
+      const [id, file] = name.split('/');
+      if (!/^[a-z0-9-]+$/i.test(id) || !/^[a-z_]+\.csv$/i.test(file)) return 0;
+      const path = join(this.base(), id, file);
       if (existsSync(path)) {
         unlinkSync(path);
-        removed++;
+        return 1;
       }
+      return 0;
+    }
+    const ids = name
+      ? [name]
+      : readdirSync(base).filter((id) => statSync(join(base, id)).isDirectory());
+    let removed = 0;
+    for (const id of ids) {
+      const dir = join(base, id);
+      if (!existsSync(dir)) continue;
+      for (const f of readdirSync(dir)) unlinkSync(join(dir, f));
+      rmdirSync(dir);
+      removed += 1;
     }
     return removed;
   }

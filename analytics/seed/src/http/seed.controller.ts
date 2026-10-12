@@ -112,15 +112,15 @@ export class SeedController {
     return { removed: this.datasets.remove({ name }) };
   }
 
-  /** Carga a la base: los fixtures (sin `dataset`) o un dataset de volumen concreto. */
+  /** Carga a la base: los fixtures (sin `dataset`) o una MUESTRA por tamaño (carpeta). */
   @Post('load')
   async runLoad(@Body() body: { dataset?: string } = {}) {
     const t = Date.now();
     if (body?.dataset) {
       if (!this.datasets.exists(body.dataset)) {
-        throw new BadRequestException(`Dataset no encontrado: ${body.dataset}`);
+        throw new BadRequestException(`Muestra no encontrada: ${body.dataset}`);
       }
-      await this.load.run({ file: this.datasets.pathOf(body.dataset) });
+      await this.load.run({ dir: this.datasets.sampleDir(body.dataset) });
     } else {
       await this.load.run({});
     }

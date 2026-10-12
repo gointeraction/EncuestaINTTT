@@ -101,8 +101,9 @@ async function main(): Promise<void> {
       }
       case 'load': {
         const load = ctx.get(LoadCommand);
-        const file = flags.dataset ? ctx.get(DatasetsCommand).pathOf(flags.dataset) : undefined;
-        await load.run({ dir: flags.dir, file });
+        const datasets = ctx.get(DatasetsCommand);
+        const dir = flags.dataset ? datasets.sampleDir(flags.dataset) : flags.dir;
+        await load.run({ dir });
         break;
       }
       default:

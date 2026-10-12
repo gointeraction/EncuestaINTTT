@@ -36,11 +36,19 @@ export interface FixturesList {
   total: number;
 }
 
-export interface DatasetFile {
+export interface SampleFile {
   name: string;
+  type: string;
   rows: number;
   bytes: number;
-  modifiedAt: string;
+}
+
+export interface DatasetFile {
+  id: string;
+  total: number;
+  rows: number;
+  bytes: number;
+  files: SampleFile[];
 }
 
 export interface DatasetsList {

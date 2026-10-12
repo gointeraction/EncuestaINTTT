@@ -66,42 +66,49 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
           @if (state.error(); as e) { <p role="alert" class="td__error">{{ e }}</p> }
         </ds-container>
 
-        <!-- DATASETS POR VOLUMEN -->
+        <!-- MUESTRAS POR TAMAÑO -->
         <ds-container kind="section" name="datasets" class="td">
-          <h3 class="td__h">Datasets por volumen · responsividad</h3>
+          <h3 class="td__h">Muestras por tamaño · responsividad y consistencia</h3>
           <p class="td__meta">
-            CSV de <b>10K · 100K · 500K · 1M</b> filas (generados a demanda; el de 1M pesa ~1 GB).
-            «Cargar» los copia a la base y sumariza; mide el tiempo (responsividad).
+            Muestras <b>5K · 50K · 250K · 1M</b> (el total; la de 1M pesa ~1,4 GB). Cada muestra trae
+            <b>un CSV por tipo de conductor</b> con cantidades <b>ponderadas</b> (35/22/15/12/9/7 %) →
+            al cargarla, el por-tipo de la analítica debe cuadrar con estos conteos.
           </p>
           <div class="td__actions">
-            <ds-button [loading]="state.busy()" (click)="generateDatasets()">Generar 10K/100K/500K/1M</ds-button>
+            <ds-button [loading]="state.busy()" (click)="generateDatasets()">Generar muestras (5K/50K/250K/1M)</ds-button>
             @if (state.datasets().length) {
               <ds-button variant="destructive" [loading]="state.busy()" (click)="deleteAllDatasets()">
-                Eliminar todos
+                Eliminar todas
               </ds-button>
             }
           </div>
 
           @if (state.datasets().length) {
             <table class="td__table">
-              <thead><tr><th>Archivo</th><th>Filas</th><th>Tamaño</th><th>Modificado</th><th></th></tr></thead>
+              <thead><tr><th>Muestra</th><th>Total</th><th>Por tipo de conductor</th><th>Tamaño</th><th></th></tr></thead>
               <tbody>
-                @for (d of state.datasets(); track d.name) {
+                @for (d of state.datasets(); track d.id) {
                   <tr>
-                    <td>{{ d.name }}</td>
+                    <td>{{ d.id }}</td>
                     <td>{{ d.rows | num }}</td>
+                    <td>
+                      <div class="td__types">
+                        @for (f of d.files; track f.name) {
+                          <span>{{ f.type }}: {{ f.rows | num }}</span>
+                        }
+                      </div>
+                    </td>
                     <td>{{ fmtBytes(d.bytes) }}</td>
-                    <td>{{ fmtDate(d.modifiedAt) }}</td>
                     <td class="td__row-actions">
-                      <ds-button size="sm" [loading]="state.busy()" (click)="loadDataset(d.name)">Cargar</ds-button>
-                      <ds-button size="sm" variant="danger" [loading]="state.busy()" (click)="deleteDataset(d.name)">Eliminar</ds-button>
+                      <ds-button size="sm" [loading]="state.busy()" (click)="loadDataset(d.id)">Cargar</ds-button>
+                      <ds-button size="sm" variant="danger" [loading]="state.busy()" (click)="deleteDataset(d.id)">Eliminar</ds-button>
                     </td>
                   </tr>
                 }
               </tbody>
             </table>
           } @else {
-            <p class="td__meta">No hay datasets. Genera uno para medir responsividad.</p>
+            <p class="td__meta">No hay muestras. Genera al menos una para poblar/medir.</p>
           }
         </ds-container>
 
@@ -181,6 +188,7 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
     .td__table { width: 100%; border-collapse: collapse; font-size: var(--ds-text-small); color: var(--ds-surface-page-on); }
     .td__table th, .td__table td { text-align: left; padding: var(--ds-space-2) var(--ds-space-3); border-bottom: 1px solid var(--ds-border-subtle); }
     .td__table th { color: var(--ds-text-muted); font-weight: 600; }
+    .td__types { display: flex; flex-wrap: wrap; gap: var(--ds-space-2); font-size: var(--ds-text-caption); color: var(--ds-text-muted); }
     .td__row-actions { display: flex; gap: var(--ds-space-2); }
   `,
 })
