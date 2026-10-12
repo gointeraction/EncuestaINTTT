@@ -7,4 +7,9 @@ export const TEST_DATA_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/test-data/test-data.page').then((m) => m.TestDataPage),
   },
+  {
+    path: 'individual',
+    loadComponent: () =>
+      import('./pages/individual/individual.page').then((m) => m.IndividualPage),
+  },
 ];

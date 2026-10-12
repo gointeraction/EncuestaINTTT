@@ -86,6 +86,8 @@ services:
       NODE_ENV: production
       PORT: "3001"
       HOSTNAME: 0.0.0.0
+      # Secreto interno para aceptar envíos con canal `seed` (los reenvía el seeder).
+      SEED_SUBMIT_SECRET: ${SEED_SUBMIT_SECRET:-dev-seed-secret}
     volumes:
       # Persistencia del almacén local de respaldo (resiliencia).
       - ./vision-cero/db:/app/db
@@ -183,6 +185,9 @@ services:
       PORT: "3161"
       DATABASE_URL: postgresql://${POSTGRES_USER:-intt_user}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}@db:5451/${POSTGRES_DB:-intt_encuesta}?schema=public
       API_BASE_URL: http://api:3151
+      # La captura real (para reenviar envíos con canal `seed`).
+      CAPTURE_BASE_URL: http://app:3001
+      SEED_SUBMIT_SECRET: ${SEED_SUBMIT_SECRET:-dev-seed-secret}
     volumes:
       # Los CSV generados quedan en el host (inspección / recarga).
       - ./analytics/seed/data:/app/data

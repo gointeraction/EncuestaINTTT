@@ -1,7 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { randomUUID } from 'node:crypto';
 import { PgService } from '../core/pg.service.js';
-import { SURVEY_ID } from '../core/vision-cero.js';
 import { DRIVER_TYPES, SURVEY } from '../core/survey-data.js';
 
 export interface CreateSurveyInput {
@@ -18,15 +17,15 @@ export interface CreateSurveyInput {
 }
 
 export interface CreateSurveyResult {
-  id: string;
-  duplicate: boolean;
-  clientSubmissionId: string;
+  status: number;
+  body: unknown;
 }
 
 /**
- * ResponseCommand — alta de UNA encuesta a la vez (datos de prueba) con la MISMA
- * idempotencia que la captura real: `client_submission_id` es único, así que reenviar
- * la misma encuesta NO la duplica (devuelve `duplicate: true`).
+ * ResponseCommand — alta de UNA encuesta a la vez para PRUEBAS. NO escribe directo:
+ * **reenvía el envío a la captura real** (`/api/survey/submit`) con `channel: "seed"`,
+ * así recorre los MISMOS pasos (validación server-side + sorteo + idempotencia); el canal
+ * `seed` solo se salta el anti-bot (exige el secreto interno `x-seed-secret`).
  */
 @Injectable()
 export class ResponseCommand {
@@ -58,43 +57,48 @@ export class ResponseCommand {
     };
   }
 
-  /** Inserta una encuesta; si el `clientSubmissionId` ya existe → no la duplica. */
+  /** Envía una encuesta a la captura como si viniera de un survey real (canal `seed`). */
   async create(input: CreateSurveyInput): Promise<CreateSurveyResult> {
-    const clientSubmissionId = input.clientSubmissionId?.trim() || randomUUID();
+    const base = process.env.CAPTURE_BASE_URL ?? 'http://app:3001';
+    const secret = process.env.SEED_SUBMIT_SECRET ?? '';
 
-    const existing = await this.pg.query<{ id: string }>(
-      `select id from public.legacy_survey_responses where client_submission_id = $1 limit 1`,
+    const payload = {
+      driverType: input.driverType,
+      answers: input.answers ?? {},
+      sorteo: input.participaSorteo
+        ? {
+            participa: true,
+            nombre: input.nombre,
+            cedula: input.cedula,
+            telefono: input.telefono,
+          }
+        : { participa: false },
+      clientSubmissionId: input.clientSubmissionId?.trim() || randomUUID(),
+      channel: 'seed',
+      surveyVersion: 1,
+    };
+
+    const res = await fetch(`${base}/api/survey/submit`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', 'x-seed-secret': secret },
+      body: JSON.stringify(payload),
+    });
+    let body: unknown;
+    try {
+      body = await res.json();
+    } catch {
+      body = { error: 'Respuesta no JSON de la captura.' };
+    }
+    this.log.log(`submit ${res.status} (${input.driverType})`);
+    return { status: res.status, body };
+  }
+
+  /** Quita la encuesta con ese `clientSubmissionId`. Devuelve cuántas filas borró. */
+  async remove(clientSubmissionId: string): Promise<number> {
+    const rows = await this.pg.query<{ n: number }>(
+      `delete from public.legacy_survey_responses where client_submission_id = $1 returning 1 as n`,
       [clientSubmissionId],
     );
-    if (existing.length) {
-      this.log.log(`duplicada (idempotencia): ${clientSubmissionId}`);
-      return { id: existing[0].id, duplicate: true, clientSubmissionId };
-    }
-
-    const id = randomUUID();
-    const now = new Date().toISOString();
-    const participa = !!input.participaSorteo;
-    await this.pg.run(
-      `insert into public.legacy_survey_responses
-         ("id","driverType","answers","capturedAt","completedAt","participaSorteo","nombre","cedula","telefono","codigoSorteo","channel","device_id","client_submission_id","survey_version","survey_id")
-       values ($1,$2,$3,$4,$4,$5,$6,$7,$8,$9,$10,$11,$12,1,$13)`,
-      [
-        id,
-        input.driverType,
-        JSON.stringify(input.answers ?? {}),
-        now,
-        participa,
-        participa ? input.nombre ?? null : null,
-        participa ? input.cedula ?? null : null,
-        participa ? input.telefono ?? null : null,
-        participa ? input.codigoSorteo ?? `COD-${id.slice(0, 6)}` : null,
-        input.channel ?? 'public',
-        input.deviceId ?? null,
-        clientSubmissionId,
-        SURVEY_ID,
-      ],
-    );
-    this.log.log(`encuesta creada ${id} (${input.driverType})`);
-    return { id, duplicate: false, clientSubmissionId };
+    return rows.length;
   }
 }

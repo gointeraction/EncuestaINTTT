@@ -1,4 +1,9 @@
-import { BadRequestException, Body, Controller, Delete, Get, Inject, Post, Query } from '@nestjs/common';
+import { BadRequestException, Body, Controller, Delete, Get, Inject, Post, Query, Res } from '@nestjs/common';
+
+/** Interfaz mínima de la respuesta (evita depender de @types/express). */
+interface Res {
+  status(code: number): { json(body: unknown): void };
+}
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { PgService } from '../core/pg.service.js';
 import { SeedCommand, type SeedOptions } from '../commands/seed.command.js';
@@ -123,6 +128,13 @@ export class SeedController {
     return { ...(await this.status()), elapsedMs: Date.now() - t };
   }
 
+  /** Quita una encuesta creada (por `clientSubmissionId`). */
+  @Delete('survey')
+  async removeSurvey(@Query('clientSubmissionId') clientSubmissionId: string) {
+    const removed = clientSubmissionId ? await this.response.remove(clientSubmissionId) : 0;
+    return { removed };
+  }
+
   // ─── encuesta individual (definición + alta idempotente) ──────────────────
 
   /** Definición del cuestionario para el formulario de la consola. */
@@ -131,11 +143,15 @@ export class SeedController {
     return this.response.questionnaire();
   }
 
-  /** Agrega UNA encuesta. Idempotente por `clientSubmissionId`. */
+  /** Agrega UNA encuesta (reenviada a la captura real, canal `seed`). */
   @Post('survey')
-  async createSurvey(@Body() body: CreateSurveyInput) {
+  async createSurvey(@Body() body: CreateSurveyInput, @Res() res: Res) {
     const t = Date.now();
     const result = await this.response.create(body ?? ({} as CreateSurveyInput));
-    return { ...result, elapsedMs: Date.now() - t };
+    const payload =
+      result.body && typeof result.body === 'object'
+        ? (result.body as Record<string, unknown>)
+        : { body: result.body };
+    res.status(result.status).json({ ...payload, elapsedMs: Date.now() - t });
   }
 }

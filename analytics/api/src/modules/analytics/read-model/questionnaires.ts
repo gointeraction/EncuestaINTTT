@@ -53,6 +53,7 @@ export const CHANNEL_LABELS: Record<string, string> = {
   public: 'Autoservicio (en línea)',
   kiosk: 'Kiosco',
   surveyor: 'Encuestador',
+  seed: 'Seed (pruebas)',
 };
 
 /** Etiquetas de los tipos de conductor (fuente: src/lib/survey-data.ts). */

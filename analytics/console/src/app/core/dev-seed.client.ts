@@ -118,4 +118,25 @@ export class DevSeedClient {
   load(dataset?: string): Promise<SeedStatus> {
     return firstValueFrom(this.http.post<SeedStatus>(`${this.base}/load`, dataset ? { dataset } : {}));
   }
+
+  // ─── encuesta individual (definición + alta idempotente) ──────────────────
+
+  /** Definición del cuestionario (tipos + secciones/preguntas). */
+  questionnaire(): Promise<unknown> {
+    return firstValueFrom(this.http.get(`${this.base}/questionnaire`));
+  }
+
+  /** Envía UNA encuesta a la captura real (canal `seed`). */
+  createSurvey(payload: unknown): Promise<unknown> {
+    return firstValueFrom(this.http.post(`${this.base}/survey`, payload));
+  }
+
+  /** Quita la encuesta creada con ese `clientSubmissionId`. */
+  removeSurvey(clientSubmissionId: string): Promise<{ removed: number }> {
+    return firstValueFrom(
+      this.http.delete<{ removed: number }>(`${this.base}/survey`, {
+        params: { clientSubmissionId },
+      }),
+    );
+  }
 }

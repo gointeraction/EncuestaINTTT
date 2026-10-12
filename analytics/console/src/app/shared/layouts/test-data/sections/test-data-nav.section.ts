@@ -22,5 +22,6 @@ export class TestDataNavSection {
   protected readonly items: DsNavItem[] = [
     { label: 'Inicio', route: '/bienvenida' },
     { label: 'Datos de prueba', route: '/test-data' },
+    { label: 'Registro individual', route: '/test-data/individual' },
   ];
 }

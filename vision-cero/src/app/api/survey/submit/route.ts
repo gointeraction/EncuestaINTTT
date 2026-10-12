@@ -16,7 +16,7 @@ import { verifyPow, POW_DIFFICULTY } from "@/lib/pow";
 import { verifyDeviceSignature } from "@/lib/device-sign";
 import { SURVEY_ID } from "@/lib/survey-data";
 
-const CHANNELS = ["public", "kiosk", "surveyor"] as const;
+const CHANNELS = ["public", "kiosk", "surveyor", "seed"] as const;
 
 /**
  * POST /api/survey/submit — guardar una entrevista COMPLETA y VERIFICADA.
@@ -65,9 +65,22 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // ====== 4) Anti-bot: Turnstile (online) o PoW (offline, sin red) ======
-    const ts = await verifyTurnstileToken(turnstileToken, ip);
+    // ====== 3b) Canal: `seed` (pruebas desde el seeder) exige el secreto interno ======
+    const chan =
+      typeof channel === "string" && (CHANNELS as readonly string[]).includes(channel)
+        ? channel
+        : "public";
+    const seedSecret = process.env.SEED_SUBMIT_SECRET;
+    const isSeed =
+      chan === "seed" && !!seedSecret && req.headers.get("x-seed-secret") === seedSecret;
+    if (chan === "seed" && !isSeed) {
+      return NextResponse.json({ error: "Canal seed no autorizado." }, { status: 401 });
+    }
+
+    // ====== 4) Anti-bot: Turnstile (online) o PoW (offline) — OMITIDO para `seed` ======
+    const ts = isSeed ? { ok: true } : await verifyTurnstileToken(turnstileToken, ip);
     const powOk =
+      !isSeed &&
       !ts.ok &&
       !!subId &&
       !!botProof &&
@@ -77,7 +90,7 @@ export async function POST(req: NextRequest) {
         (botProof as { nonce?: unknown }).nonce,
         Number((botProof as { difficulty?: unknown }).difficulty ?? POW_DIFFICULTY)
       );
-    if (!ts.ok && !powOk) {
+    if (!isSeed && !ts.ok && !powOk) {
       return NextResponse.json(
         { error: ts.error ?? "Verificación de seguridad fallida." },
         { status: 403 }
@@ -103,12 +116,8 @@ export async function POST(req: NextRequest) {
     }
 
     // ====== 6) Canales confiables (kiosco/encuestador): firma de dispositivo + cuota ======
-    const chan =
-      typeof channel === "string" && (CHANNELS as readonly string[]).includes(channel)
-        ? channel
-        : "public";
     let deviceId: string | null = null;
-    if (chan !== "public") {
+    if (chan !== "public" && !isSeed) {
       deviceId = typeof deviceIdField === "string" && deviceIdField ? deviceIdField : null;
       if (!deviceId) {
         return NextResponse.json({ error: "Dispositivo requerido." }, { status: 401 });
