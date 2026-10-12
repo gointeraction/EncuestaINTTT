@@ -1,7 +1,6 @@
 import type { Cell } from './csv.js';
 import { rowRng, type Rng } from './rng.js';
 import {
-  getActiveQuestions,
   getSectionsForDriverType,
   type DriverTypeId,
   type Question,
@@ -155,11 +154,31 @@ function valueFor(r: Rng, q: Question): Record<string, string> | string | string
   }
 }
 
+/** ¿La pregunta aplica al perfil y a las respuestas ACUMULADAS (appliesTo + showIf)? */
+function questionApplies(
+  q: Question,
+  driverType: DriverTypeId,
+  answers: Record<string, unknown>,
+): boolean {
+  if (q.appliesTo !== 'all' && !q.appliesTo.includes(driverType)) return false;
+  if (q.showIf) {
+    const prev = answers[q.showIf.questionId];
+    if (prev === undefined || prev === null || prev === '') return false;
+    const actual = String(prev);
+    const req = q.showIf.value;
+    if (Array.isArray(req) ? !req.includes(actual) : actual !== req) return false;
+  }
+  return true;
+}
+
 /** Construye el objeto `answers` (JSON) con SOLO las preguntas aplicables al perfil. */
 export function answersFor(r: Rng, driverType: DriverTypeId): Record<string, unknown> {
   const answers: Record<string, string | string[] | number> = {};
   for (const section of getSectionsForDriverType(driverType)) {
-    for (const q of getActiveQuestions(section, driverType, answers)) {
+    // Se evalúa pregunta a pregunta (no la sección de una vez) para que las dependencias
+    // `showIf` DENTRO de la misma sección ya tengan la respuesta previa disponible.
+    for (const q of section.questions) {
+      if (!questionApplies(q, driverType, answers)) continue;
       const v = valueFor(r, q);
       if (q.type === 'estado-municipio') {
         const pair = v as Record<string, string>;
