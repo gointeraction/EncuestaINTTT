@@ -29,14 +29,16 @@ export class ExportController {
     const mask = (req.staffUser?.role ?? 'analista') !== 'admin';
     await this.accessAudit.registrarLectura(`analytics/surveys/${id}/export`, req.staffUser?.id);
 
-    const csv = await this.exportService.generateCollectedCsv(id, mask);
     await this.prisma.surveyExport.create({
       data: { surveyId: id, actorId: req.staffUser?.id ?? null },
     });
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="datos-${id}.csv"`);
-    res.send(csv);
+    for await (const chunk of this.exportService.collectedCsvChunks(id, mask)) {
+      res.write(chunk);
+    }
+    res.end();
   }
 
   /** Definición del cuestionario (catálogo de preguntas). */

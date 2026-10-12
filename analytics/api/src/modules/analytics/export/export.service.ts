@@ -37,15 +37,14 @@ function safeJson(value: unknown): Record<string, unknown> {
   }
 }
 
-/** CSV con BOM (Excel) + CRLF. */
-function toCsv(rows: unknown[][]): string {
-  return '\uFEFF' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
-}
+/** Tamaño de lote del export (filas por consulta) — evita cargar todo en memoria. */
+const EXPORT_CHUNK = 25_000;
 
 /**
- * ExportService — genera CSV desde la captura REAL (registry-driven, tabla
- * `legacy_survey_responses`). Dos salidas: la DEFINICIÓN del cuestionario y los
- * DATOS recolectados (JSON `answers` aplanado), con PII enmascarada para no-admin.
+ * ExportService — genera CSV desde la captura REAL (registry-driven). Dos salidas:
+ * la DEFINICIÓN del cuestionario y los DATOS recolectados. Los datos se emiten **por
+ * lotes** (streaming) para escalar a millones de filas sin agotar memoria; la PII se
+ * enmascara para no-admin.
  */
 @Injectable()
 export class ExportService {
@@ -66,18 +65,17 @@ export class ExportService {
     for (const d of q.derived ?? []) {
       rows.push([i++, d.id, d.label, 'derivada (autocontestada)', d.sources.join(' | ')]);
     }
-    return toCsv(rows);
+    return '\uFEFF' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
   }
 
-  /** Datos recolectados: una fila por entrevista, una columna por pregunta (+ derivadas). */
-  async generateCollectedCsv(surveyId: string, mask: boolean): Promise<string> {
+  /**
+   * Datos recolectados en CSV, emitidos EN TROZOS (una fila por entrevista, una columna
+   * por pregunta + derivadas). Primero el BOM + la cabecera; luego lotes de filas.
+   */
+  async *collectedCsvChunks(surveyId: string, mask: boolean): AsyncGenerator<string> {
     const q = this.questionnaire(surveyId);
     const src = q.source;
     const orderField = src.captureField ?? src.timeField ?? 'id';
-    const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
-      `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST`,
-    );
-
     const chan = src.channelField ?? 'channel';
     const dev = src.deviceField;
     const sorteo = src.sorteoField ?? 'participaSorteo';
@@ -99,27 +97,37 @@ export class ExportService {
       ...qids.map((id) => q.labels[id]),
       ...derived.map((d) => d.label),
     ];
+    yield '\uFEFF' + header.map(csvCell).join(',') + '\r\n';
 
-    const lines = rows.map((r) => {
-      const answers = safeJson(r[src.answersField]);
-      const cells: unknown[] = [
-        r.id,
-        r[chan],
-        ...(dev ? [r[dev]] : []),
-        r[src.segmentsField],
-        r.capturedAt,
-        r.completedAt,
-        r[sorteo],
-        mask ? pii(r.nombre) : r.nombre,
-        mask ? pii(r.cedula) : r.cedula,
-        mask ? pii(r.telefono) : r.telefono,
-        r.codigoSorteo,
-        ...qids.map((id) => format(answers[id])),
-        ...derived.map((d) => format(derivedValue(d, answers))),
-      ];
-      return cells.map(csvCell).join(',');
-    });
-
-    return '\uFEFF' + [header.map(csvCell).join(','), ...lines].join('\r\n') + '\r\n';
+    let offset = 0;
+    for (;;) {
+      const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
+        `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+      );
+      if (rows.length === 0) break;
+      let out = '';
+      for (const r of rows) {
+        const answers = safeJson(r[src.answersField]);
+        const cells: unknown[] = [
+          r.id,
+          r[chan],
+          ...(dev ? [r[dev]] : []),
+          r[src.segmentsField],
+          r.capturedAt,
+          r.completedAt,
+          r[sorteo],
+          mask ? pii(r.nombre) : r.nombre,
+          mask ? pii(r.cedula) : r.cedula,
+          mask ? pii(r.telefono) : r.telefono,
+          r.codigoSorteo,
+          ...qids.map((id) => format(answers[id])),
+          ...derived.map((d) => format(derivedValue(d, answers))),
+        ];
+        out += cells.map(csvCell).join(',') + '\r\n';
+      }
+      yield out;
+      offset += rows.length;
+      if (rows.length < EXPORT_CHUNK) break;
+    }
   }
 }
