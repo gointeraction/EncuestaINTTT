@@ -47,7 +47,7 @@ interface ChartVm {
 /**
  * @akuri-page
  * page: panel-encuesta
- * route: /panel
+ * route: /analitica/panel
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content

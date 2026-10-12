@@ -16,7 +16,7 @@ import { GlobalStateService } from './business/state/global.state.service';
 /**
  * @akuri-page
  * page: global
- * route: /
+ * route: /analitica
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content

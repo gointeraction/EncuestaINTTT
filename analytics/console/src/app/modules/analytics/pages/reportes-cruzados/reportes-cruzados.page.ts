@@ -13,7 +13,7 @@ import { ReportesStateService } from './business/state/reportes.state.service';
 /**
  * @akuri-page
  * page: reportes-cruzados
- * route: /reportes-cruzados
+ * route: /analitica/reportes-cruzados
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content

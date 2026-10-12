@@ -121,7 +121,7 @@ async function main() {
     return '401';
   });
 
-  for (const route of ['/', '/panel', '/reportes-cruzados', '/participantes', '/login']) {
+  for (const route of ['/bienvenida', '/analitica', '/analitica/panel', '/analitica/reportes-cruzados', '/analitica/participantes', '/login']) {
     await check(`CONSOLA ${route} -> 200 (SPA)`, async () => {
       const r = await fetch(`${CONSOLE}${route}`);
       assert(r.status === 200, `status ${r.status}`);

@@ -12,7 +12,7 @@ import { ParticipantsStateService } from './business/state/participants.state.se
 /**
  * @akuri-page
  * page: participantes
- * route: /participantes
+ * route: /analitica/participantes
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content

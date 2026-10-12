@@ -1,9 +1,7 @@
-import { ChangeDetectionStrategy, Component, computed, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { DsNavComponent, type DsNavItem } from '@cifraflow/design';
-import { SessionService } from '../../../../core/session.service';
-import { EnvironmentService } from '../../../../core/environment.service';
 
-/** Layout section (header, right): the console main menu (ds-nav). */
+/** Layout section (header, right): menu del área de ANALÍTICA (solo su dominio). */
 @Component({
   selector: 'app-console-nav-section',
   standalone: true,
@@ -13,7 +11,7 @@ import { EnvironmentService } from '../../../../core/environment.service';
   template: `
     <ds-nav
       name="console"
-      [items]="items()"
+      [items]="items"
       variant="underline"
       textColor="var(--ds-color-white)"
       activeColor="var(--ds-color-brand-accent)"
@@ -21,25 +19,14 @@ import { EnvironmentService } from '../../../../core/environment.service';
   `,
 })
 export class ConsoleNavSection {
-  private readonly session = inject(SessionService);
-  private readonly env = inject(EnvironmentService);
-
-  protected readonly items = computed<DsNavItem[]>(() => {
-    const base: DsNavItem[] = [
-      { label: 'Global', route: '/' },
-      { label: 'Preguntas', route: '/preguntas' },
-      { label: 'Panel', route: '/panel' },
-      { label: 'Cruzados', route: '/reportes-cruzados' },
-      { label: 'Anomalías', route: '/anomalias' },
-      { label: 'Participantes', route: '/participantes' },
-      { label: 'Exportar', route: '/exportar' },
-    ];
-    if (this.session.user()?.role === 'admin') {
-      base.push({ label: 'Usuarios', route: '/usuarios' });
-    }
-    if (this.env.isDevelopment()) {
-      base.push({ label: 'Datos de prueba', route: '/test-data' });
-    }
-    return base;
-  });
+  protected readonly items: DsNavItem[] = [
+    { label: 'Inicio', route: '/bienvenida' },
+    { label: 'Global', route: '/analitica' },
+    { label: 'Preguntas', route: '/analitica/preguntas' },
+    { label: 'Panel', route: '/analitica/panel' },
+    { label: 'Cruzados', route: '/analitica/reportes-cruzados' },
+    { label: 'Anomalías', route: '/analitica/anomalias' },
+    { label: 'Participantes', route: '/analitica/participantes' },
+    { label: 'Exportar', route: '/analitica/exportar' },
+  ];
 }

@@ -15,7 +15,7 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
 /**
  * @akuri-page
  * page: anomalias
- * route: /anomalias
+ * route: /analitica/anomalias
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content

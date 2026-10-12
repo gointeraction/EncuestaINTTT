@@ -26,10 +26,6 @@ export const ANALYTICS_ROUTES: Routes = [
     loadComponent: () => import('./pages/anomalias/anomalias.page').then((m) => m.AnomaliasPage),
   },
   {
-    path: 'usuarios',
-    loadComponent: () => import('./pages/usuarios/usuarios.page').then((m) => m.UsuariosPage),
-  },
-  {
     path: 'exportar',
     loadComponent: () => import('./pages/exportar/exportar.page').then((m) => m.ExportarPage),
   },

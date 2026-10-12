@@ -12,7 +12,7 @@ import { AdminUsersStateService } from './business/state/admin-users.state.servi
 /**
  * @akuri-page
  * page: usuarios
- * route: /usuarios
+ * route: /admin
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content

@@ -15,7 +15,7 @@ import { PreguntasStateService } from './business/state/preguntas.state.service'
 /**
  * @akuri-page
  * page: preguntas
- * route: /preguntas
+ * route: /analitica/preguntas
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content
@@ -146,6 +146,6 @@ export class PreguntasPage {
 
   open(row: DsTableRow): void {
     const id = (row as Record<string, unknown>)['id'];
-    if (id) void this.router.navigate(['/panel'], { queryParams: { q: String(id) } });
+    if (id) void this.router.navigate(['/analitica/panel'], { queryParams: { q: String(id) } });
   }
 }

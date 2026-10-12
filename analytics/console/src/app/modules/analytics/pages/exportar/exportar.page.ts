@@ -13,7 +13,7 @@ import { ExportStateService } from './business/state/export.state.service';
 /**
  * @akuri-page
  * page: exportar
- * route: /exportar
+ * route: /analitica/exportar
  * view: VL1
  * function: FL3
  * spine: display > page > area(header|body) > section > content
