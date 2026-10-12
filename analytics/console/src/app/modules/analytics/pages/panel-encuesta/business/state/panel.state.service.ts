@@ -27,11 +27,13 @@ export class PanelStateService implements PanelStateContract {
   readonly dimensionValue = signal('');
 
   readonly filters = this.filterState.filters;
+  /** Catálogo SIN filtrar (todas las opciones) para el constructor de filtros. */
+  private readonly catalog = signal<QuestionAnalytics[]>([]);
   readonly filtering = signal(false);
 
   /** Preguntas filtrables: id/etiqueta/posición + sus opciones (por etiqueta visible). */
   readonly filterQuestions = computed<FilterQuestion[]>(() =>
-    (this.dashboard()?.questions ?? []).map((q) => ({
+    this.catalog().map((q) => ({
       id: q.id,
       label: q.label,
       position: q.position,
@@ -113,6 +115,7 @@ export class PanelStateService implements PanelStateContract {
         this.data.loadDimensions(id),
       ]);
       this.dashboard.set(dashboard);
+      this.catalog.set(dashboard?.questions ?? []);
       this.dimensions.set(dimensions);
     } finally {
       this.loading.set(false);

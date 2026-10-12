@@ -134,7 +134,11 @@ export class FilterBuilderComponent {
   }
 
   queryFor(id: string): string {
-    return this.queries()[id] ?? '';
+    const typed = this.queries()[id] ?? '';
+    if (typed) return typed;
+    const c = this.value().conditions.find((x) => x.id === id);
+    const q = c?.questionId ? this.questions().find((x) => x.id === c.questionId) : undefined;
+    return q ? this.qLabel(q) : '';
   }
 
   qLabel(q: FilterQuestion): string {
