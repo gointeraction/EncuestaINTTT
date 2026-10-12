@@ -80,6 +80,47 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
             </ul>
           }
         </ds-container>
+
+        <ds-container kind="section" name="fixtures" style="margin-top: var(--ds-space-6)">
+          <h3 class="seed__h">Fixtures · CSV en <code>data/fixtures</code></h3>
+          <p class="seed__meta">
+            {{ state.fixtures().length }} archivo(s) · <b>{{ state.fixtureTotal() }}</b> encuestas en total.
+            Son la fuente que carga «Cargar CSV» (→ <code>legacy_survey_responses</code> + <code>capture_devices</code>).
+          </p>
+
+          @if (state.fixtures().length) {
+            <table class="seed__table">
+              <thead>
+                <tr><th>Archivo</th><th>Filas</th><th>Tamaño</th><th>Modificado</th><th></th></tr>
+              </thead>
+              <tbody>
+                @for (f of state.fixtures(); track f.name) {
+                  <tr>
+                    <td>{{ f.name }}</td>
+                    <td>{{ f.rows }}</td>
+                    <td>{{ fmtBytes(f.bytes) }}</td>
+                    <td>{{ fmtDate(f.modifiedAt) }}</td>
+                    <td class="seed__row-actions">
+                      <ds-button size="sm" variant="danger" [loading]="state.busy()" (click)="deleteFixture(f.name)">
+                        Eliminar
+                      </ds-button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <div class="seed__actions" style="margin-top: var(--ds-space-3)">
+              <ds-button variant="destructive" [loading]="state.busy()" (click)="deleteAllFixtures()">
+                Eliminar todos los CSV
+              </ds-button>
+              <ds-button variant="secondary" [loading]="state.busy()" (click)="loadFixtures()">
+                Cargar CSV a la base
+              </ds-button>
+            </div>
+          } @else {
+            <p class="seed__meta">No hay fixtures. Usa «Generar CSV» para crearlos.</p>
+          }
+        </ds-container>
       </ds-container>
     </ds-container>
   `,
@@ -96,6 +137,12 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
     .seed__meta { margin: 0; font-size: var(--ds-text-small); color: var(--ds-text-muted); }
     .seed__counts { display: flex; flex-wrap: wrap; gap: var(--ds-space-5); list-style: none; margin: 0; padding: 0; }
     .seed__counts b { color: var(--ds-color-brand-primary); font-size: var(--ds-text-large); }
+    .seed__h { margin: 0 0 var(--ds-space-2); font-size: var(--ds-text-heading-4); color: var(--ds-surface-page-on); }
+    .seed__h code, .seed__meta code { font-family: ui-monospace, monospace; font-size: 0.9em; }
+    .seed__table { width: 100%; border-collapse: collapse; font-size: var(--ds-text-small); color: var(--ds-surface-page-on); }
+    .seed__table th, .seed__table td { text-align: left; padding: var(--ds-space-2) var(--ds-space-3); border-bottom: 1px solid var(--ds-border-subtle); }
+    .seed__table th { color: var(--ds-text-muted); font-weight: 600; }
+    .seed__row-actions { display: flex; gap: var(--ds-space-2); }
   `,
 })
 export class DevSeedPage {
@@ -136,11 +183,30 @@ export class DevSeedPage {
   }
 
   makeFixtures(): void {
-    void this.state.fixtures();
+    void this.state.generateFixtures();
   }
 
   loadFixtures(): void {
     void this.state.loadFixtures();
+  }
+
+  deleteFixture(name: string): void {
+    void this.state.deleteFixtures(name);
+  }
+
+  deleteAllFixtures(): void {
+    void this.state.deleteFixtures();
+  }
+
+  fmtBytes(n: number): string {
+    if (n < 1024) return `${n} B`;
+    if (n < 1024 * 1024) return `${(n / 1024).toFixed(1)} KB`;
+    return `${(n / (1024 * 1024)).toFixed(1)} MB`;
+  }
+
+  fmtDate(iso: string): string {
+    const d = new Date(iso);
+    return Number.isNaN(d.getTime()) ? '' : d.toLocaleString();
   }
 
   reset(): void {

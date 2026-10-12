@@ -24,6 +24,18 @@ export interface SeedRequest {
   seed?: number;
 }
 
+export interface FixtureFile {
+  name: string;
+  rows: number;
+  bytes: number;
+  modifiedAt: string;
+}
+
+export interface FixturesList {
+  fixtures: FixtureFile[];
+  total: number;
+}
+
 /**
  * Cliente del seeder (dev-only). Vive en `core/` (no en la página): la página llega al
  * backend por este puerto, no por HttpClient directo (regla no-http-client-in-page).
@@ -53,6 +65,20 @@ export class DevSeedClient {
   fixtures(perType?: number): Promise<SeedStatus> {
     const body = perType ? { perType } : {};
     return firstValueFrom(this.http.post<SeedStatus>(`${this.base}/fixtures`, body));
+  }
+
+  /** Lista los CSV de fixtures (nombre, filas, bytes, fecha). */
+  fixturesList(): Promise<FixturesList> {
+    return firstValueFrom(this.http.get<FixturesList>(`${this.base}/fixtures`));
+  }
+
+  /** Borra los CSV de fixtures (todos, o uno por nombre). */
+  deleteFixtures(name?: string): Promise<{ removed: number }> {
+    return firstValueFrom(
+      this.http.delete<{ removed: number }>(`${this.base}/fixtures`, {
+        params: name ? { name } : {},
+      }),
+    );
   }
 
   load(): Promise<SeedStatus> {

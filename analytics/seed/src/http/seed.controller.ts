@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Inject, Post, Query } from '@nestjs/common';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { PgService } from '../core/pg.service.js';
 import { SeedCommand, type SeedOptions } from '../commands/seed.command.js';
@@ -67,6 +67,20 @@ export class SeedController {
   async runFixtures(@Body() body: { perType?: number } = {}) {
     await this.fixtures.run({ perType: body?.perType });
     return this.status();
+  }
+
+  /** Lista los CSV de fixtures (nombre, filas, bytes, fecha). */
+  @Get('fixtures')
+  async listFixtures() {
+    const fixtures = this.fixtures.list();
+    return { fixtures, total: fixtures.reduce((s, f) => s + f.rows, 0) };
+  }
+
+  /** Borra los CSV de fixtures (todos, o uno por `?name=`). */
+  @Delete('fixtures')
+  async deleteFixtures(@Query('name') name?: string) {
+    const removed = this.fixtures.remove({ name });
+    return { removed };
   }
 
   /** Carga los CSV de fixtures a la tabla real (misma estrategia que la captura). */

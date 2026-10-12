@@ -1,5 +1,13 @@
 import { Inject, Injectable, Logger } from '@nestjs/common';
-import { createWriteStream, mkdirSync } from 'node:fs';
+import {
+  createWriteStream,
+  existsSync,
+  mkdirSync,
+  readFileSync,
+  readdirSync,
+  statSync,
+  unlinkSync,
+} from 'node:fs';
 import { join } from 'node:path';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { csvLine } from '../core/csv.js';
@@ -7,6 +15,13 @@ import { rowRng } from '../core/rng.js';
 import { DRIVER_TYPE_IDS, LEGACY_COLUMNS, legacyRowsForDriver } from '../core/vision-cero.js';
 
 const HEADER = LEGACY_COLUMNS.map((c) => c.replace(/"/g, '')).join(',');
+
+export interface FixtureFile {
+  name: string;
+  rows: number;
+  bytes: number;
+  modifiedAt: string;
+}
 
 /**
  * fixtures — escribe un CSV por tipo de conductor, con la MISMA forma que una entrevista
@@ -42,6 +57,48 @@ export class FixturesCommand {
       await new Promise<void>((res, rej) => out.end((e?: Error | null) => (e ? rej(e) : res())));
       this.log.log(`${file}: ${written} filas`);
     }
+  }
+
+  private dirOf(dir?: string): string {
+    return dir ?? join(process.cwd(), 'data', 'fixtures');
+  }
+
+  /** Lista los CSV de fixtures (nombre, filas, bytes, fecha de modificación). */
+  list(opts: { dir?: string } = {}): FixtureFile[] {
+    const dir = this.dirOf(opts.dir);
+    if (!existsSync(dir)) return [];
+    return readdirSync(dir)
+      .filter((f) => f.endsWith('.csv'))
+      .sort()
+      .map((name) => {
+        const path = join(dir, name);
+        const st = statSync(path);
+        const text = readFileSync(path, 'utf8');
+        const lines = text ? text.split('\n').filter((l) => l.length > 0).length : 0;
+        return {
+          name,
+          rows: Math.max(0, lines - 1), // menos la cabecera
+          bytes: st.size,
+          modifiedAt: st.mtime.toISOString(),
+        };
+      });
+  }
+
+  /** Borra los CSV de fixtures (todos, o uno por nombre). Devuelve cuántos borró. */
+  remove(opts: { dir?: string; name?: string } = {}): number {
+    const dir = this.dirOf(opts.dir);
+    if (!existsSync(dir)) return 0;
+    if (opts.name && (!opts.name.endsWith('.csv') || /[/\\]|\.\./.test(opts.name))) return 0;
+    const names = opts.name ? [opts.name] : readdirSync(dir).filter((f) => f.endsWith('.csv'));
+    let removed = 0;
+    for (const name of names) {
+      const path = join(dir, name);
+      if (existsSync(path)) {
+        unlinkSync(path);
+        removed++;
+      }
+    }
+    return removed;
   }
 }
 
