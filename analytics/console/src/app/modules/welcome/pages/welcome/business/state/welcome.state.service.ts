@@ -28,6 +28,13 @@ export class WelcomeStateService implements WelcomeStateContract {
     const isAdmin = !!user && (user.role === 'admin' || user.permissions?.includes('*'));
     const out: Destination[] = [];
 
+    out.push({
+      id: 'analitica',
+      label: 'Analítica',
+      description: 'KPIs, panel por pregunta, cruces, anomalías y exportación.',
+      route: '/analitica',
+      icon: 'bar-chart-3',
+    });
     if (isAdmin) {
       out.push({
         id: 'admin',
@@ -44,13 +51,6 @@ export class WelcomeStateService implements WelcomeStateContract {
         icon: 'file-plus',
       });
     }
-    out.push({
-      id: 'analitica',
-      label: 'Analítica',
-      description: 'KPIs, panel por pregunta, cruces, anomalías y exportación.',
-      route: '/analitica',
-      icon: 'bar-chart-3',
-    });
     if (this.env.isDevelopment()) {
       out.push({
         id: 'test-data',
