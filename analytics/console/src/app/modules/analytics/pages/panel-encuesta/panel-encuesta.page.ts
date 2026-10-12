@@ -81,7 +81,7 @@ interface ChartVm {
             </div>
             <div class="ds-h__section ds-h__section--end">
               <label class="panel__fuente">Encuesta
-                <select [value]="state.surveyId()" (change)="onSurvey($event)">
+                <select class="ds-select" [value]="state.surveyId()" (change)="onSurvey($event)">
                   <option value="">Seleccione…</option>
                   @for (s of state.sources(); track s.id) {
                     <option [value]="s.id">{{ s.title }}</option>

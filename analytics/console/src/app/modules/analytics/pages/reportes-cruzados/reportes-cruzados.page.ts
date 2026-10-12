@@ -39,7 +39,7 @@ import { ReportesStateService } from './business/state/reportes.state.service';
             </div>
             <div class="ds-h__section ds-h__section--end">
               <label class="rep__field">Encuesta
-                <select [value]="state.surveyId()" (change)="state.setSurvey(value($event))">
+                <select class="ds-select" [value]="state.surveyId()" (change)="state.setSurvey(value($event))">
                   <option value="">Seleccione…</option>
                   @for (s of state.sources(); track s.id) {
                     <option [value]="s.id">{{ s.title }}</option>
@@ -56,12 +56,12 @@ import { ReportesStateService } from './business/state/reportes.state.service';
           @if (state.questions().length) {
             <div class="rep__row">
               <label class="rep__field">Pregunta A
-                <select [value]="state.q1()" (change)="state.setQ1(value($event))">
+                <select class="ds-select" [value]="state.q1()" (change)="state.setQ1(value($event))">
                   @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.position ? q.position + '. ' : '' }}{{ q.label }}</option> }
                 </select>
               </label>
               <label class="rep__field">Pregunta B
-                <select [value]="state.q2()" (change)="state.setQ2(value($event))">
+                <select class="ds-select" [value]="state.q2()" (change)="state.setQ2(value($event))">
                   @for (q of state.questions(); track q.id) { <option [value]="q.id">{{ q.position ? q.position + '. ' : '' }}{{ q.label }}</option> }
                 </select>
               </label>

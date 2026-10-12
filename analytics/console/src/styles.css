@@ -17,5 +17,23 @@
   padding-inline: max(var(--ds-space-4), calc((100% - var(--ds-container-xl)) / 2));
 }
 
+/* Selects del DS — misma apariencia y foco que los inputs de data-entry. */
+.ds-select {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--ds-border-input);
+  border-radius: var(--ds-radius-standard);
+  background: var(--ds-bg-field);
+  color: var(--ds-surface-body-on);
+  font-size: 0.875rem;
+  font-family: var(--ds-font-sans);
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.ds-select:hover { border-color: var(--ds-color-brand-contrast); }
+.ds-select:focus {
+  outline: none;
+  border-color: var(--ds-color-brand-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-brand-primary) 18%, transparent);
+}
+
 /* Escaneo de templates del proyecto (Tailwind v4). */
 @source "./";
