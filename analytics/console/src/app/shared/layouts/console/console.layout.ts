@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, effect, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { DsContainerComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
@@ -95,6 +95,10 @@ export class ConsoleLayout {
   protected readonly session = inject(SessionService);
 
   constructor() {
-    void inject(ActiveSurveyService).load();
+    const active = inject(ActiveSurveyService);
+    // Carga la lista de encuestas solo con sesión (evita un 401 en la pantalla de login).
+    effect(() => {
+      if (this.session.user()) void active.load();
+    });
   }
 }

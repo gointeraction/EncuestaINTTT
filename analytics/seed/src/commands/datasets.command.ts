@@ -3,12 +3,12 @@ import {
   createWriteStream,
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
   statSync,
   unlinkSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { countLines } from '../core/fs.util.js';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { csvLine } from '../core/csv.js';
 import { LEGACY_COLUMNS, legacyRows } from '../core/vision-cero.js';
@@ -26,6 +26,14 @@ export interface DatasetFile {
   rows: number;
   bytes: number;
   modifiedAt: string;
+}
+
+/** Filas a partir del nombre (`scale-100k` → 100000); null si no sigue el patrón. */
+function rowsFromName(name: string): number | null {
+  const m = /scale-(\d+)([km])\.csv$/i.exec(name);
+  if (!m) return null;
+  const n = Number(m[1]);
+  return m[2].toLowerCase() === 'm' ? n * 1_000_000 : n * 1_000;
 }
 
 /**
@@ -75,9 +83,9 @@ export class DatasetsCommand {
       .map((name) => {
         const path = join(dir, name);
         const st = statSync(path);
-        const text = readFileSync(path, 'utf8');
-        const lines = text ? text.split('\n').filter((l) => l.length > 0).length : 0;
-        return { name, rows: Math.max(0, lines - 1), bytes: st.size, modifiedAt: st.mtime.toISOString() };
+        // El nombre codifica el volumen → evita leer GB enteros para contar líneas.
+        const rows = rowsFromName(name) ?? Math.max(0, countLines(path) - 1);
+        return { name, rows, bytes: st.size, modifiedAt: st.mtime.toISOString() };
       });
   }
 

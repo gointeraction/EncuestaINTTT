@@ -3,12 +3,12 @@ import {
   createWriteStream,
   existsSync,
   mkdirSync,
-  readFileSync,
   readdirSync,
   statSync,
   unlinkSync,
 } from 'node:fs';
 import { join } from 'node:path';
+import { countLines } from '../core/fs.util.js';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { csvLine } from '../core/csv.js';
 import { rowRng } from '../core/rng.js';
@@ -73,11 +73,9 @@ export class FixturesCommand {
       .map((name) => {
         const path = join(dir, name);
         const st = statSync(path);
-        const text = readFileSync(path, 'utf8');
-        const lines = text ? text.split('\n').filter((l) => l.length > 0).length : 0;
         return {
           name,
-          rows: Math.max(0, lines - 1), // menos la cabecera
+          rows: Math.max(0, countLines(path) - 1), // menos la cabecera
           bytes: st.size,
           modifiedAt: st.mtime.toISOString(),
         };
