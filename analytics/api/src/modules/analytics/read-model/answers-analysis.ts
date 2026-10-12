@@ -313,3 +313,174 @@ function binOptions(
   }
   return out;
 }
+
+/** Prisma mínimo (solo lo que usa la agregación SQL). */
+export interface SqlRunner {
+  $queryRawUnsafe<T>(sql: string, ...params: unknown[]): Promise<T>;
+}
+
+/**
+ * Agrega las respuestas EN SQL (una pasada con `jsonb_each`), sin traer las filas al API.
+ * Escala a millones de registros con memoria acotada. Soporta categóricas (single/multi),
+ * numéricas y derivadas por `bins` (a partir de la distribución de su fuente).
+ * (Las derivadas con `compute` a medida NO se soportan aquí.)
+ */
+export async function aggregateAnswersSql(
+  prisma: SqlRunner,
+  q: Questionnaire,
+  whereSql: string,
+  params: unknown[],
+): Promise<{ questions: QuestionAgg[]; total: number; byDriverType: Array<{ id: string; responses: number }> }> {
+  const table = q.source.table;
+  const af = q.source.answersField;
+  const seg = q.source.segmentsField;
+  const w = whereSql || '';
+  const andW = whereSql ? `${whereSql} AND ` : 'WHERE ';
+  const explode = `${table} r CROSS JOIN LATERAL jsonb_each(r."${af}"::jsonb) kv`;
+
+  const [tot] = await prisma.$queryRawUnsafe<Array<{ total: number }>>(
+    `SELECT COUNT(*)::int AS total FROM ${table} ${w}`,
+    ...params,
+  );
+  const total = tot?.total ?? 0;
+
+  const byDriverType = await prisma.$queryRawUnsafe<Array<{ id: string; responses: number }>>(
+    `SELECT "${seg}" AS id, COUNT(*)::int AS responses FROM ${table} ${w} GROUP BY 1 ORDER BY 2 DESC`,
+    ...params,
+  );
+
+  const scalars = await prisma.$queryRawUnsafe<
+    Array<{ key: string; sval: string | null; nval: number | null; c: number }>
+  >(
+    `SELECT kv.key AS key,
+            CASE WHEN jsonb_typeof(kv.value) = 'number' THEN NULL ELSE kv.value #>> '{}' END AS sval,
+            CASE WHEN jsonb_typeof(kv.value) = 'number' THEN (kv.value #>> '{}')::float8 ELSE NULL END AS nval,
+            COUNT(*)::int AS c
+     FROM ${explode}
+     ${andW}jsonb_typeof(kv.value) <> 'array' AND kv.value <> 'null' AND (kv.value #>> '{}') <> ''
+     GROUP BY 1, 2, 3`,
+    ...params,
+  );
+
+  const arrays = await prisma.$queryRawUnsafe<Array<{ key: string; elem: string; c: number }>>(
+    `SELECT kv.key AS key, elem, COUNT(*)::int AS c
+     FROM ${table} r
+     CROSS JOIN LATERAL jsonb_each(r."${af}"::jsonb) kv
+     CROSS JOIN LATERAL jsonb_array_elements_text(kv.value) elem
+     ${andW}jsonb_typeof(kv.value) = 'array'
+     GROUP BY 1, 2`,
+    ...params,
+  );
+
+  // Base por clave: los escalares = suma de conteos (cada fila aporta ≤1 por clave);
+  // los arrays = filas DISTINTAS con el array no vacío.
+  const baseByKey = new Map<string, number>();
+  for (const r of scalars) baseByKey.set(r.key, (baseByKey.get(r.key) ?? 0) + r.c);
+  const arrayBase = await prisma.$queryRawUnsafe<Array<{ key: string; base: number }>>(
+    `SELECT kv.key AS key, COUNT(DISTINCT r.id)::int AS base
+     FROM ${explode}
+     ${andW}(CASE WHEN jsonb_typeof(kv.value) = 'array' THEN jsonb_array_length(kv.value) ELSE 0 END) > 0
+     GROUP BY 1`,
+    ...params,
+  );
+  for (const b of arrayBase) baseByKey.set(b.key, b.base);
+
+  const byKey = new Map<string, { nums: Map<number, number>; cats: Map<string, number> }>();
+  for (const r of scalars) {
+    const e = byKey.get(r.key) ?? { nums: new Map(), cats: new Map() };
+    if (r.nval !== null && r.nval !== undefined) {
+      const v = Number(r.nval);
+      e.nums.set(v, (e.nums.get(v) ?? 0) + r.c);
+    } else if (r.sval !== null) {
+      e.cats.set(r.sval, (e.cats.get(r.sval) ?? 0) + r.c);
+    }
+    byKey.set(r.key, e);
+  }
+  for (const r of arrays) {
+    const e = byKey.get(r.key) ?? { nums: new Map(), cats: new Map() };
+    e.cats.set(r.elem, (e.cats.get(r.elem) ?? 0) + r.c);
+    byKey.set(r.key, e);
+  }
+  const multiKeys = new Set(arrays.map((a) => a.key));
+
+  const questions: QuestionAgg[] = [];
+  for (const [k, e] of byKey) {
+    if (e.nums.size > 0) {
+      const sum = [...e.nums].reduce((s, [v, c]) => s + v * c, 0);
+      const cnt = [...e.nums.values()].reduce((s, c) => s + c, 0);
+      questions.push({
+        id: k,
+        type: q.types?.[k] ?? 'number',
+        label: q.labels[k] ?? k,
+        kind: 'numeric',
+        base: baseByKey.get(k) ?? 0,
+        options: q.bins?.[k] ? binOptions(q.bins[k], e.nums) : [],
+        distribution: [...e.nums.entries()]
+          .map(([value, count]) => ({ value, count }))
+          .sort((a, b) => a.value - b.value),
+        stats: computeStats(e.nums),
+        average: cnt ? sum / cnt : null,
+      });
+    } else if (e.cats.size > 0) {
+      questions.push({
+        id: k,
+        type: multiKeys.has(k) ? 'multi_choice' : 'single_choice',
+        label: q.labels[k] ?? k,
+        kind: 'choice',
+        base: baseByKey.get(k) ?? 0,
+        options: [...e.cats.entries()]
+          .map(([value, count]) => ({ value, count }))
+          .sort((a, b) => b.count - a.count)
+          .slice(0, 30),
+        average: null,
+      });
+    }
+  }
+
+  const observed = new Set(byKey.keys());
+  for (const [k, label] of Object.entries(q.labels)) {
+    if (observed.has(k)) continue;
+    if (q.bins?.[k]) {
+      questions.push({
+        id: k, type: q.types?.[k] ?? 'number', label, kind: 'numeric', base: 0, options: [],
+        distribution: [], stats: computeStats(new Map()), average: null,
+      });
+    } else {
+      questions.push({ id: k, type: 'single_choice', label, kind: 'choice', base: 0, options: [], average: null });
+    }
+  }
+
+  for (const d of q.derived ?? []) {
+    let options: Array<{ value: string; count: number }> = [];
+    const src = d.sources[0];
+    const dist = src ? byKey.get(src)?.nums : undefined;
+    if (d.bins && dist && dist.size) {
+      const agg = new Map<string, number>();
+      for (const [v, c] of dist) {
+        const label = binLabel(d.bins, v);
+        agg.set(label, (agg.get(label) ?? 0) + c);
+      }
+      options = [...agg.entries()]
+        .map(([value, count]) => ({ value, count }))
+        .sort((a, b) => b.count - a.count);
+    }
+    questions.push({
+      id: d.id, type: 'single_choice', label: d.label, kind: 'choice', derived: true,
+      sources: d.sources, base: options.reduce((s, o) => s + o.count, 0), options, average: null,
+    });
+  }
+
+  const order = new Map(Object.keys(q.labels).map((k, i) => [k, i]));
+  questions.sort((a, b) => {
+    if (!!a.derived !== !!b.derived) return a.derived ? 1 : -1;
+    const oa = order.get(a.id);
+    const ob = order.get(b.id);
+    if (oa != null && ob != null) return oa - ob;
+    return a.id.localeCompare(b.id);
+  });
+  questions.forEach((x, i) => {
+    x.position = i + 1;
+  });
+
+  return { questions, total, byDriverType };
+}

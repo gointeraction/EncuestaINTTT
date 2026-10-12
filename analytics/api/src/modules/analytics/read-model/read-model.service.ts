@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { QUESTIONNAIRES, PRIMARY_QUESTIONNAIRE, type Questionnaire } from './questionnaires.js';
-import { aggregateAnswers, buildFilterWhere, bySegment } from './answers-analysis.js';
+import { aggregateAnswersSql, buildFilterWhere } from './answers-analysis.js';
 
 /**
  * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de la
@@ -56,11 +56,10 @@ export class ReadModelService {
     return total;
   }
 
-  /** Resumen materializado del cuestionario (sin filtros). */
+  /** Resumen materializado del cuestionario (sin filtros). Agrega en SQL (escala a millones). */
   async summarizeSurvey(surveyId: string): Promise<number> {
     const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
-    const rows = await this.fetchRows(q);
-    const { questions, total } = aggregateAnswers(q, rows);
+    const { questions, total, byDriverType } = await aggregateAnswersSql(this.prisma, q, '', []);
     const payload = {
       surveyId: q.id,
       title: q.title,
@@ -73,7 +72,7 @@ export class ReadModelService {
         completionRate: total ? 1 : 0,
         abandonmentRate: 0,
       },
-      byDriverType: bySegment(rows),
+      byDriverType,
       questions,
       generatedAt: new Date().toISOString(),
     };
@@ -86,18 +85,13 @@ export class ReadModelService {
   }
 
   /**
-   * Resumen FILTRADO en vivo: acota los cuestionarios por `(dimension = value)` y reagrega
-   * pregunta por pregunta (A2: analysis-filtering.md). Solo-lectura.
+   * Resumen FILTRADO en vivo: acota por `(dimension = value)` y reagrega pregunta por pregunta
+   * (A2: analysis-filtering.md). Agrega en SQL; solo-lectura.
    */
   async summarizeFiltered(surveyId: string, dimension: string, value: string): Promise<unknown> {
     const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
     const { sql, params } = buildFilterWhere(q, dimension, value);
-    const rows = await this.prisma.$queryRawUnsafe<Array<{ answers: string; seg: string }>>(
-      `SELECT "${q.source.answersField}" AS answers, "${q.source.segmentsField}" AS seg
-       FROM ${q.source.table} ${sql} LIMIT 200000`,
-      ...params,
-    );
-    const { questions, total } = aggregateAnswers(q, rows);
+    const { questions, total, byDriverType } = await aggregateAnswersSql(this.prisma, q, sql, params);
     return {
       surveyId: q.id,
       segment: { dimension, value },
@@ -110,7 +104,7 @@ export class ReadModelService {
         completionRate: total ? 1 : 0,
         abandonmentRate: 0,
       },
-      byDriverType: bySegment(rows),
+      byDriverType,
       questions,
       generatedAt: new Date().toISOString(),
     };
@@ -160,12 +154,5 @@ export class ReadModelService {
        GROUP BY 1 ORDER BY 1`,
     );
     return { byDevice, duplicateAnswers: { groups: dup?.groups ?? 0, max: dup?.max ?? 0 }, hourly };
-  }
-
-  private fetchRows(q: Questionnaire): Promise<Array<{ answers: string; seg: string }>> {
-    return this.prisma.$queryRawUnsafe<Array<{ answers: string; seg: string }>>(
-      `SELECT "${q.source.answersField}" AS answers, "${q.source.segmentsField}" AS seg
-       FROM ${q.source.table} LIMIT 200000`,
-    );
   }
 }

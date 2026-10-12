@@ -50,6 +50,7 @@ export function questionBase(q: QuestionAnalytics): number {
 
 export function visualForm(q: QuestionAnalytics): string {
   if (q.kind === 'text') return 'tabla';
+  if (q.type === 'scale') return 'barras';
   if (q.kind === 'numeric') return 'histograma';
   if (q.type === 'multi_choice') return 'barras';
   return (q.options?.length ?? 0) <= 8 ? 'dona' : 'barras';

@@ -27,6 +27,8 @@ export interface Questionnaire {
   channels: Record<string, string>;
   /** pregunta-id → etiqueta. */
   labels: Record<string, string>;
+  /** pregunta-id → TIPO declarado (para tipos no inferibles de los datos, p.ej. `scale`). */
+  types?: Record<string, string>;
   /** Rangos (límites) por pregunta numérica → se presenta agrupada por rango. */
   bins?: Record<string, number[]>;
   /**
@@ -145,6 +147,15 @@ export const QUESTIONNAIRES: Questionnaire[] = [
     segments: DRIVER_LABELS,
     channels: CHANNEL_LABELS,
     labels: VISION_CERO_LABELS,
+    // Tipos no inferibles de los datos: las escalas 1-5 (no son "numéricas" a secas).
+    types: {
+      velocidad_opinion: 'scale',
+      rebases_peatones: 'scale',
+      efectividad_control: 'scale',
+      percepcion_seguridad: 'scale',
+      estado_vias: 'scale',
+      senalizacion: 'scale',
+    },
     bins: {
       edad: [14, 25, 35, 45, 55, 100],
       anos_conduciendo: [0, 5, 10, 15, 20, 100],
