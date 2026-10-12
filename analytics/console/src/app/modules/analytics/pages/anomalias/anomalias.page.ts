@@ -82,12 +82,16 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
 
           @if (a.hourly.length > 1) {
             <ds-container kind="section" name="hourly" style="margin-top: var(--ds-space-6)">
-              <ds-chart-card
-                title="Picos por hora"
-                subtitle="Cuestionarios por hora (últimas 48 h)"
-                [categories]="hourlyChart().categories"
-                [series]="hourlyChart().series"
-              />
+              <div class="an__scroll">
+                <div class="an__chart" [style.min-width.px]="a.hourly.length * 48">
+                  <ds-chart-card
+                    title="Picos por hora"
+                    subtitle="Cuestionarios por hora (últimas 48 h)"
+                    [categories]="hourlyChart().categories"
+                    [series]="hourlyChart().series"
+                  />
+                </div>
+              </div>
             </ds-container>
           }
         }
@@ -100,6 +104,8 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
       margin-top: var(--ds-space-6);
     }
+    .an__scroll { overflow-x: auto; padding-bottom: var(--ds-space-2); }
+    .an__chart { display: block; }
     .an__title { margin: 0 0 var(--ds-space-3); font-size: var(--ds-text-heading-4); color: var(--ds-surface-page-on); }
     .an__list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--ds-space-2); }
     .an__list li { display: flex; justify-content: space-between; gap: var(--ds-space-3); font-size: var(--ds-text-small); border-bottom: 1px solid var(--ds-border-subtle); padding-bottom: var(--ds-space-1); }
