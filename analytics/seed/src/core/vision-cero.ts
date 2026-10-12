@@ -27,6 +27,7 @@ export const LEGACY_COLUMNS = [
   '"telefono"',
   '"codigoSorteo"',
   '"channel"',
+  '"device_id"',
 ];
 
 export const DRIVER_TYPE_IDS = [
@@ -48,6 +49,44 @@ const CHANNEL_WEIGHTS: ReadonlyArray<readonly [Channel, number]> = [
   ['kiosk', 25],
   ['surveyor', 25],
 ];
+
+/**
+ * Dispositivos de captura (canales confiables). El seeder los registra en
+ * `public.capture_devices` y asigna su `device_id` a los envíos kiosco/encuestador.
+ * `kiosco-anomalo` tiene un peso ALTO a propósito → aparece con volumen anómalo
+ * (señal detectable en el panel de anomalías). `daily_quota` acota lo que la captura
+ * real aceptaría por día.
+ */
+export interface DeviceDef {
+  id: string;
+  name: string;
+  channel: 'kiosk' | 'surveyor';
+  secret: string;
+  dailyQuota: number;
+  weight: number;
+}
+export const DEVICES: readonly DeviceDef[] = [
+  { id: 'kiosco-ccs-01', name: 'Kiosco Centro Cívico', channel: 'kiosk', secret: 'kiosco-ccs-01-secret', dailyQuota: 400, weight: 20 },
+  { id: 'kiosco-ccs-02', name: 'Kiosco Plaza Bolívar', channel: 'kiosk', secret: 'kiosco-ccs-02-secret', dailyQuota: 400, weight: 15 },
+  { id: 'kiosco-anomalo', name: 'Kiosco (volumen anómalo)', channel: 'kiosk', secret: 'kiosco-anomalo-secret', dailyQuota: 10000, weight: 65 },
+  { id: 'encuestador-mir-01', name: 'Encuestador Miranda', channel: 'surveyor', secret: 'encuestador-mir-01-secret', dailyQuota: 300, weight: 45 },
+  { id: 'encuestador-zul-01', name: 'Encuestador Zulia', channel: 'surveyor', secret: 'encuestador-zul-01-secret', dailyQuota: 300, weight: 55 },
+];
+
+export const DEVICE_COLUMNS = ['"id"', '"name"', '"channel"', '"secret"', '"daily_quota"'];
+
+/** Filas de `public.capture_devices` (idempotente con el modelo Prisma). */
+export function* deviceRows(): Iterable<Cell[]> {
+  for (const d of DEVICES) yield [d.id, d.name, d.channel, d.secret, d.dailyQuota];
+}
+
+/** Dispositivo para un canal (null en `public`). Elige entre los del canal por peso. */
+function deviceFor(r: Rng, channel: Channel): string | null {
+  if (channel === 'public') return null;
+  const pool = DEVICES.filter((d) => d.channel === channel);
+  if (pool.length === 0) return null;
+  return r.weighted(pool.map((d) => [d.id, d.weight] as const));
+}
 
 const ESTADOS = [
   'Distrito Capital', 'Miranda', 'Zulia', 'Carabobo', 'Aragua', 'Lara', 'Anzoátegui',
@@ -150,6 +189,7 @@ function legacyRow(r: Rng, id: string, driverType: DriverTypeId, seq: number, ce
     participa ? `+58 412-${1_000_000 + (cedulaSeq % 900_000)}` : null,
     participa ? `COD-${cedulaSeq.toString().padStart(6, '0')}` : null,
     channel,
+    deviceFor(r, channel),
   ];
 }
 

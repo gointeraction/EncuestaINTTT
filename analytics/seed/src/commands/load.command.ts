@@ -4,7 +4,7 @@ import { join } from 'node:path';
 import { SEED_CONFIG, type SeedConfig } from '../config.js';
 import { PgService } from '../core/pg.service.js';
 import { RESET_TABLES } from '../core/dataset.js';
-import { LEGACY_COLUMNS } from '../core/vision-cero.js';
+import { LEGACY_COLUMNS, DEVICE_COLUMNS, deviceRows } from '../core/vision-cero.js';
 import { assertDevDatabase } from '../core/guards.js';
 
 /**
@@ -40,6 +40,7 @@ export class LoadCommand {
         true,
       );
     }
-    this.log.log(`load: ${total} filas desde ${files.length} CSV en ${dir}`);
+    const devices = await this.pg.copy('public.capture_devices', DEVICE_COLUMNS, deviceRows());
+    this.log.log(`load: ${total} filas desde ${files.length} CSV · ${devices} dispositivos en ${dir}`);
   }
 }

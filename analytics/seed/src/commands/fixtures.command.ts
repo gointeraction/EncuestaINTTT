@@ -24,8 +24,8 @@ export class FixturesCommand {
   ): Promise<void> {
     const dir = opts.dir ?? join(process.cwd(), 'data', 'fixtures');
     const seed = opts.seed ?? this.config.rngSeed;
-    const min = opts.minPerType ?? 25;
-    const max = opts.maxPerType ?? 70;
+    const min = opts.minPerType ?? 31;
+    const max = opts.maxPerType ?? 88;
     mkdirSync(dir, { recursive: true });
 
     for (let t = 0; t < DRIVER_TYPE_IDS.length; t++) {
