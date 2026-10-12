@@ -26,6 +26,9 @@ export class ReportesStateService implements ReportesStateContract {
     })),
   );
 
+  /** Hay cruce cuando hay al menos 2 preguntas seleccionadas en los filtros. */
+  readonly canCross = computed(() => this.filterState.filters().conditions.filter((c) => !!c.questionId).length >= 2);
+
   setFilters(filters: FilterSet): void {
     this.filterState.set(filters);
     // La TABLA se construye con las preguntas de los filtros (las 2 primeras = dimensiones).

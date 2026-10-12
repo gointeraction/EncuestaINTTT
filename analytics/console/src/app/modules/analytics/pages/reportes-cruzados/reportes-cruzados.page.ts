@@ -62,6 +62,10 @@ import { FilterBuilderComponent } from '../../../../shared/components/filter-bui
           </div>
 
 
+          @if (!state.canCross()) {
+            <p class="rep__hint">Añade <b>al menos 2 filtros con pregunta</b> para cruzar (la 1ª y 2ª serán las dimensiones del cruce).</p>
+          }
+
           @if (state.error(); as e) { <p role="alert" class="rep__error">{{ e }}</p> }
 
           @if (state.result(); as r) {
@@ -91,6 +95,7 @@ import { FilterBuilderComponent } from '../../../../shared/components/filter-bui
   styles: `
     .rep { max-width: 1100px; display: flex; flex-direction: column; gap: var(--ds-space-4); }
     .rep__filters { margin-bottom: var(--ds-space-4); }
+    .rep__hint { font-size: var(--ds-text-small); color: var(--ds-text-muted); }
     .rep__row { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--ds-space-4); }
     .rep__field { display: flex; flex-direction: column; gap: var(--ds-space-1); font-size: var(--ds-text-small); }
     .rep__field select { padding: var(--ds-space-2); border: 1px solid var(--ds-border-subtle); border-radius: var(--ds-radius-md); font-size: var(--ds-text-input); }

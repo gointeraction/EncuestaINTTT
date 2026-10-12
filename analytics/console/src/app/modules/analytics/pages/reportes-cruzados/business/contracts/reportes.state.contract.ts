@@ -16,6 +16,7 @@ export interface ReportesStateContract {
   readonly error: Signal<string | null>;
   readonly filters: Signal<FilterSet>;
   readonly filterQuestions: Signal<FilterQuestion[]>;
+  readonly canCross: Signal<boolean>;
   loadSources(): Promise<void>;
   setFilters(filters: FilterSet): void;
   setSurvey(id: string): Promise<void>;
