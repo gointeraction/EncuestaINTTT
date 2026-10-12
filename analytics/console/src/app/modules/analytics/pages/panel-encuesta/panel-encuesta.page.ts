@@ -5,7 +5,6 @@ import {
   DsContainerComponent,
   DsDataTableCardComponent,
   DsEmptyStateComponent,
-  DsFilterBarComponent,
   DsHeaderComponent,
   DsKpiGridComponent,
   DsPageTitleComponent,
@@ -67,8 +66,7 @@ interface ChartVm {
     DsContainerComponent,
     DsDataTableCardComponent,
     DsEmptyStateComponent,
-    DsFilterBarComponent,
-    FilterBuilderComponent,
+      FilterBuilderComponent,
     DsHeaderComponent,
     DsKpiGridComponent,
     DsPageTitleComponent,
@@ -80,7 +78,7 @@ interface ChartVm {
         <ds-header>
           <div class="ds-h__row">
             <div class="ds-h__section ds-h__section--grow">
-              <ds-page-title title="Panel por encuesta" subtitle="Analítica · INTT" [showBack]="false" />
+              <ds-page-title title="Panel por pregunta" subtitle="Analítica · INTT" [showBack]="false" />
             </div>
           </div>
         </ds-header>
@@ -89,14 +87,6 @@ interface ChartVm {
       <ds-container kind="area" name="body" class="panel__body pg">
         <!-- FILTROS -->
         <ds-container kind="section" name="filtros">
-          <ds-filter-bar
-            placeholder="Buscar pregunta…"
-            [search]="state.search()"
-            (searchChange)="state.setSearch($event)"
-            [filters]="filters()"
-            (activeFiltersChange)="onFilters($event)"
-            [total]="state.filtered().length"
-          />
 
           <div class="panel__fb">
             <app-filter-builder

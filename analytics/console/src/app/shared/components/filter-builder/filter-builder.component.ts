@@ -31,6 +31,21 @@ export interface FilterSet {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="fb">
+      <div class="fb__bar">
+        <button type="button" class="fb__add" (click)="add()">+ Añadir filtro</button>
+        @if (value().conditions.length > 1) {
+          <span class="fb__lbl">Combinar los filtros:</span>
+          <label class="fb__radio">
+            <input type="radio" name="fbcomb" [checked]="value().combinator === 'and'" (change)="setCombinator('and')" />
+            Y (todas)
+          </label>
+          <label class="fb__radio">
+            <input type="radio" name="fbcomb" [checked]="value().combinator === 'or'" (change)="setCombinator('or')" />
+            O (alguna)
+          </label>
+        }
+      </div>
+
       @for (c of value().conditions; track c.id) {
         <div class="fb__row">
           <div class="fb__q">
@@ -79,20 +94,6 @@ export interface FilterSet {
         <p class="fb__hint">Sin filtros → se muestran TODAS las opciones.</p>
       }
 
-      <div class="fb__bar">
-        <button type="button" class="fb__add" (click)="add()">+ Añadir filtro</button>
-        @if (value().conditions.length > 1) {
-          <span class="fb__lbl">Combinar los filtros:</span>
-          <label class="fb__radio">
-            <input type="radio" name="fbcomb" [checked]="value().combinator === 'and'" (change)="setCombinator('and')" />
-            Y (todas)
-          </label>
-          <label class="fb__radio">
-            <input type="radio" name="fbcomb" [checked]="value().combinator === 'or'" (change)="setCombinator('or')" />
-            O (alguna)
-          </label>
-        }
-      </div>
     </div>
   `,
   styles: `
