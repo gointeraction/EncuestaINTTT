@@ -14,6 +14,7 @@ import {
 } from "@/lib/validation/vision-cero";
 import { verifyPow, POW_DIFFICULTY } from "@/lib/pow";
 import { verifyDeviceSignature } from "@/lib/device-sign";
+import { SURVEY_ID } from "@/lib/survey-data";
 
 const CHANNELS = ["public", "kiosk", "surveyor"] as const;
 
@@ -182,6 +183,7 @@ export async function POST(req: NextRequest) {
             typeof surveyVersion === "number" && Number.isInteger(surveyVersion) && surveyVersion >= 1
               ? surveyVersion
               : 1,
+          surveyId: SURVEY_ID,
         },
       });
 

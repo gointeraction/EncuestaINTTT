@@ -227,12 +227,15 @@ model SurveyResponse {
   deviceId        String?  @map("device_id")
   // Versión de la definición del cuestionario usada por el cliente (offline)
   surveyVersion   Int      @default(1) @map("survey_version")
+  // Cuestionario al que pertenece la respuesta (slug del cuestionario)
+  surveyId        String   @default("vision-cero") @map("survey_id")
 
   @@index([driverType])
   @@index([completedAt])
   @@index([participaSorteo])
   @@index([cedula])
   @@index([deviceId, completedAt])
+  @@index([surveyId])
   @@map("legacy_survey_responses")
 }
 

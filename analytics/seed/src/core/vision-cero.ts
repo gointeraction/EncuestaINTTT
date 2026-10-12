@@ -28,7 +28,11 @@ export const LEGACY_COLUMNS = [
   '"codigoSorteo"',
   '"channel"',
   '"device_id"',
+  '"survey_id"',
 ];
+
+/** Cuestionario sembrado (slug). Cada fila declara a qué cuestionario pertenece. */
+export const SURVEY_ID = 'vision-cero';
 
 export const DRIVER_TYPE_IDS = [
   'motociclista_activo',
@@ -190,6 +194,7 @@ function legacyRow(r: Rng, id: string, driverType: DriverTypeId, seq: number, ce
     participa ? `COD-${cedulaSeq.toString().padStart(6, '0')}` : null,
     channel,
     deviceFor(r, channel),
+    SURVEY_ID,
   ];
 }
 

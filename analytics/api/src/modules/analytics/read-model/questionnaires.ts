@@ -11,6 +11,8 @@ export interface Questionnaire {
     table: string;
     answersField: string;
     segmentsField: string;
+    /** Slug del cuestionario en la tabla (columna `survey_id`). */
+    surveyId?: string;
     channelField?: string;
     sorteoField?: string;
     timeField?: string;
@@ -132,6 +134,7 @@ export const QUESTIONNAIRES: Questionnaire[] = [
       table: 'public.legacy_survey_responses',
       answersField: 'answers',
       segmentsField: 'driverType',
+      surveyId: 'vision-cero',
       channelField: 'channel',
       sorteoField: 'participaSorteo',
       timeField: 'completedAt',

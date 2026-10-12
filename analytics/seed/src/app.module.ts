@@ -8,6 +8,7 @@ import { SummarizeCommand } from './commands/summarize.command.js';
 import { FixturesCommand } from './commands/fixtures.command.js';
 import { DatasetsCommand } from './commands/datasets.command.js';
 import { LoadCommand } from './commands/load.command.js';
+import { ResponseCommand } from './commands/response.command.js';
 import { SeedController } from './http/seed.controller.js';
 
 @Module({})
@@ -27,6 +28,7 @@ export class AppModule {
         FixturesCommand,
         DatasetsCommand,
         LoadCommand,
+        ResponseCommand,
       ],
     };
   }

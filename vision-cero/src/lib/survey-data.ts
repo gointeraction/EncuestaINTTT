@@ -777,3 +777,6 @@ export function countQuestionsForDriverType(driverType: DriverTypeId): number {
 
 /** Versión de la definición del cuestionario Visión Cero (para clientes offline antiguos). */
 export const SURVEY_VERSION = 1;
+
+/** Identificador del cuestionario (slug) al que pertenece cada respuesta. */
+export const SURVEY_ID = 'vision-cero';

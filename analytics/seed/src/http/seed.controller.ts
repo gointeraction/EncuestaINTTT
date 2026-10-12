@@ -7,6 +7,7 @@ import { SummarizeCommand } from '../commands/summarize.command.js';
 import { FixturesCommand } from '../commands/fixtures.command.js';
 import { DatasetsCommand } from '../commands/datasets.command.js';
 import { LoadCommand } from '../commands/load.command.js';
+import { ResponseCommand, type CreateSurveyInput } from '../commands/response.command.js';
 
 interface StatusRow {
   encuestas: number;
@@ -25,6 +26,7 @@ export class SeedController {
     private readonly fixtures: FixturesCommand,
     private readonly datasets: DatasetsCommand,
     private readonly load: LoadCommand,
+    private readonly response: ResponseCommand,
     @Inject(SEED_CONFIG) private readonly config: SeedConfig,
   ) {}
 
@@ -119,5 +121,21 @@ export class SeedController {
     }
     await this.summarize.run();
     return { ...(await this.status()), elapsedMs: Date.now() - t };
+  }
+
+  // ─── encuesta individual (definición + alta idempotente) ──────────────────
+
+  /** Definición del cuestionario para el formulario de la consola. */
+  @Get('questionnaire')
+  async getQuestionnaire() {
+    return this.response.questionnaire();
+  }
+
+  /** Agrega UNA encuesta. Idempotente por `clientSubmissionId`. */
+  @Post('survey')
+  async createSurvey(@Body() body: CreateSurveyInput) {
+    const t = Date.now();
+    const result = await this.response.create(body ?? ({} as CreateSurveyInput));
+    return { ...result, elapsedMs: Date.now() - t };
   }
 }
