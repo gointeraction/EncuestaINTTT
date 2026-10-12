@@ -101,7 +101,11 @@ const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
             }
 
             @if (token() || !turnstileEnabled) {
-              <button type="submit" class="auth-btn" [disabled]="state.status() === 'submitting'">
+              <button
+                type="submit"
+                class="auth-btn"
+                [disabled]="!formValid() || state.status() === 'submitting'"
+              >
                 {{ state.status() === 'submitting' ? 'Iniciando sesión…' : 'Iniciar sesión' }}
               </button>
             }
@@ -145,6 +149,11 @@ export class LoginPage {
     if (this.password().length < 8) return ['La contraseña debe tener al menos 8 caracteres'];
     return [];
   });
+
+  /** Formulario válido (correo con formato + clave de 8+): habilita «Iniciar sesión». */
+  readonly formValid = computed(
+    () => EMAIL_RE.test(this.email().trim()) && this.password().length >= 8,
+  );
 
   constructor() {
     inject(ThemeService).pageMetadata.set({
