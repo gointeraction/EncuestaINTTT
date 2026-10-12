@@ -5,7 +5,7 @@ import {
   QUESTIONNAIRES,
   type Questionnaire,
 } from '../read-model/questionnaires.js';
-import { derivedValue } from '../read-model/answers-analysis.js';
+import { buildConditionsWhere, derivedValue, type FilterCondition } from '../read-model/answers-analysis.js';
 
 /** RFC 4180: comillas dobles y comas/saltos escapados. */
 function csvCell(value: unknown): string {
@@ -78,7 +78,7 @@ export class ExportService {
    * Datos recolectados en CSV, emitidos EN TROZOS (una fila por entrevista, una columna
    * por pregunta + derivadas). Primero el BOM + la cabecera; luego lotes de filas.
    */
-  async *collectedCsvChunks(surveyId: string, mask: boolean): AsyncGenerator<string> {
+  async *collectedCsvChunks(surveyId: string, mask: boolean, conditions: FilterCondition[] = [], combinator: 'and' | 'or' = 'and'): AsyncGenerator<string> {
     const q = this.questionnaire(surveyId);
     const src = q.source;
     const orderField = src.captureField ?? src.timeField ?? 'id';
@@ -87,6 +87,7 @@ export class ExportService {
     const sorteo = src.sorteoField ?? 'participaSorteo';
     const qids = Object.keys(q.labels);
     const derived = q.derived ?? [];
+    const { sql: fWhere, params: fParams } = buildConditionsWhere(q, conditions, combinator);
 
     const header: unknown[] = [
       'id',
@@ -108,7 +109,8 @@ export class ExportService {
     let offset = 0;
     for (;;) {
       const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
-        `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+        `SELECT * FROM ${src.table} ${fWhere} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+        ...fParams,
       );
       if (rows.length === 0) break;
       let out = '';
@@ -140,13 +142,14 @@ export class ExportService {
    * CSV LARGO (tidy): una fila por (encuesta × pregunta respondida). Ideal para VERIFICAR
    * y pivotar en Excel/pandas/R/DuckDB/Power BI sin transformar.
    */
-  async *collectedLongCsvChunks(surveyId: string): AsyncGenerator<string> {
+  async *collectedLongCsvChunks(surveyId: string, conditions: FilterCondition[] = [], combinator: 'and' | 'or' = 'and'): AsyncGenerator<string> {
     const q = this.questionnaire(surveyId);
     const src = q.source;
     const orderField = src.captureField ?? src.timeField ?? 'id';
     const chan = src.channelField ?? 'channel';
     const sorteo = src.sorteoField ?? 'participaSorteo';
     const qids = Object.keys(q.labels);
+    const { sql: fWhere, params: fParams } = buildConditionsWhere(q, conditions, combinator);
     yield (
       '\uFEFF' +
       ['response_id', 'survey_id', src.segmentsField, chan, 'capturedAt', 'completedAt', sorteo, 'question_id', 'question_label', 'value']
@@ -158,7 +161,8 @@ export class ExportService {
     let offset = 0;
     for (;;) {
       const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
-        `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+        `SELECT * FROM ${src.table} ${fWhere} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+        ...fParams,
       );
       if (rows.length === 0) break;
       let out = '';
@@ -180,14 +184,16 @@ export class ExportService {
   }
 
   /** JSONL (NDJSON): un objeto por línea con el JSON CRUDO de cada encuesta (como el seed). */
-  async *collectedRawJsonlChunks(surveyId: string, mask: boolean): AsyncGenerator<string> {
+  async *collectedRawJsonlChunks(surveyId: string, mask: boolean, conditions: FilterCondition[] = [], combinator: 'and' | 'or' = 'and'): AsyncGenerator<string> {
     const q = this.questionnaire(surveyId);
     const src = q.source;
     const orderField = src.captureField ?? src.timeField ?? 'id';
+    const { sql: fWhere, params: fParams } = buildConditionsWhere(q, conditions, combinator);
     let offset = 0;
     for (;;) {
       const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
-        `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+        `SELECT * FROM ${src.table} ${fWhere} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+        ...fParams,
       );
       if (rows.length === 0) break;
       let out = '';

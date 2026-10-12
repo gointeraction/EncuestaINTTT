@@ -9,6 +9,7 @@ import {
 import { downloadUrl } from '../../../../core/download';
 import { EXPORT_STATE, type ExportStateContract } from './business/contracts/export.state.contract';
 import { ExportStateService } from './business/state/export.state.service';
+import { FilterBuilderComponent } from '../../../../shared/components/filter-builder/filter-builder.component';
 
 /**
  * @akuri-page
@@ -21,7 +22,7 @@ import { ExportStateService } from './business/state/export.state.service';
 @Component({
   selector: 'app-exportar-page',
   standalone: true,
-  imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
+  imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent, FilterBuilderComponent],
   providers: [ExportStateService, { provide: EXPORT_STATE, useExisting: ExportStateService }],
   template: `
     <ds-container kind="page" name="exportar">
@@ -40,6 +41,19 @@ import { ExportStateService } from './business/state/export.state.service';
       </ds-container>
 
       <ds-container kind="area" name="body" class="pg" style="padding-block: var(--ds-space-4)">
+        <ds-container kind="section" name="filtros">
+          <h3 class="exp__title">Filtros de exportación (opcional)</h3>
+          <p class="exp__text">
+            Aplica filtros para exportar solo una <b>selección</b> (p.ej. <b>Estado ∈ &#123;…&#125;</b> Y
+            <b>Rango de edad ∈ &#123;…&#125;</b>). Sin filtros → se exporta todo.
+          </p>
+          <app-filter-builder
+            [questions]="state.filterQuestions()"
+            [value]="state.filters()"
+            (valueChange)="state.setFilters($event)"
+          />
+        </ds-container>
+
         <ds-container kind="section" name="cuestionario">
           <h3 class="exp__title">Cuestionario</h3>
           <p class="exp__text">
