@@ -160,13 +160,45 @@ export function aggregateAnswers(
       average: n.count ? n.sum / n.count : null,
     });
   }
-  // Preguntas autocontestadas: se emiten como preguntas categóricas de primera clase.
+  // Preguntas del REGISTRO que aún no aparecen en los datos: se listan igualmente
+  // (la DEFINICIÓN del cuestionario) con base 0, para que el catálogo exista aunque
+  // todavía no haya respuestas.
+  const observed = new Set<string>([...cats.keys(), ...nums.keys()]);
+  for (const [k, label] of Object.entries(q.labels)) {
+    if (observed.has(k)) continue;
+    if (q.bins?.[k]) {
+      questions.push({
+        id: k,
+        type: 'number',
+        label,
+        kind: 'numeric',
+        base: 0,
+        options: [],
+        distribution: [],
+        stats: computeStats(new Map()),
+        average: null,
+      });
+    } else {
+      questions.push({
+        id: k,
+        type: 'single_choice',
+        label,
+        kind: 'choice',
+        base: 0,
+        options: [],
+        average: null,
+      });
+    }
+  }
+  // Preguntas autocontestadas (derivadas): se emiten como preguntas de primera clase,
+  // aunque no haya datos (base 0).
   for (const d of q.derived ?? []) {
     const m = derivedCats.get(d.id);
-    if (!m) continue;
-    const options = [...m.entries()]
-      .map(([value, count]) => ({ value, count }))
-      .sort((a, b) => b.count - a.count);
+    const options = m
+      ? [...m.entries()]
+          .map(([value, count]) => ({ value, count }))
+          .sort((a, b) => b.count - a.count)
+      : [];
     questions.push({
       id: d.id,
       type: 'single_choice',

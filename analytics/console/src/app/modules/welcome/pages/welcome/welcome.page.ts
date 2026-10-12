@@ -21,7 +21,8 @@ import { WelcomeStateService } from './business/state/welcome.state.service';
     <ds-container kind="page" name="welcome">
       <ds-container kind="area" name="body" class="hub">
         <div class="hub__head">
-          <h1 class="hub__title">¿A dónde quieres ir?</h1>
+          <p class="hub__eyebrow">Encuesta actual</p>
+          <h1 class="hub__title">{{ state.surveyTitle() }}</h1>
           <p class="hub__subtitle">
             Elige un área. Solo verás las que tu cuenta y el entorno permiten.
           </p>
@@ -51,6 +52,14 @@ import { WelcomeStateService } from './business/state/welcome.state.service';
       box-sizing: border-box;
     }
     .hub__head { text-align: center; max-width: 40rem; }
+    .hub__eyebrow {
+      margin: 0 0 var(--ds-space-1);
+      font-size: var(--ds-text-caption);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--ds-color-brand-secondary);
+    }
     .hub__title { margin: 0 0 var(--ds-space-2); font-size: var(--ds-text-heading-2); color: var(--ds-surface-page-on); }
     .hub__subtitle { margin: 0; font-size: var(--ds-text-body); color: var(--ds-text-muted); }
     .hub__grid {

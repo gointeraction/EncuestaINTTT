@@ -1,6 +1,7 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { SessionService } from '../../../../../../core/session.service';
 import { EnvironmentService } from '../../../../../../core/environment.service';
+import { ActiveSurveyService } from '../../../../../../core/active-survey.service';
 import type { WelcomeStateContract } from '../contracts/welcome.state.contract';
 import type { Destination } from '../models/welcome.model';
 
@@ -8,6 +9,13 @@ import type { Destination } from '../models/welcome.model';
 export class WelcomeStateService implements WelcomeStateContract {
   private readonly session = inject(SessionService);
   private readonly env = inject(EnvironmentService);
+  private readonly active = inject(ActiveSurveyService);
+
+  readonly surveyTitle = computed(() => this.active.active()?.title ?? 'Visión Cero');
+
+  constructor() {
+    void this.active.load();
+  }
 
   readonly destinations = computed<Destination[]>(() => {
     const user = this.session.user();

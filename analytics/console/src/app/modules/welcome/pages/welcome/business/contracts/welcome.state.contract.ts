@@ -6,4 +6,5 @@ export const WELCOME_STATE = new InjectionToken<WelcomeStateContract>('WELCOME_S
 
 export interface WelcomeStateContract {
   readonly destinations: Signal<Destination[]>;
+  readonly surveyTitle: Signal<string>;
 }

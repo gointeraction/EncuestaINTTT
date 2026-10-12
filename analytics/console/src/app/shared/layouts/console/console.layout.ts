@@ -3,11 +3,13 @@ import { RouterOutlet } from '@angular/router';
 import { DsContainerComponent, DsHeaderComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
 import { SessionService } from '../../../core/session.service';
+import { ActiveSurveyService } from '../../../core/active-survey.service';
 import {
   ConsoleAccountSection,
   ConsoleFooterSection,
   ConsoleHeaderSection,
   ConsoleNavSection,
+  ConsoleSurveySection,
 } from './sections';
 
 /**
@@ -30,6 +32,7 @@ import {
     DsHeaderComponent,
     DsFabComponent,
     ConsoleHeaderSection,
+    ConsoleSurveySection,
     ConsoleNavSection,
     ConsoleAccountSection,
     ConsoleFooterSection,
@@ -48,6 +51,7 @@ import {
           @if (session.user()) {
             <div class="ds-h__section ds-h__section--end">
               <div class="flex items-center gap-6">
+                <app-console-survey-section />
                 <app-console-nav-section />
                 <app-console-account-section />
               </div>
@@ -76,4 +80,8 @@ import {
 })
 export class ConsoleLayout {
   protected readonly session = inject(SessionService);
+
+  constructor() {
+    void inject(ActiveSurveyService).load();
+  }
 }
