@@ -1,4 +1,5 @@
 import { InjectionToken, type Signal } from '@angular/core';
+import type { FilterQuestion, FilterSet } from '../../../../../../shared/components/filter-builder/filter-builder.component';
 import type {
   FilterDimension,
   QuestionAnalytics,
@@ -21,10 +22,15 @@ export interface PanelStateContract {
   readonly dimensionValue: Signal<string>;
   readonly filtered: Signal<QuestionAnalytics[]>;
   readonly selected: Signal<QuestionAnalytics | null>;
+  readonly filters: Signal<FilterSet>;
+  readonly filterQuestions: Signal<FilterQuestion[]>;
+  readonly filtering: Signal<boolean>;
   loadSources(initialQuestionId?: string): Promise<void>;
   selectSurvey(id: string): Promise<void>;
   setSearch(value: string): void;
   setType(value: string): void;
   setQuestion(id: string): void;
   setDimension(dimensionId: string, value: string): Promise<void>;
+  setFilters(filters: FilterSet): void;
+  applyFilters(): Promise<void>;
 }

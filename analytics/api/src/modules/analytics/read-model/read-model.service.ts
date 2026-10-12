@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { QUESTIONNAIRES, PRIMARY_QUESTIONNAIRE, type Questionnaire } from './questionnaires.js';
-import { aggregateAnswersSql, buildFilterWhere } from './answers-analysis.js';
+import { aggregateAnswersSql, buildFilterWhere, buildConditionsWhere, type FilterCondition } from './answers-analysis.js';
 
 /**
  * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de la
@@ -103,6 +103,31 @@ export class ReadModelService {
         in_progress: 0,
         completionRate: total ? 1 : 0,
         abandonmentRate: 0,
+      },
+      byDriverType,
+      questions,
+      generatedAt: new Date().toISOString(),
+    };
+  }
+
+  /**
+   * Resumen en vivo con un CONJUNTO de filtros (multi-valor) combinados con AND/OR
+   * (A2: analysis-filtering.md). Cada condición sin valores se ignora (= todas).
+   */
+  async summarizeWithFilters(
+    surveyId: string,
+    conditions: FilterCondition[],
+    combinator: 'and' | 'or',
+  ): Promise<unknown> {
+    const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
+    const { sql, params } = buildConditionsWhere(q, conditions, combinator);
+    const { questions, total, byDriverType } = await aggregateAnswersSql(this.prisma, q, sql, params);
+    return {
+      surveyId: q.id,
+      filters: { conditions: conditions ?? [], combinator },
+      totals: {
+        total, responses: total, completed: total, abandoned: 0, in_progress: 0,
+        completionRate: total ? 1 : 0, abandonmentRate: 0,
       },
       byDriverType,
       questions,

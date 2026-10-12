@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { PanelDataService } from '../data/panel.data.service';
 import { ActiveSurveyService } from '../../../../../../core/active-survey.service';
+import type { FilterQuestion, FilterSet } from '../../../../../../shared/components/filter-builder/filter-builder.component';
 import type { PanelStateContract } from '../contracts/panel.state.contract';
 import type {
   FilterDimension,
@@ -22,6 +23,19 @@ export class PanelStateService implements PanelStateContract {
   readonly typeFilter = signal('');
   readonly dimensionId = signal('');
   readonly dimensionValue = signal('');
+
+  readonly filters = signal<FilterSet>({ combinator: 'and', conditions: [] });
+  readonly filtering = signal(false);
+
+  /** Preguntas filtrables: id/etiqueta/posición + sus opciones (por etiqueta visible). */
+  readonly filterQuestions = computed<FilterQuestion[]>(() =>
+    (this.dashboard()?.questions ?? []).map((q) => ({
+      id: q.id,
+      label: q.label,
+      position: q.position,
+      options: (q.options ?? []).map((o) => ({ value: o.value, label: o.value })),
+    })),
+  );
 
   private readonly _surveyId = signal('');
   private readonly _questionId = signal('');
@@ -57,6 +71,27 @@ export class PanelStateService implements PanelStateContract {
     }
     // Deep-link del catálogo: enfoca la pregunta indicada (`/panel?q=<id>`).
     if (initialQuestionId) this._questionId.set(initialQuestionId);
+  }
+
+  setFilters(filters: FilterSet): void {
+    this.filters.set(filters);
+  }
+
+  async applyFilters(): Promise<void> {
+    const surveyId = this._surveyId();
+    if (!surveyId) return;
+    this.filtering.set(true);
+    try {
+      const f = this.filters();
+      const conditions = f.conditions.filter((c) => c.questionId);
+      const payload =
+        conditions.length === 0
+          ? await this.data.loadSurvey(surveyId)
+          : await this.data.loadFiltered(surveyId, f);
+      this.dashboard.set(payload);
+    } finally {
+      this.filtering.set(false);
+    }
   }
 
   async selectSurvey(id: string): Promise<void> {

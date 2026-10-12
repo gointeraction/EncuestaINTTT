@@ -44,6 +44,7 @@ import type {
   IdentityControllerSession200,
   ReportingControllerAnomaliesParams,
   ReportingControllerCrossTabParams,
+  ReportingControllerFilteredBody,
   ReportingControllerParticipantsParams,
   ReportingControllerSurveyParams
 } from './model';
@@ -289,6 +290,21 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
+ reportingControllerFiltered<TData = void>(id: string,
+    reportingControllerFilteredBody: ReportingControllerFilteredBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerFiltered<TData = void>(id: string,
+    reportingControllerFilteredBody: ReportingControllerFilteredBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerFiltered<TData = void>(id: string,
+    reportingControllerFilteredBody: ReportingControllerFilteredBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerFiltered<TData = void>(
+    id: string,
+    reportingControllerFilteredBody: ReportingControllerFilteredBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/analytics/surveys/${id}/filtered`,
+      reportingControllerFilteredBody,options
+    );
+  }
+
  reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
  reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
  reportingControllerAnomalies<TData = void>(params: DeepNonNullable<ReportingControllerAnomaliesParams>, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
@@ -380,6 +396,7 @@ export type SummarizationControllerStatusClientResult = NonNullable<void>
 export type ReportingControllerSurveyClientResult = NonNullable<void>
 export type ReportingControllerDimensionsClientResult = NonNullable<void>
 export type ReportingControllerTimelineClientResult = NonNullable<void>
+export type ReportingControllerFilteredClientResult = NonNullable<void>
 export type ReportingControllerAnomaliesClientResult = NonNullable<void>
 export type ReportingControllerCrossTabClientResult = NonNullable<void>
 export type ReportingControllerGlobalClientResult = NonNullable<void>

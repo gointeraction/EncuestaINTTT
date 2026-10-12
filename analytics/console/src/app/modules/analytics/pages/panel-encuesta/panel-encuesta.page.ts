@@ -1,5 +1,6 @@
 import { Component, computed, inject } from '@angular/core';
 import {
+  DsButtonComponent,
   DsChartCardComponent,
   DsContainerComponent,
   DsDataTableCardComponent,
@@ -18,6 +19,7 @@ import {
 } from '@cifraflow/design';
 import { PANEL_STATE, type PanelStateContract } from './business/contracts/panel.state.contract';
 import { PanelStateService } from './business/state/panel.state.service';
+import { FilterBuilderComponent } from '../../../../shared/components/filter-builder/filter-builder.component';
 import {
   questionBase,
   type PanelFilter,
@@ -60,11 +62,13 @@ interface ChartVm {
   selector: 'app-panel-encuesta',
   standalone: true,
   imports: [NumPipe, 
+    DsButtonComponent,
     DsChartCardComponent,
     DsContainerComponent,
     DsDataTableCardComponent,
     DsEmptyStateComponent,
     DsFilterBarComponent,
+    FilterBuilderComponent,
     DsHeaderComponent,
     DsKpiGridComponent,
     DsPageTitleComponent,
@@ -92,7 +96,18 @@ interface ChartVm {
             [filters]="filters()"
             (activeFiltersChange)="onFilters($event)"
             [total]="state.filtered().length"
-          />        </ds-container>
+          />
+
+          <div class="panel__fb">
+            <app-filter-builder
+              [questions]="state.filterQuestions()"
+              [value]="state.filters()"
+              (valueChange)="state.setFilters($event)"
+            />
+            <div class="panel__fb-actions">
+              <ds-button [loading]="state.filtering()" (click)="state.applyFilters()">Aplicar filtros</ds-button>
+            </div>
+          </div>        </ds-container>
 
         <!-- KPIs DE LA MUESTRA -->
         <ds-container kind="section" name="kpis">
@@ -185,6 +200,8 @@ interface ChartVm {
   `,
   styles: `
     .panel__body { padding-block: var(--ds-space-4); display: flex; flex-direction: column; gap: var(--ds-space-4); }
+    .panel__fb { margin-top: var(--ds-space-4); display: flex; flex-direction: column; gap: var(--ds-space-3); }
+    .panel__fb-actions { display: flex; justify-content: flex-end; }
     /* Gráfico y detalle por categoría, uno al lado del otro (envuelve en pantallas menores). */
     .panel__detail { display: grid; gap: var(--ds-space-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
     @media (max-width: 1024px) { .panel__detail { grid-template-columns: minmax(0, 1fr); } }

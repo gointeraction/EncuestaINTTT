@@ -484,3 +484,66 @@ export async function aggregateAnswersSql(
 
   return { questions, total, byDriverType };
 }
+
+/** Condición de filtro (una pregunta + un conjunto de valores, vacío = todas). */
+export interface FilterCondition {
+  questionId: string;
+  values: string[];
+}
+
+/** Etiqueta de rango ("25-34", "55+") → límites numéricos. */
+function rangeLabelToBounds(bounds: number[], label: string): { lo: number; hi: number } | null {
+  const s = String(label).trim();
+  for (let i = 0; i < bounds.length - 1; i++) {
+    const lo = bounds[i];
+    const hi = bounds[i + 1];
+    const isLast = i === bounds.length - 2;
+    const text = isLast ? `${lo}+` : `${lo}-${hi - 1}`;
+    if (text === s) return { lo, hi: isLast ? 1e9 : hi - 1 };
+  }
+  // Por si la etiqueta es un número exacto.
+  const n = Number(s);
+  return Number.isFinite(n) ? { lo: n, hi: n } : null;
+}
+
+/**
+ * WHERE para un conjunto de condiciones de filtro (multi-valor), combinadas con AND/OR.
+ * Soporta preguntas JSON (escalar o array) y derivadas por `bins` (rango sobre su fuente).
+ * Sin valores → la condición se ignora (equivale a "todas las opciones").
+ */
+export function buildConditionsWhere(
+  q: Questionnaire,
+  conditions: FilterCondition[] | undefined,
+  combinator: 'and' | 'or',
+): { sql: string; params: unknown[] } {
+  const af = q.source.answersField;
+  const parts: string[] = [];
+  const params: unknown[] = [];
+  const derivedById = new Map((q.derived ?? []).map((d) => [d.id, d]));
+  for (const c of conditions ?? []) {
+    if (!c || !SAFE_ID.test(c.questionId)) continue;
+    const values = (c.values ?? []).map((v) => String(v)).filter((v) => v !== '');
+    if (values.length === 0) continue;
+
+    const d = derivedById.get(c.questionId);
+    if (d?.bins && d.sources[0] && SAFE_ID.test(d.sources[0])) {
+      const src = d.sources[0];
+      const ors: string[] = [];
+      for (const v of values) {
+        const r = rangeLabelToBounds(d.bins, v);
+        if (!r) continue;
+        params.push(r.lo, r.hi);
+        ors.push(`(("${af}"::jsonb ->> '${src}')::numeric BETWEEN $${params.length - 1} AND $${params.length})`);
+      }
+      if (ors.length) parts.push('(' + ors.join(' OR ') + ')');
+    } else {
+      params.push(values);
+      const n = params.length;
+      parts.push(
+        `(("${af}"::jsonb ->> '${c.questionId}') = ANY($${n}::text[]) OR ("${af}"::jsonb -> '${c.questionId}') ?| $${n}::text[])`,
+      );
+    }
+  }
+  const sql = parts.length ? 'WHERE ' + parts.join(combinator === 'or' ? ' OR ' : ' AND ') : '';
+  return { sql, params };
+}

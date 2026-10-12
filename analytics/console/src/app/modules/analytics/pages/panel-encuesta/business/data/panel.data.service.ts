@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../../../../shared/api-sdk';
+import type { FilterSet } from '../../../../../../shared/components/filter-builder/filter-builder.component';
 import type {
   FilterDimension,
   Segment,
@@ -21,6 +22,19 @@ export class PanelDataService {
   async loadSurvey(surveyId: string, segment?: Segment): Promise<SurveyPayload | null> {
     const res = await firstValueFrom(
       this.api.reportingControllerSurvey(surveyId, segment ? { ...segment } : undefined),
+    );
+    return (res as unknown as SurveyPayload) ?? null;
+  }
+
+  /** Resumen en vivo aplicando los filtros (multi-valor + AND/OR). */
+  async loadFiltered(surveyId: string, filters: FilterSet): Promise<SurveyPayload | null> {
+    const res = await firstValueFrom(
+      this.api.reportingControllerFiltered(surveyId, {
+        combinator: filters.combinator,
+        conditions: filters.conditions
+          .filter((c) => !!c.questionId)
+          .map((c) => ({ questionId: c.questionId, values: c.values })),
+      }),
     );
     return (res as unknown as SurveyPayload) ?? null;
   }

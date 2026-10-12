@@ -104,6 +104,15 @@ export class ReportingService {
     return this.readModel.timeline(surveyId);
   }
 
+  /** Resumen en vivo con un conjunto de filtros (multi-valor, AND/OR). */
+  filtered(
+    surveyId: string,
+    conditions: Array<{ questionId: string; values: string[] }>,
+    combinator: 'and' | 'or',
+  ): Promise<unknown> {
+    return this.readModel.summarizeWithFilters(surveyId, conditions, combinator);
+  }
+
   /** Panel de anomalías (anti-fraude). */
   anomalies(surveyId: string): Promise<unknown> {
     return this.readModel.anomalies(surveyId);

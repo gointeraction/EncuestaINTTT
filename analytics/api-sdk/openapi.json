@@ -558,6 +558,65 @@
         ]
       }
     },
+    "/analytics/surveys/{id}/filtered": {
+      "post": {
+        "operationId": "ReportingController_filtered",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "combinator": {
+                    "type": "string",
+                    "enum": [
+                      "and",
+                      "or"
+                    ]
+                  },
+                  "conditions": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "questionId": {
+                          "type": "string"
+                        },
+                        "values": {
+                          "type": "array",
+                          "items": {
+                            "type": "string"
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
     "/analytics/anomalies": {
       "get": {
         "operationId": "ReportingController_anomalies",

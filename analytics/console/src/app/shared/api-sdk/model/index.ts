@@ -23,5 +23,8 @@ export * from './identityControllerSession200';
 export * from './identityControllerSession200User';
 export * from './reportingControllerAnomaliesParams';
 export * from './reportingControllerCrossTabParams';
+export * from './reportingControllerFilteredBody';
+export * from './reportingControllerFilteredBodyCombinator';
+export * from './reportingControllerFilteredBodyConditionsItem';
 export * from './reportingControllerParticipantsParams';
 export * from './reportingControllerSurveyParams';

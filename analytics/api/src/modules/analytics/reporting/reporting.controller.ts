@@ -1,5 +1,5 @@
-import { Controller, Get, Param, Query, Req, UseGuards } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiQuery, ApiTags } from '@nestjs/swagger';
 import type { Request } from 'express';
 import type { StaffSessionUser } from '../../../shared/contracts/index.js';
 import { SessionGuard } from '../../platform/identity/session.guard.js';
@@ -43,6 +43,35 @@ export class ReportingController {
   async timeline(@Param('id') id: string, @Req() req: RequestWithUser) {
     await this.accessAudit.registrarLectura(`analytics/surveys/${id}/timeline`, req.staffUser?.id);
     return this.reporting.timeline(id);
+  }
+
+  @Post('surveys/:id/filtered')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        combinator: { type: 'string', enum: ['and', 'or'] },
+        conditions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              questionId: { type: 'string' },
+              values: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
+    },
+  })
+  async filtered(
+    @Param('id') id: string,
+    @Body() body: { combinator?: string; conditions?: Array<{ questionId: string; values: string[] }> },
+    @Req() req: RequestWithUser,
+  ) {
+    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/filtered`, req.staffUser?.id);
+    const combinator = body?.combinator === 'or' ? 'or' : 'and';
+    return this.reporting.filtered(id, body?.conditions ?? [], combinator);
   }
 
   @Get('anomalies')
