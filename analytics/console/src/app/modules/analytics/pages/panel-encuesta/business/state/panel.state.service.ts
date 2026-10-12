@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { PanelDataService } from '../data/panel.data.service';
+import { ActiveSurveyService } from '../../../../../../core/active-survey.service';
 import type { PanelStateContract } from '../contracts/panel.state.contract';
 import type {
   FilterDimension,
@@ -11,6 +12,7 @@ import type {
 @Injectable()
 export class PanelStateService implements PanelStateContract {
   private readonly data = inject(PanelDataService);
+  private readonly active = inject(ActiveSurveyService);
 
   readonly sources = signal<SurveySource[]>([]);
   readonly dashboard = signal<SurveyPayload | null>(null);
@@ -47,9 +49,11 @@ export class PanelStateService implements PanelStateContract {
   async loadSources(initialQuestionId = ''): Promise<void> {
     const sources = await this.data.loadSources();
     this.sources.set(sources);
-    // Auto-selecciona la primera fuente (hoy hay una: Visión Cero) para no salir en blanco.
+    // Usa la ENCUESTA ACTIVA (selector del layout) o la primera, para no salir en blanco.
     if (sources.length > 0 && !this._surveyId()) {
-      await this.selectSurvey(sources[0].id);
+      const activeId = this.active.activeId();
+      const id = sources.some((s) => s.id === activeId) ? activeId : sources[0].id;
+      await this.selectSurvey(id);
     }
     // Deep-link del catálogo: enfoca la pregunta indicada (`/panel?q=<id>`).
     if (initialQuestionId) this._questionId.set(initialQuestionId);

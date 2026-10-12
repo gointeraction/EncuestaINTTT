@@ -24,7 +24,6 @@ import {
   type QuestionAnalytics,
 } from './business/models/panel.model';
 import { ActivatedRoute } from '@angular/router';
-import { API_BASE } from '../../../../core/api.config';
 
 /** Paleta de la dona (tokens de data-viz del design system). */
 const PALETTE = [
@@ -78,17 +77,6 @@ interface ChartVm {
           <div class="ds-h__row">
             <div class="ds-h__section ds-h__section--grow">
               <ds-page-title title="Panel por encuesta" subtitle="Analítica · INTT" [showBack]="false" />
-            </div>
-            <div class="ds-h__section ds-h__section--end">
-              <label class="panel__fuente">Encuesta
-                <select class="ds-select" [value]="state.surveyId()" (change)="onSurvey($event)">
-                  <option value="">Seleccione…</option>
-                  @for (s of state.sources(); track s.id) {
-                    <option [value]="s.id">{{ s.title }}</option>
-                  }
-                </select>
-              </label>
-              @if (state.surveyId()) { <a [href]="exportUrl()" download>Exportar CSV</a> }
             </div>
           </div>
         </ds-header>
@@ -207,7 +195,6 @@ interface ChartVm {
     /* Gráfico y detalle por categoría, uno al lado del otro (envuelve en pantallas menores). */
     .panel__detail { display: grid; gap: var(--ds-space-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
     @media (max-width: 1024px) { .panel__detail { grid-template-columns: minmax(0, 1fr); } }
-    .panel__fuente { display: inline-flex; gap: 0.4rem; align-items: center; color: inherit; }
     .panel__segment { margin: var(--ds-space-2) 0 0; font-size: var(--ds-text-caption); color: var(--ds-text-muted); }
     .panel__stats-title { margin: 0 0 var(--ds-space-3); font-size: var(--ds-text-heading-4); color: var(--ds-surface-page-on); }
     .panel__stats { display: grid; gap: var(--ds-space-3); grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); }
@@ -361,10 +348,6 @@ export class PanelEncuestaPage {
     void this.state.loadSources(inject(ActivatedRoute).snapshot.queryParams['q'] ?? '');
   }
 
-  exportUrl(): string {
-    return `${API_BASE}/analytics/surveys/${this.state.surveyId()}/export`;
-  }
-
   baseOf(q: QuestionAnalytics): number {
     return questionBase(q);
   }
@@ -407,10 +390,6 @@ export class PanelEncuestaPage {
   segmentLabel(): string {
     const dimension = this.state.dimensions().find((d) => d.id === this.state.dimensionId());
     return `${dimension?.label ?? '—'} = ${this.state.dimensionValue()}`;
-  }
-
-  onSurvey(event: Event): void {
-    void this.state.selectSurvey((event.target as HTMLSelectElement).value);
   }
 
   onFilters(active: Record<string, string>): void {
