@@ -20,7 +20,7 @@ import { DsNavComponent, type DsNavItem } from '@cifraflow/design';
 })
 export class TestDataNavSection {
   protected readonly items: DsNavItem[] = [
-    { label: 'Datos de prueba', route: '/test-data' },
     { label: 'Inicio', route: '/bienvenida' },
+    { label: 'Datos de prueba', route: '/test-data' },
   ];
 }
