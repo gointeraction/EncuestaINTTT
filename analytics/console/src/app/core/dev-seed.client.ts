@@ -3,10 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 
 export interface SeedCounts {
-  surveys: number;
-  responses: number;
-  answers: number;
-  legacy: number;
+  encuestas: number;
+  participantes: number;
+  dispositivos: number;
 }
 
 export interface SeedStatus {

@@ -8,10 +8,9 @@ import { FixturesCommand } from '../commands/fixtures.command.js';
 import { LoadCommand } from '../commands/load.command.js';
 
 interface StatusRow {
-  surveys: number;
-  responses: number;
-  answers: number;
-  legacy: number;
+  encuestas: number;
+  participantes: number;
+  dispositivos: number;
 }
 
 /** Superficie HTTP del seeder (SOLO dev). La consola la consume; guardas del módulo aplican. */
@@ -31,15 +30,14 @@ export class SeedController {
   async status() {
     const [row] = await this.pg.query<StatusRow>(
       `select
-         (select count(*) from public.surveys)::int as surveys,
-         (select count(*) from public.responses)::int as responses,
-         (select count(*) from public.answers)::int as answers,
-         (select count(*) from public.legacy_survey_responses)::int as legacy`,
+         (select count(*) from public.legacy_survey_responses)::int as encuestas,
+         (select count(*) from public.legacy_survey_responses where "participaSorteo")::int as participantes,
+         (select count(*) from public.capture_devices)::int as dispositivos`,
     );
     return {
       environment: this.config.appEnv,
       database: this.config.databaseName,
-      counts: row ?? { surveys: 0, responses: 0, answers: 0, legacy: 0 },
+      counts: row ?? { encuestas: 0, participantes: 0, dispositivos: 0 },
     };
   }
 

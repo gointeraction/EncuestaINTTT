@@ -73,10 +73,9 @@ const PROFILES = ['small', 'medium', 'large', 'xl'] as const;
               Entorno <b>{{ s.environment }}</b> · base <b>{{ s.database }}</b>
             </p>
             <ul class="seed__counts">
-              <li>Encuestas <b>{{ s.counts.surveys }}</b></li>
-              <li>Respuestas <b>{{ s.counts.responses }}</b></li>
-              <li>Respuestas de pregunta <b>{{ s.counts.answers }}</b></li>
-              <li>Participantes <b>{{ s.counts.legacy }}</b></li>
+              <li>Encuestas <b>{{ s.counts.encuestas }}</b></li>
+              <li>Participantes (sorteo) <b>{{ s.counts.participantes }}</b></li>
+              <li>Dispositivos <b>{{ s.counts.dispositivos }}</b></li>
             </ul>
           }
         </ds-container>
