@@ -10,48 +10,55 @@ export class RecoverStateService implements RecoverStateContract {
   readonly step = signal<PasswordResetStep>('request');
   readonly busy = signal(false);
   readonly error = signal<string | null>(null);
-  readonly done = signal(false);
 
-  async request(email: string): Promise<void> {
+  private async withBusy<T>(fn: () => Promise<T>): Promise<T | undefined> {
     this.busy.set(true);
     this.error.set(null);
     try {
-      await this.data.request(email);
-      const approved = await this.data.isApproved(email);
-      this.step.set(approved ? 'set' : 'sent');
+      return await fn();
     } catch {
-      this.error.set('No se pudo enviar la solicitud. Intente de nuevo.');
+      this.error.set('No se pudo contactar el servicio. Intente de nuevo.');
+      return undefined;
     } finally {
       this.busy.set(false);
     }
   }
 
-  async continueIfApproved(email: string): Promise<void> {
-    this.busy.set(true);
-    this.error.set(null);
-    try {
-      const approved = await this.data.isApproved(email);
-      if (approved) this.step.set('set');
-      else this.error.set('La solicitud aún no ha sido autorizada.');
-    } catch {
-      this.error.set('No se pudo verificar el estado. Intente de nuevo.');
-    } finally {
-      this.busy.set(false);
-    }
+  /** Consulta el estado: aprobado → formulario; pendiente → aviso; ninguno → crea solicitud → aviso. */
+  async lookup(email: string): Promise<void> {
+    await this.withBusy(async () => {
+      const status = await this.data.status(email);
+      if (status === 'approved') {
+        this.step.set('set');
+        return;
+      }
+      if (status !== 'pending') {
+        await this.data.request(email);
+      }
+      this.step.set('pending');
+    });
+  }
+
+  /** Re-consulta: si el admin ya autorizó, pasa al formulario. */
+  async recheck(email: string): Promise<void> {
+    await this.withBusy(async () => {
+      const status = await this.data.status(email);
+      if (status === 'approved') {
+        this.step.set('set');
+      } else if (status === 'pending') {
+        this.error.set('Tu solicitud aún está en proceso de aprobación.');
+      } else {
+        this.error.set('No hay una solicitud activa para ese correo.');
+      }
+    });
   }
 
   async submitReset(email: string, newPassword: string): Promise<boolean> {
-    this.busy.set(true);
-    this.error.set(null);
-    try {
+    const ok = await this.withBusy(async () => {
       await this.data.reset(email, newPassword);
-      this.done.set(true);
       return true;
-    } catch {
-      this.error.set('No hay una solicitud aprobada para este correo.');
-      return false;
-    } finally {
-      this.busy.set(false);
-    }
+    });
+    if (ok) this.step.set('done');
+    return !!ok;
   }
 }

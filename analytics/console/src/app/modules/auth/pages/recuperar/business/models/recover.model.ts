@@ -1,1 +1,1 @@
-export type PasswordResetStep = 'request' | 'sent' | 'set';
+export type PasswordResetStep = 'request' | 'pending' | 'set' | 'done';

@@ -8,8 +8,9 @@ export interface RecoverStateContract {
   readonly step: Signal<PasswordResetStep>;
   readonly busy: Signal<boolean>;
   readonly error: Signal<string | null>;
-  readonly done: Signal<boolean>;
-  request(email: string): Promise<void>;
-  continueIfApproved(email: string): Promise<void>;
+  /** Consulta el estado del correo y actúa: aprobado→formulario, pendiente→aviso, ninguno→crea solicitud. */
+  lookup(email: string): Promise<void>;
+  /** Vuelve a consultar el estado (por si el admin ya autorizó). */
+  recheck(email: string): Promise<void>;
   submitReset(email: string, newPassword: string): Promise<boolean>;
 }

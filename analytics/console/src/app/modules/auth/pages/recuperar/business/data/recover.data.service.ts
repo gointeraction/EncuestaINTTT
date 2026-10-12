@@ -7,13 +7,15 @@ import { EncuestaINTTTBackOfficeAnalíticoService } from '../../../../../../shar
 export class RecoverDataService {
   private readonly api = inject(EncuestaINTTTBackOfficeAnalíticoService);
 
+  /** Crea (o reutiliza) la solicitud de cambio de contraseña. */
   async request(email: string): Promise<void> {
     await firstValueFrom(this.api.identityControllerPasswordRequest({ email }));
   }
 
-  async isApproved(email: string): Promise<boolean> {
+  /** Estado de la solicitud del correo: none | pending | approved | rejected | used. */
+  async status(email: string): Promise<string> {
     const res = await firstValueFrom(this.api.identityControllerPasswordStatus({ email }));
-    return !!(res as unknown as { approved?: boolean })?.approved;
+    return (res as unknown as { status?: string })?.status ?? 'none';
   }
 
   async reset(email: string, newPassword: string): Promise<void> {

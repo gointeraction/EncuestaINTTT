@@ -121,8 +121,8 @@ export class IdentityController {
   @Public()
   @Get('password/status')
   async passwordStatus(@Query('email') email: string) {
-    const approved = email ? await this.identity.hasApprovedReset(email) : false;
-    return { approved };
+    const status = email ? await this.identity.passwordResetStatus(email) : 'none';
+    return { status };
   }
 
   @Public()

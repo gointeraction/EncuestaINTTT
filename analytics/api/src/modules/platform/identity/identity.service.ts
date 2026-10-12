@@ -118,13 +118,19 @@ export class IdentityService implements OnModuleInit {
     await this.prisma.passwordResetRequest.create({ data: { email, status: 'pending' } });
   }
 
-  /** ¿El correo tiene una solicitud de cambio APROBADA (puede definir nueva clave)? */
-  async hasApprovedReset(emailRaw: string): Promise<boolean> {
+  /** Estado de la última solicitud del correo: none | pending | approved | rejected | used. */
+  async passwordResetStatus(
+    emailRaw: string,
+  ): Promise<'none' | 'pending' | 'approved' | 'rejected' | 'used'> {
     const email = emailRaw.trim().toLowerCase();
-    const found = await this.prisma.passwordResetRequest.findFirst({
-      where: { email, status: 'approved' },
+    const request = await this.prisma.passwordResetRequest.findFirst({
+      where: { email },
+      orderBy: { createdAt: 'desc' },
     });
-    return !!found;
+    const status = request?.status;
+    return status === 'pending' || status === 'approved' || status === 'rejected' || status === 'used'
+      ? status
+      : 'none';
   }
 
   /** Define la nueva contraseña si hay una solicitud aprobada (y la marca usada). */
