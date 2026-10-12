@@ -8,12 +8,13 @@
 /* Tarjetas de autenticación (login / registro / recuperación). */
 @import "./auth.css";
 
-/* Ancho máximo de las páginas de contenido de la consola (1280px = --ds-container-xl).
-   Centra el contenido en pantallas anchas; login/registro/recuperación quedan exentos. */
-.page-max {
-  width: 100%;
-  max-width: var(--ds-container-xl);
-  margin-inline: auto;
+/* Ancho máximo del CONTENIDO de las páginas de la consola (1280px = --ds-container-xl).
+   Se aplica a las áreas header/body (no al page contenedor) para que el body —que es
+   quien hace scroll— ocupe TODO el ancho: así la barra de scroll queda al borde de la
+   VENTANA y el contenido se centra a 1280.
+   login/registro/recuperación/bienvenida quedan exentos (tienen su propio fondo/tarjeta). */
+.pg {
+  padding-inline: max(var(--ds-space-4), calc((100% - var(--ds-container-xl)) / 2));
 }
 
 /* Escaneo de templates del proyecto (Tailwind v4). */

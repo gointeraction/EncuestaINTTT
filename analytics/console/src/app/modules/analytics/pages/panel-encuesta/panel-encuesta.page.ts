@@ -71,8 +71,8 @@ interface ChartVm {
   ],
   providers: [PanelStateService, { provide: PANEL_STATE, useExisting: PanelStateService }],
   template: `
-    <ds-container kind="page" name="panel-encuesta" class="page-max">
-      <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
+    <ds-container kind="page" name="panel-encuesta">
+      <ds-container kind="area" name="header" class="pg" style="padding-block: var(--ds-space-2)">
         <ds-header>
           <div class="ds-h__row">
             <div class="ds-h__section ds-h__section--grow">
@@ -93,7 +93,7 @@ interface ChartVm {
         </ds-header>
       </ds-container>
 
-      <ds-container kind="area" name="body" class="panel__body">
+      <ds-container kind="area" name="body" class="panel__body pg">
         <!-- FILTROS -->
         <ds-container kind="section" name="filtros">
           <ds-filter-bar
@@ -202,7 +202,7 @@ interface ChartVm {
     </ds-container>
   `,
   styles: `
-    .panel__body { padding: var(--ds-space-4); display: flex; flex-direction: column; gap: var(--ds-space-4); }
+    .panel__body { padding-block: var(--ds-space-4); display: flex; flex-direction: column; gap: var(--ds-space-4); }
     /* Gráfico y detalle por categoría, uno al lado del otro (envuelve en pantallas menores). */
     .panel__detail { display: grid; gap: var(--ds-space-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
     @media (max-width: 1024px) { .panel__detail { grid-template-columns: minmax(0, 1fr); } }

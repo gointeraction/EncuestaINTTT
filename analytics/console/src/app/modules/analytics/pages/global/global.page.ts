@@ -34,11 +34,11 @@ import { GlobalStateService } from './business/state/global.state.service';
   ],
   providers: [GlobalStateService, { provide: GLOBAL_STATE, useExisting: GlobalStateService }],
   template: `
-    <ds-container kind="page" name="global" class="page-max">
+    <ds-container kind="page" name="global">
       <ds-container
         kind="area"
         name="header"
-        style="padding: var(--ds-space-2) var(--ds-space-4)"
+        class="pg" style="padding-block: var(--ds-space-2)"
       >
         <ds-header>
           <div class="ds-h__row">
@@ -54,7 +54,7 @@ import { GlobalStateService } from './business/state/global.state.service';
         </ds-header>
       </ds-container>
 
-      <ds-container kind="area" name="body" style="padding: var(--ds-space-4)">
+      <ds-container kind="area" name="body" class="pg" style="padding-block: var(--ds-space-4)">
         <ds-container kind="section" name="kpis">
           @if (kpis().length) {
             <ds-kpi-grid [items]="kpis()" />

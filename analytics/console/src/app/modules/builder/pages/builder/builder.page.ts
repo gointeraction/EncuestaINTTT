@@ -24,8 +24,8 @@ import { QUESTION_TYPES, type QuestionType } from './business/models/builder.mod
   imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
   providers: [BuilderStateService, { provide: BUILDER_STATE, useExisting: BuilderStateService }],
   template: `
-    <ds-container kind="page" name="builder" class="page-max">
-      <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
+    <ds-container kind="page" name="builder">
+      <ds-container kind="area" name="header" class="pg" style="padding-block: var(--ds-space-2)">
         <ds-header>
           <div class="ds-h__row">
             <div class="ds-h__section ds-h__section--grow">
@@ -39,7 +39,7 @@ import { QUESTION_TYPES, type QuestionType } from './business/models/builder.mod
         </ds-header>
       </ds-container>
 
-      <ds-container kind="area" name="body" style="padding: var(--ds-space-4)">
+      <ds-container kind="area" name="body" class="pg" style="padding-block: var(--ds-space-4)">
         <ds-container kind="section" name="datos" class="bl">
           <h3 class="bl__h">Datos de la encuesta</h3>
           <div class="bl__grid">

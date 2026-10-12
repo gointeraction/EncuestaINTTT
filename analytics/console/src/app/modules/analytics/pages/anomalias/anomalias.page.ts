@@ -32,8 +32,8 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
   ],
   providers: [AnomaliesStateService, { provide: ANOMALIES_STATE, useExisting: AnomaliesStateService }],
   template: `
-    <ds-container kind="page" name="anomalias" class="page-max">
-      <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
+    <ds-container kind="page" name="anomalias">
+      <ds-container kind="area" name="header" class="pg" style="padding-block: var(--ds-space-2)">
         <ds-header>
           <div class="ds-h__row">
             <div class="ds-h__section ds-h__section--grow">
@@ -47,7 +47,7 @@ import { AnomaliesStateService } from './business/state/anomalies.state.service'
         </ds-header>
       </ds-container>
 
-      <ds-container kind="area" name="body" style="padding: var(--ds-space-4)">
+      <ds-container kind="area" name="body" class="pg" style="padding-block: var(--ds-space-4)">
         <ds-container kind="section" name="kpis">
           @if (kpis().length) {
             <ds-kpi-grid [items]="kpis()" />

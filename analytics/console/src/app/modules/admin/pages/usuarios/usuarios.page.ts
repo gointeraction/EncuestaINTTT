@@ -23,8 +23,8 @@ import { AdminUsersStateService } from './business/state/admin-users.state.servi
   imports: [DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
   providers: [AdminUsersStateService, { provide: ADMIN_USERS_STATE, useExisting: AdminUsersStateService }],
   template: `
-    <ds-container kind="page" name="usuarios" class="page-max">
-      <ds-container kind="area" name="header" style="padding: var(--ds-space-2) var(--ds-space-4)">
+    <ds-container kind="page" name="usuarios">
+      <ds-container kind="area" name="header" class="pg" style="padding-block: var(--ds-space-2)">
         <ds-header>
           <div class="ds-h__row">
             <div class="ds-h__section ds-h__section--grow">
@@ -41,7 +41,7 @@ import { AdminUsersStateService } from './business/state/admin-users.state.servi
         </ds-header>
       </ds-container>
 
-      <ds-container kind="area" name="body" style="padding: var(--ds-space-4)">
+      <ds-container kind="area" name="body" class="pg" style="padding-block: var(--ds-space-4)">
         <ds-container kind="section" name="registro-requests">
           <h3 class="adm__title">Solicitudes de registro</h3>
           @if (registroPending().length) {
