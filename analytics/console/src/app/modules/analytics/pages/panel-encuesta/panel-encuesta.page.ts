@@ -92,14 +92,7 @@ interface ChartVm {
             [filters]="filters()"
             (activeFiltersChange)="onFilters($event)"
             [total]="state.filtered().length"
-          />
-          @if (state.dimensionId() && state.dimensionValue()) {
-            <p class="panel__segment">
-              Segmento activo:
-              <strong>{{ segmentLabel() }}</strong>
-            </p>
-          }
-        </ds-container>
+          />        </ds-container>
 
         <!-- KPIs DE LA MUESTRA -->
         <ds-container kind="section" name="kpis">
@@ -195,7 +188,6 @@ interface ChartVm {
     /* Gráfico y detalle por categoría, uno al lado del otro (envuelve en pantallas menores). */
     .panel__detail { display: grid; gap: var(--ds-space-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
     @media (max-width: 1024px) { .panel__detail { grid-template-columns: minmax(0, 1fr); } }
-    .panel__segment { margin: var(--ds-space-2) 0 0; font-size: var(--ds-text-caption); color: var(--ds-text-muted); }
     .panel__stats-title { margin: 0 0 var(--ds-space-3); font-size: var(--ds-text-heading-4); color: var(--ds-surface-page-on); }
     .panel__stats { display: grid; gap: var(--ds-space-3); grid-template-columns: repeat(auto-fit, minmax(min(150px, 100%), 1fr)); }
     .panel__stats div { display: flex; flex-direction: column; gap: 2px; border: 1px solid var(--ds-border-subtle); border-radius: var(--ds-radius-md); padding: var(--ds-space-3); background: var(--ds-surface-card); }
@@ -218,8 +210,6 @@ export class PanelEncuestaPage {
   ];
 
   readonly filters = computed<PanelFilter[]>(() => {
-    const dimId = this.state.dimensionId();
-    const dimension = this.state.dimensions().find((d) => d.id === dimId);
     return [
       {
         label: 'Tipo',
@@ -240,16 +230,6 @@ export class PanelEncuestaPage {
           label: (q.position ? q.position + '. ' : '') + q.label,
           value: q.id,
         })),
-      },
-      {
-        label: 'Segmento',
-        value: 'dimension',
-        options: this.state.dimensions().map((d) => ({ label: d.label, value: d.id })),
-      },
-      {
-        label: 'Valor',
-        value: 'valor',
-        options: (dimension?.options ?? []).map((o) => ({ label: o.label, value: o.value })),
       },
     ];
   });
@@ -387,14 +367,8 @@ export class PanelEncuestaPage {
     return parts.join(' · ');
   }
 
-  segmentLabel(): string {
-    const dimension = this.state.dimensions().find((d) => d.id === this.state.dimensionId());
-    return `${dimension?.label ?? '—'} = ${this.state.dimensionValue()}`;
-  }
-
   onFilters(active: Record<string, string>): void {
     this.state.setType(active['tipo'] ?? '');
     this.state.setQuestion(active['pregunta'] ?? '');
-    void this.state.setDimension(active['dimension'] ?? '', active['valor'] ?? '');
   }
 }
