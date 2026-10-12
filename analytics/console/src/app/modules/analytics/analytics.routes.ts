@@ -30,6 +30,10 @@ export const ANALYTICS_ROUTES: Routes = [
     loadComponent: () => import('./pages/usuarios/usuarios.page').then((m) => m.UsuariosPage),
   },
   {
+    path: 'exportar',
+    loadComponent: () => import('./pages/exportar/exportar.page').then((m) => m.ExportarPage),
+  },
+  {
     path: 'participantes',
     loadComponent: () =>
       import('./pages/participantes/participantes.page').then((m) => m.ParticipantesPage),

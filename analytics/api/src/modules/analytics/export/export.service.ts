@@ -1,25 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
-
-interface QuestionRow {
-  id: string;
-  label: string;
-}
-interface ResponseRow {
-  id: string;
-  status: string;
-  channel: string;
-  submitted_at: Date | null;
-  respondent_token: string | null;
-  email_hash: string | null;
-}
-interface AnswerRow {
-  response_id: string;
-  question_id: string;
-  value_text: string | null;
-  value_numeric: number | null;
-  value_options: string | null;
-}
+import {
+  PRIMARY_QUESTIONNAIRE,
+  QUESTIONNAIRES,
+  type Questionnaire,
+} from '../read-model/questionnaires.js';
+import { derivedValue } from '../read-model/answers-analysis.js';
 
 /** RFC 4180: comillas dobles y comas/saltos escapados. */
 function csvCell(value: unknown): string {
@@ -27,76 +13,113 @@ function csvCell(value: unknown): string {
   return /[",\r\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
 }
 
+/** Enmascara un dato personal (non-admin); el valor real nunca sale del servidor. */
+function pii(value: unknown): unknown {
+  return value === null || value === undefined || value === '' ? '' : '***';
+}
+
+/** Serializa un valor de respuesta (escalar, lista u objeto) a texto plano. */
+function format(value: unknown): string {
+  if (value === null || value === undefined) return '';
+  if (Array.isArray(value)) return value.join(' | ');
+  if (typeof value === 'object') return JSON.stringify(value);
+  return String(value);
+}
+
+function safeJson(value: unknown): Record<string, unknown> {
+  if (value && typeof value === 'object') return value as Record<string, unknown>;
+  if (typeof value !== 'string') return {};
+  try {
+    const parsed = JSON.parse(value);
+    return parsed && typeof parsed === 'object' ? (parsed as Record<string, unknown>) : {};
+  } catch {
+    return {};
+  }
+}
+
+/** CSV con BOM (Excel) + CRLF. */
+function toCsv(rows: unknown[][]): string {
+  return '\uFEFF' + rows.map((r) => r.map(csvCell).join(',')).join('\r\n') + '\r\n';
+}
+
 /**
- * ExportService — genera el CSV de una encuesta desde `public` (solo lectura),
- * con enmascaramiento de PII aplicado en el servidor según el rol.
+ * ExportService — genera CSV desde la captura REAL (registry-driven, tabla
+ * `legacy_survey_responses`). Dos salidas: la DEFINICIÓN del cuestionario y los
+ * DATOS recolectados (JSON `answers` aplanado), con PII enmascarada para no-admin.
  */
 @Injectable()
 export class ExportService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** Enmascara un dato personal; el valor real nunca sale del servidor. */
-  maskPii(value: string | null): string {
-    return value ? '***' : '';
+  private questionnaire(surveyId: string): Questionnaire {
+    return QUESTIONNAIRES.find((q) => q.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
   }
 
-  async generateSurveyCsv(surveyId: string, mask: boolean): Promise<string> {
-    const questions = await this.prisma.$queryRaw<QuestionRow[]>`
-      SELECT id::text AS id, label
-      FROM public.questions
-      WHERE survey_id = ${surveyId}
-      ORDER BY position ASC
-    `;
-    const responses = await this.prisma.$queryRaw<ResponseRow[]>`
-      SELECT id::text AS id, status, channel, submitted_at, respondent_token, email_hash
-      FROM public.responses
-      WHERE survey_id = ${surveyId}
-      ORDER BY submitted_at ASC NULLS LAST
-    `;
-    const answers = await this.prisma.$queryRaw<AnswerRow[]>`
-      SELECT
-        response_id::text AS response_id,
-        question_id::text AS question_id,
-        value_text,
-        value_numeric::float8 AS value_numeric,
-        value_options::text AS value_options
-      FROM public.answers
-      WHERE question_id IN (SELECT id FROM public.questions WHERE survey_id = ${surveyId})
-    `;
-    const byResponse = new Map<string, Map<string, AnswerRow>>();
-    for (const a of answers) {
-      const inner = byResponse.get(a.response_id) ?? new Map<string, AnswerRow>();
-      inner.set(a.question_id, a);
-      byResponse.set(a.response_id, inner);
+  /** Catálogo del cuestionario: orden, id, etiqueta, origen (propia/derivada) y fuentes. */
+  generateQuestionnaireCsv(surveyId: string): string {
+    const q = this.questionnaire(surveyId);
+    const rows: unknown[][] = [['orden', 'id', 'etiqueta', 'origen', 'fuentes']];
+    let i = 1;
+    for (const [id, label] of Object.entries(q.labels)) {
+      rows.push([i++, id, label, 'propia', '']);
     }
+    for (const d of q.derived ?? []) {
+      rows.push([i++, d.id, d.label, 'derivada (autocontestada)', d.sources.join(' | ')]);
+    }
+    return toCsv(rows);
+  }
 
-    const header = [
-      'response_id',
-      'status',
-      'channel',
-      'submitted_at',
-      'participante',
-      ...questions.map((q) => q.label),
+  /** Datos recolectados: una fila por entrevista, una columna por pregunta (+ derivadas). */
+  async generateCollectedCsv(surveyId: string, mask: boolean): Promise<string> {
+    const q = this.questionnaire(surveyId);
+    const src = q.source;
+    const orderField = src.captureField ?? src.timeField ?? 'id';
+    const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
+      `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST`,
+    );
+
+    const chan = src.channelField ?? 'channel';
+    const dev = src.deviceField;
+    const sorteo = src.sorteoField ?? 'participaSorteo';
+    const qids = Object.keys(q.labels);
+    const derived = q.derived ?? [];
+
+    const header: unknown[] = [
+      'id',
+      chan,
+      ...(dev ? [dev] : []),
+      src.segmentsField,
+      'capturedAt',
+      'completedAt',
+      sorteo,
+      'nombre',
+      'cedula',
+      'telefono',
+      'codigoSorteo',
+      ...qids.map((id) => q.labels[id]),
+      ...derived.map((d) => d.label),
     ];
-    const lines = [header.map(csvCell).join(',')];
-    for (const r of responses) {
-      const pii = r.respondent_token ?? r.email_hash ?? '';
+
+    const lines = rows.map((r) => {
+      const answers = safeJson(r[src.answersField]);
       const cells: unknown[] = [
         r.id,
-        r.status,
-        r.channel,
-        r.submitted_at ? new Date(r.submitted_at).toISOString() : '',
-        mask ? this.maskPii(pii) : pii,
-        ...questions.map((q) => {
-          const a = byResponse.get(r.id)?.get(q.id);
-          if (!a) return '';
-          if (a.value_text !== null) return a.value_text;
-          if (a.value_numeric !== null) return String(a.value_numeric);
-          return a.value_options ?? '';
-        }),
+        r[chan],
+        ...(dev ? [r[dev]] : []),
+        r[src.segmentsField],
+        r.capturedAt,
+        r.completedAt,
+        r[sorteo],
+        mask ? pii(r.nombre) : r.nombre,
+        mask ? pii(r.cedula) : r.cedula,
+        mask ? pii(r.telefono) : r.telefono,
+        r.codigoSorteo,
+        ...qids.map((id) => format(answers[id])),
+        ...derived.map((d) => format(derivedValue(d, answers))),
       ];
-      lines.push(cells.map(csvCell).join(','));
-    }
-    return '\uFEFF' + lines.join('\r\n') + '\r\n';
+      return cells.map(csvCell).join(',');
+    });
+
+    return '\uFEFF' + [header.map(csvCell).join(','), ...lines].join('\r\n') + '\r\n';
   }
 }

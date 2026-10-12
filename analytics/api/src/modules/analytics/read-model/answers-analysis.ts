@@ -196,7 +196,7 @@ export function aggregateAnswers(
 }
 
 /** Valor de una pregunta autocontestada a partir de las respuestas de la fila. */
-function derivedValue(d: DerivedQuestion, obj: Record<string, unknown>): string | null {
+export function derivedValue(d: DerivedQuestion, obj: Record<string, unknown>): string | null {
   if (d.compute) return d.compute(obj);
   const src = d.sources[0];
   if (d.bins && src) {
@@ -251,7 +251,7 @@ function computeStats(dist: Map<number, number>): {
 }
 
 /** Etiqueta del rango al que pertenece un valor numérico (último rango abierto: "X+"). */
-function binLabel(bounds: number[], v: number): string {
+export function binLabel(bounds: number[], v: number): string {
   for (let i = 0; i < bounds.length - 1; i++) {
     const lo = bounds[i];
     const hi = bounds[i + 1];

@@ -19,23 +19,37 @@ export class ExportController {
     private readonly accessAudit: AccessAuditService,
   ) {}
 
+  /** Datos recolectados (una fila por entrevista). PII enmascarada para no-admin. */
   @Get(':id/export')
   async exportSurvey(
     @Param('id') id: string,
     @Req() req: RequestWithUser,
     @Res() res: Response,
   ): Promise<void> {
-    const role = req.staffUser?.role ?? 'analista';
-    const mask = role !== 'admin'; // analista/auditor: PII enmascarada
+    const mask = (req.staffUser?.role ?? 'analista') !== 'admin';
     await this.accessAudit.registrarLectura(`analytics/surveys/${id}/export`, req.staffUser?.id);
 
-    const csv = await this.exportService.generateSurveyCsv(id, mask);
+    const csv = await this.exportService.generateCollectedCsv(id, mask);
     await this.prisma.surveyExport.create({
       data: { surveyId: id, actorId: req.staffUser?.id ?? null },
     });
 
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
-    res.setHeader('Content-Disposition', `attachment; filename="survey-${id}.csv"`);
+    res.setHeader('Content-Disposition', `attachment; filename="datos-${id}.csv"`);
+    res.send(csv);
+  }
+
+  /** Definición del cuestionario (catálogo de preguntas). */
+  @Get(':id/questionnaire')
+  async exportQuestionnaire(
+    @Param('id') id: string,
+    @Req() req: RequestWithUser,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/questionnaire`, req.staffUser?.id);
+    const csv = this.exportService.generateQuestionnaireCsv(id);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="cuestionario-${id}.csv"`);
     res.send(csv);
   }
 }

@@ -30,6 +30,7 @@ export class ConsoleNavSection {
       { label: 'Cruzados', route: '/reportes-cruzados' },
       { label: 'Anomalías', route: '/anomalias' },
       { label: 'Participantes', route: '/participantes' },
+      { label: 'Exportar', route: '/exportar' },
       { label: 'Datos', route: '/datos' },
     ];
     if (this.session.user()?.role === 'admin') {
