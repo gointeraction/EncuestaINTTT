@@ -74,7 +74,6 @@ export const VISION_CERO_LABELS: Record<string, string> = {
   municipio: 'Municipio',
   edad: '¿Cuál es tu edad?',
   sexo: 'Sexo',
-  ubicacion: '¿En qué estado y municipio resides?',
   ocupacion: 'Ocupación principal',
   nivel_educativo: 'Nivel educativo alcanzado',
   anos_conduciendo: '¿Cuántos años llevas conduciendo motocicleta?',
