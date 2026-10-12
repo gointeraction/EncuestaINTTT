@@ -31,19 +31,6 @@ export interface FilterSet {
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <div class="fb">
-      <div class="fb__bar">
-        <span class="fb__lbl">Combinar filtros:</span>
-        <label class="fb__radio">
-          <input type="radio" name="fbcomb" [checked]="value().combinator === 'and'" (change)="setCombinator('and')" />
-          Y (todas)
-        </label>
-        <label class="fb__radio">
-          <input type="radio" name="fbcomb" [checked]="value().combinator === 'or'" (change)="setCombinator('or')" />
-          O (alguna)
-        </label>
-        <button type="button" class="fb__add" (click)="add()">+ Añadir filtro</button>
-      </div>
-
       @for (c of value().conditions; track c.id) {
         <div class="fb__row">
           <div class="fb__q">
@@ -91,6 +78,21 @@ export interface FilterSet {
       @if (value().conditions.length === 0) {
         <p class="fb__hint">Sin filtros → se muestran TODAS las opciones.</p>
       }
+
+      <div class="fb__bar">
+        <button type="button" class="fb__add" (click)="add()">+ Añadir filtro</button>
+        @if (value().conditions.length > 1) {
+          <span class="fb__lbl">Combinar los filtros:</span>
+          <label class="fb__radio">
+            <input type="radio" name="fbcomb" [checked]="value().combinator === 'and'" (change)="setCombinator('and')" />
+            Y (todas)
+          </label>
+          <label class="fb__radio">
+            <input type="radio" name="fbcomb" [checked]="value().combinator === 'or'" (change)="setCombinator('or')" />
+            O (alguna)
+          </label>
+        }
+      </div>
     </div>
   `,
   styles: `
@@ -98,7 +100,7 @@ export interface FilterSet {
     .fb__bar { display: flex; align-items: center; flex-wrap: wrap; gap: var(--ds-space-4); font-size: var(--ds-text-small); color: var(--ds-text-muted); }
     .fb__lbl { font-weight: 600; }
     .fb__radio { display: inline-flex; align-items: center; gap: 0.35rem; }
-    .fb__add { margin-left: auto; padding: 0.35rem 0.75rem; border: 1px solid var(--ds-border-input); border-radius: var(--ds-radius-standard); background: var(--ds-surface-card); color: var(--ds-surface-card-on); cursor: pointer; font-family: inherit; }
+    .fb__add { padding: 0.35rem 0.75rem; border: 1px solid var(--ds-border-input); border-radius: var(--ds-radius-standard); background: var(--ds-surface-card); color: var(--ds-surface-card-on); cursor: pointer; font-family: inherit; }
     .fb__row { display: grid; grid-template-columns: minmax(240px, 1fr) minmax(240px, 1.4fr) auto; gap: var(--ds-space-3); align-items: start; }
     .fb__q { position: relative; }
     .fb__input { width: 100%; box-sizing: border-box; padding: 0.5rem 0.75rem; border: 1px solid var(--ds-border-input); border-radius: var(--ds-radius-standard); background: var(--ds-bg-field); color: var(--ds-surface-body-on); font-size: 0.875rem; font-family: inherit; }
