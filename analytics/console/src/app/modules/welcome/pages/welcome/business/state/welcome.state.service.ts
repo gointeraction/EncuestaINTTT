@@ -30,6 +30,13 @@ export class WelcomeStateService implements WelcomeStateContract {
         route: '/admin',
         icon: 'users',
       });
+      out.push({
+        id: 'builder',
+        label: 'Crear encuesta',
+        description: 'Diseña una nueva encuesta y su cuestionario.',
+        route: '/builder',
+        icon: 'file-plus',
+      });
     }
     out.push({
       id: 'analitica',

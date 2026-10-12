@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { ConsoleLayout } from './shared/layouts/console/console.layout';
 import { AdminLayout } from './shared/layouts/admin/admin.layout';
+import { BuilderLayout } from './shared/layouts/builder/builder.layout';
 import { TestDataLayout } from './shared/layouts/test-data/test-data.layout';
 import { HubLayout } from './shared/layouts/hub/hub.layout';
 import { sessionGuard } from './core/session.guard';
@@ -41,6 +42,12 @@ export const routes: Routes = [
     component: AdminLayout,
     canActivate: [sessionGuard, adminGuard],
     loadChildren: () => import('./modules/admin/admin.routes').then((m) => m.ADMIN_ROUTES),
+  },
+  {
+    path: 'builder',
+    component: BuilderLayout,
+    canActivate: [sessionGuard, adminGuard],
+    loadChildren: () => import('./modules/builder/builder.routes').then((m) => m.BUILDER_ROUTES),
   },
   {
     path: 'test-data',
