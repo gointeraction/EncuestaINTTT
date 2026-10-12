@@ -1,14 +1,15 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { DsContainerComponent, DsHeaderComponent } from '@cifraflow/design';
+import { DsContainerComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
 import { SessionService } from '../../../core/session.service';
 import { ConsoleAccountSection, ConsoleFooterSection, ConsoleHeaderSection } from '../console/sections';
 import { BuilderNavSection } from './sections';
 
 /**
- * BuilderLayout — shell PROPIO del área CONSTRUCTOR (crear/editar encuestas y sus
- * cuestionarios). Reutiliza las secciones genéricas y aporta su menú de dominio.
+ * BuilderLayout — shell del área CONSTRUCTOR (crear/editar encuestas). Header OMA:
+ *   fila 1 → marca (izq) · cuenta+salir (der);
+ *   fila 2 → el menú del constructor.
  */
 @Component({
   selector: 'app-builder-layout',
@@ -16,7 +17,6 @@ import { BuilderNavSection } from './sections';
   imports: [
     RouterOutlet,
     DsContainerComponent,
-    DsHeaderComponent,
     DsFabComponent,
     ConsoleHeaderSection,
     BuilderNavSection,
@@ -26,24 +26,36 @@ import { BuilderNavSection } from './sections';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ds-container kind="area" name="header">
-      <ds-header>
-        <div
-          class="ds-h__row"
-          style="background: var(--ds-color-brand-contrast); color: var(--ds-color-white); padding: var(--ds-space-2) var(--ds-space-4)"
-        >
-          <div class="ds-h__section ds-h__section--grow">
-            <app-console-header-section title="Visión Cero - Encuestas" />
-          </div>
+      <ds-container
+        kind="row"
+        name="bar"
+        style="background: var(--ds-color-brand-contrast); color: var(--ds-color-white);
+               align-items: center; gap: var(--ds-space-4);
+               padding: var(--ds-space-3) var(--ds-space-4)"
+      >
+        <ds-container kind="section" name="brand" style="flex: 1 1 0; min-width: 0">
+          <app-console-header-section title="Visión Cero - Encuestas" />
+        </ds-container>
+        <ds-container kind="section" name="account" style="flex: 0 0 auto">
           @if (session.user()) {
-            <div class="ds-h__section ds-h__section--end">
-              <div class="flex items-center gap-6">
-                <app-builder-nav-section />
-                <app-console-account-section />
-              </div>
-            </div>
+            <app-console-account-section />
           }
-        </div>
-      </ds-header>
+        </ds-container>
+      </ds-container>
+
+      @if (session.user()) {
+        <ds-container
+          kind="row"
+          name="nav"
+          style="background: var(--ds-color-brand-contrast); color: var(--ds-color-white);
+                 padding: var(--ds-space-1) var(--ds-space-4) var(--ds-space-2);
+                 border-top: 1px solid color-mix(in srgb, var(--ds-color-white) 18%, transparent)"
+        >
+          <ds-container kind="section" name="menu">
+            <app-builder-nav-section />
+          </ds-container>
+        </ds-container>
+      }
     </ds-container>
 
     <ds-container kind="display" name="content">

@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { DsContainerComponent, DsHeaderComponent } from '@cifraflow/design';
+import { DsContainerComponent } from '@cifraflow/design';
 import { DsFabComponent } from '@cifraflow/fab';
 import { SessionService } from '../../../core/session.service';
 import { ConsoleAccountSection, ConsoleFooterSection, ConsoleHeaderSection } from '../console/sections';
 
 /**
- * HubLayout — shell de la BIENVENIDA (hub de entrada). Marca + cuenta + pie, SIN menú
- * de dominio: es el punto desde donde se elige el área (analítica/administración/test-data).
+ * HubLayout — shell de la BIENVENIDA (hub de entrada). Header OMA: area → row → section
+ * (marca izq · cuenta+salir der). SIN menú: es el punto de entrada, no un área.
  */
 @Component({
   selector: 'app-hub-layout',
@@ -15,7 +15,6 @@ import { ConsoleAccountSection, ConsoleFooterSection, ConsoleHeaderSection } fro
   imports: [
     RouterOutlet,
     DsContainerComponent,
-    DsHeaderComponent,
     DsFabComponent,
     ConsoleHeaderSection,
     ConsoleAccountSection,
@@ -24,21 +23,22 @@ import { ConsoleAccountSection, ConsoleFooterSection, ConsoleHeaderSection } fro
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <ds-container kind="area" name="header">
-      <ds-header>
-        <div
-          class="ds-h__row"
-          style="background: var(--ds-color-brand-primary); color: var(--ds-color-white); padding: var(--ds-space-2) var(--ds-space-4)"
-        >
-          <div class="ds-h__section ds-h__section--grow">
-            <app-console-header-section title="Visión Cero" />
-          </div>
+      <ds-container
+        kind="row"
+        name="bar"
+        style="background: var(--ds-color-brand-primary); color: var(--ds-color-white);
+               align-items: center; gap: var(--ds-space-4);
+               padding: var(--ds-space-3) var(--ds-space-4)"
+      >
+        <ds-container kind="section" name="brand" style="flex: 1 1 0; min-width: 0">
+          <app-console-header-section title="Visión Cero" />
+        </ds-container>
+        <ds-container kind="section" name="account" style="flex: 0 0 auto">
           @if (session.user()) {
-            <div class="ds-h__section ds-h__section--end">
-              <app-console-account-section />
-            </div>
+            <app-console-account-section />
           }
-        </div>
-      </ds-header>
+        </ds-container>
+      </ds-container>
     </ds-container>
 
     <ds-container kind="display" name="content">
