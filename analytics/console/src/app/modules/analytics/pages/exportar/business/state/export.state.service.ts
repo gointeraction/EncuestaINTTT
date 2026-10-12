@@ -17,4 +17,12 @@ export class ExportStateService implements ExportStateContract {
   collectedUrl(): string {
     return this.data.collectedUrl(this.surveyId());
   }
+
+  collectedLongUrl(): string {
+    return this.data.collectedLongUrl(this.surveyId());
+  }
+
+  collectedRawUrl(): string {
+    return this.data.collectedRawUrl(this.surveyId());
+  }
 }

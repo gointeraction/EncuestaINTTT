@@ -37,6 +37,12 @@ function safeJson(value: unknown): Record<string, unknown> {
   }
 }
 
+/** Serializa una fecha a ISO (o el valor tal cual). */
+function iso(value: unknown): string {
+  if (value instanceof Date) return value.toISOString();
+  return value === null || value === undefined ? '' : String(value);
+}
+
 /** Tamaño de lote del export (filas por consulta) — evita cargar todo en memoria. */
 const EXPORT_CHUNK = 25_000;
 
@@ -113,8 +119,8 @@ export class ExportService {
           r[chan],
           ...(dev ? [r[dev]] : []),
           r[src.segmentsField],
-          r.capturedAt,
-          r.completedAt,
+          iso(r.capturedAt),
+          iso(r.completedAt),
           r[sorteo],
           mask ? pii(r.nombre) : r.nombre,
           mask ? pii(r.cedula) : r.cedula,
@@ -124,6 +130,75 @@ export class ExportService {
           ...derived.map((d) => format(derivedValue(d, answers))),
         ];
         out += cells.map(csvCell).join(',') + '\r\n';
+      }
+      yield out;
+      offset += rows.length;
+      if (rows.length < EXPORT_CHUNK) break;
+    }
+  }
+  /**
+   * CSV LARGO (tidy): una fila por (encuesta × pregunta respondida). Ideal para VERIFICAR
+   * y pivotar en Excel/pandas/R/DuckDB/Power BI sin transformar.
+   */
+  async *collectedLongCsvChunks(surveyId: string): AsyncGenerator<string> {
+    const q = this.questionnaire(surveyId);
+    const src = q.source;
+    const orderField = src.captureField ?? src.timeField ?? 'id';
+    const chan = src.channelField ?? 'channel';
+    const sorteo = src.sorteoField ?? 'participaSorteo';
+    const qids = Object.keys(q.labels);
+    yield (
+      '\uFEFF' +
+      ['response_id', 'survey_id', src.segmentsField, chan, 'capturedAt', 'completedAt', sorteo, 'question_id', 'question_label', 'value']
+        .map(csvCell)
+        .join(',') +
+      '\r\n'
+    );
+
+    let offset = 0;
+    for (;;) {
+      const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
+        `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+      );
+      if (rows.length === 0) break;
+      let out = '';
+      for (const r of rows) {
+        const answers = safeJson(r[src.answersField]);
+        for (const qid of qids) {
+          const value = answers[qid];
+          if (value === undefined || value === null || value === '') continue;
+          out +=
+            [r.id, q.id, r[src.segmentsField], r[chan], iso(r.capturedAt), iso(r.completedAt), r[sorteo], qid, q.labels[qid], format(value)]
+              .map(csvCell)
+              .join(',') + '\r\n';
+        }
+      }
+      yield out;
+      offset += rows.length;
+      if (rows.length < EXPORT_CHUNK) break;
+    }
+  }
+
+  /** JSONL (NDJSON): un objeto por línea con el JSON CRUDO de cada encuesta (como el seed). */
+  async *collectedRawJsonlChunks(surveyId: string, mask: boolean): AsyncGenerator<string> {
+    const q = this.questionnaire(surveyId);
+    const src = q.source;
+    const orderField = src.captureField ?? src.timeField ?? 'id';
+    let offset = 0;
+    for (;;) {
+      const rows = await this.prisma.$queryRawUnsafe<Array<Record<string, unknown>>>(
+        `SELECT * FROM ${src.table} ORDER BY "${orderField}" ASC NULLS LAST LIMIT ${EXPORT_CHUNK} OFFSET ${offset}`,
+      );
+      if (rows.length === 0) break;
+      let out = '';
+      for (const r of rows) {
+        const obj: Record<string, unknown> = { ...r, survey_id: q.id, answers: safeJson(r[src.answersField]) };
+        if (mask) {
+          obj['nombre'] = pii(r['nombre']);
+          obj['cedula'] = pii(r['cedula']);
+          obj['telefono'] = pii(r['telefono']);
+        }
+        out += JSON.stringify(obj) + '\n';
       }
       yield out;
       offset += rows.length;

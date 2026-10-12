@@ -7,4 +7,6 @@ export interface ExportStateContract {
   readonly surveyId: Signal<string>;
   questionnaireUrl(): string;
   collectedUrl(): string;
+  collectedLongUrl(): string;
+  collectedRawUrl(): string;
 }

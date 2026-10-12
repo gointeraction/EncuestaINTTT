@@ -51,6 +51,26 @@ import { ExportStateService } from './business/state/export.state.service';
           </ds-button>
         </ds-container>
 
+        <ds-container kind="section" name="largo" style="margin-top: var(--ds-space-6)">
+          <h3 class="exp__title">Datos recolectados · CSV largo (tidy)</h3>
+          <p class="exp__text">
+            Una fila por <b>encuesta × pregunta</b> (response_id, survey_id, tipo, canal, fechas,
+            question_id, etiqueta, valor). El mejor formato para <b>verificar</b> y pivotar en
+            Excel, pandas, R, DuckDB o Power BI.
+          </p>
+          <ds-button icon="download" (click)="downloadLong()">Descargar datos (CSV largo)</ds-button>
+        </ds-container>
+
+        <ds-container kind="section" name="crudo" style="margin-top: var(--ds-space-6)">
+          <h3 class="exp__title">Datos crudos · JSONL (NDJSON)</h3>
+          <p class="exp__text">
+            Un objeto JSON por línea <b>tal como se importa</b> (con el campo <code>answers</code>),
+            para <b>contrastar con el seed</b> o procesar con <code>jq</code>, DuckDB, pandas, Node…
+            PII enmascarada para no-admin.
+          </p>
+          <ds-button icon="download" (click)="downloadRaw()">Descargar datos (NDJSON)</ds-button>
+        </ds-container>
+
         <ds-container kind="section" name="datos" style="margin-top: var(--ds-space-6)">
           <h3 class="exp__title">Datos recolectados</h3>
           <p class="exp__text">
@@ -88,5 +108,13 @@ export class ExportarPage {
 
   downloadCollected(): void {
     downloadUrl(this.state.collectedUrl());
+  }
+
+  downloadLong(): void {
+    downloadUrl(this.state.collectedLongUrl());
+  }
+
+  downloadRaw(): void {
+    downloadUrl(this.state.collectedRawUrl());
   }
 }

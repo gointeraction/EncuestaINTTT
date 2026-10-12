@@ -41,6 +41,27 @@ export class ExportController {
     res.end();
   }
 
+  /** Datos recolectados en CSV LARGO (tidy): 1 fila por encuesta × pregunta. */
+  @Get(':id/export-long')
+  async exportLong(@Param('id') id: string, @Req() req: RequestWithUser, @Res() res: Response): Promise<void> {
+    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/export-long`, req.staffUser?.id);
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="datos-largo-${id}.csv"`);
+    for await (const chunk of this.exportService.collectedLongCsvChunks(id)) res.write(chunk);
+    res.end();
+  }
+
+  /** Datos CRUDOS en JSONL (NDJSON): el JSON tal como se importa (1 objeto por línea). */
+  @Get(':id/export-raw')
+  async exportRaw(@Param('id') id: string, @Req() req: RequestWithUser, @Res() res: Response): Promise<void> {
+    const mask = (req.staffUser?.role ?? 'analista') !== 'admin';
+    await this.accessAudit.registrarLectura(`analytics/surveys/${id}/export-raw`, req.staffUser?.id);
+    res.setHeader('Content-Type', 'application/x-ndjson; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="datos-crudo-${id}.ndjson"`);
+    for await (const chunk of this.exportService.collectedRawJsonlChunks(id, mask)) res.write(chunk);
+    res.end();
+  }
+
   /** Definición del cuestionario (catálogo de preguntas). */
   @Get(':id/questionnaire')
   async exportQuestionnaire(

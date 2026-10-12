@@ -17,4 +17,14 @@ export class ExportDataService {
   collectedUrl(surveyId: string): string {
     return `${API_BASE}/analytics/surveys/${encodeURIComponent(surveyId)}/export`;
   }
+
+  /** Datos en CSV LARGO (tidy): 1 fila por encuesta × pregunta. */
+  collectedLongUrl(surveyId: string): string {
+    return `${API_BASE}/analytics/surveys/${encodeURIComponent(surveyId)}/export-long`;
+  }
+
+  /** Datos CRUDOS en JSONL (NDJSON): el JSON tal como se importa. */
+  collectedRawUrl(surveyId: string): string {
+    return `${API_BASE}/analytics/surveys/${encodeURIComponent(surveyId)}/export-raw`;
+  }
 }

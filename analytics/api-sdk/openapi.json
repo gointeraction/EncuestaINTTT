@@ -873,6 +873,52 @@
         ]
       }
     },
+    "/analytics/surveys/{id}/export-long": {
+      "get": {
+        "operationId": "ExportController_exportLong",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
+    "/analytics/surveys/{id}/export-raw": {
+      "get": {
+        "operationId": "ExportController_exportRaw",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "analytics"
+        ]
+      }
+    },
     "/analytics/surveys/{id}/questionnaire": {
       "get": {
         "operationId": "ExportController_exportQuestionnaire",
