@@ -20,6 +20,7 @@ import { PANEL_STATE, type PanelStateContract } from './business/contracts/panel
 import { PanelStateService } from './business/state/panel.state.service';
 import {
   questionBase,
+  type PanelFilter,
   type QuestionAnalytics,
 } from './business/models/panel.model';
 import { ActivatedRoute } from '@angular/router';
@@ -63,6 +64,7 @@ interface ChartVm {
     DsContainerComponent,
     DsDataTableCardComponent,
     DsEmptyStateComponent,
+    DsFilterBarComponent,
     DsHeaderComponent,
     DsKpiGridComponent,
     DsPageTitleComponent,
@@ -83,27 +85,14 @@ interface ChartVm {
       <ds-container kind="area" name="body" class="panel__body pg">
         <!-- FILTROS -->
         <ds-container kind="section" name="filtros">
-          <div class="panel__filters">
-            <label class="panel__f">Pregunta
-              <input class="panel__input" list="panel-questions" placeholder="Escribe para buscar…"
-                [value]="state.search()" (input)="onQuery($event)" />
-              <datalist id="panel-questions">
-                @for (q of state.filtered(); track q.id) { <option [value]="qLabel(q)"></option> }
-              </datalist>
-            </label>
-            <label class="panel__f">Tipo
-              <select class="ds-select" [value]="state.typeFilter()" (change)="state.setType($any($event.target).value)">
-                <option value="">Todos</option>
-                <option value="single_choice">Opción única</option>
-                <option value="multi_choice">Opción múltiple</option>
-                <option value="scale">Escala</option>
-                <option value="number">Numérica</option>
-                <option value="short_text">Texto</option>
-              </select>
-            </label>
-            <span class="panel__count">{{ state.filtered().length }} preguntas</span>
-          </div>
-        </ds-container>
+          <ds-filter-bar
+            placeholder="Buscar pregunta…"
+            [search]="state.search()"
+            (searchChange)="state.setSearch($event)"
+            [filters]="filters()"
+            (activeFiltersChange)="onFilters($event)"
+            [total]="state.filtered().length"
+          />        </ds-container>
 
         <!-- KPIs DE LA MUESTRA -->
         <ds-container kind="section" name="kpis">
@@ -196,11 +185,6 @@ interface ChartVm {
   `,
   styles: `
     .panel__body { padding-block: var(--ds-space-4); display: flex; flex-direction: column; gap: var(--ds-space-4); }
-    .panel__filters { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--ds-space-4); }
-    .panel__f { display: flex; flex-direction: column; gap: 0.25rem; font-size: var(--ds-text-caption); color: var(--ds-text-muted); }
-    .panel__input { padding: 0.5rem 0.75rem; min-width: 340px; border: 1px solid var(--ds-border-input); border-radius: var(--ds-radius-standard); background: var(--ds-bg-field); color: var(--ds-surface-body-on); font-size: 0.875rem; font-family: var(--ds-font-sans); }
-    .panel__input:focus { outline: none; border-color: var(--ds-color-brand-primary); box-shadow: 0 0 0 3px color-mix(in srgb, var(--ds-color-brand-primary) 18%, transparent); }
-    .panel__count { font-size: 0.75rem; color: var(--ds-text-muted); }
     /* Gráfico y detalle por categoría, uno al lado del otro (envuelve en pantallas menores). */
     .panel__detail { display: grid; gap: var(--ds-space-4); grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
     @media (max-width: 1024px) { .panel__detail { grid-template-columns: minmax(0, 1fr); } }
@@ -224,6 +208,31 @@ export class PanelEncuestaPage {
     { key: 'n', label: '#' },
     { key: 'text', label: 'Comentario' },
   ];
+
+  readonly filters = computed<PanelFilter[]>(() => {
+    return [
+      {
+        label: 'Tipo',
+        value: 'tipo',
+        options: [
+          { label: 'Todos', value: '' },
+          { label: 'Opción única', value: 'single_choice' },
+          { label: 'Opción múltiple', value: 'multi_choice' },
+          { label: 'Escala', value: 'scale' },
+          { label: 'Numérica', value: 'number' },
+          { label: 'Texto', value: 'short_text' },
+        ],
+      },
+      {
+        label: 'Pregunta',
+        value: 'pregunta',
+        options: this.state.filtered().map((q) => ({
+          label: (q.position ? q.position + '. ' : '') + q.label,
+          value: q.id,
+        })),
+      },
+    ];
+  });
 
   readonly kpis = computed<DsKpiItem[]>(() => {
     const t = this.state.dashboard()?.totals;
@@ -358,15 +367,8 @@ export class PanelEncuestaPage {
     return parts.join(' · ');
   }
 
-  qLabel(q: QuestionAnalytics): string {
-    return (q.position ? q.position + '. ' : '') + q.label;
-  }
-
-  /** Autocompletar: filtra mientras escribe y, al elegir una opción, enfoca la pregunta. */
-  onQuery(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    this.state.setSearch(value);
-    const picked = this.state.filtered().find((q) => this.qLabel(q) === value);
-    if (picked) this.state.setQuestion(picked.id);
+  onFilters(active: Record<string, string>): void {
+    this.state.setType(active['tipo'] ?? '');
+    this.state.setQuestion(active['pregunta'] ?? '');
   }
 }
