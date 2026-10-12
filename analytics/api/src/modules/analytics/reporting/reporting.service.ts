@@ -158,6 +158,70 @@ export class ReportingService {
     return { surveyId, questionA, questionB, baseA, baseB, baseBoth, categoriesA, categoriesB, cells };
   }
 
+  /**
+   * Lista paginada de REGISTROS con filtros: `responses` (todas las encuestas) o
+   * `participants` (solo las del sorteo). PII enmascarada por rol.
+   */
+  async records(
+    kind: 'responses' | 'participants',
+    page: number,
+    limit: number,
+    mask: boolean,
+    conditions?: Array<{ questionId: string; values: string[] }>,
+    combinator: 'and' | 'or' = 'and',
+  ): Promise<Page<unknown>> {
+    const qq = PRIMARY_QUESTIONNAIRE;
+    const src = qq.source;
+    const { sql, params } = buildConditionsWhere(qq, conditions, combinator);
+    const conds = [sql ? sql.replace(/^WHERE /, '') : 'TRUE'];
+    if (kind === 'participants') conds.push('"participaSorteo" = true');
+    const where = 'WHERE ' + conds.join(' AND ');
+    const offset = Math.max(0, (page - 1) * limit);
+
+    const [totals] = await this.prisma.$queryRawUnsafe<Array<{ total: number }>>(
+      `SELECT COUNT(*)::int AS total FROM ${src.table} ${where}`,
+      ...params,
+    );
+    const rows = await this.prisma.$queryRawUnsafe<
+      Array<{
+        id: string;
+        driverType: string;
+        channel: string;
+        captured: Date | null;
+        completed: Date | null;
+        participaSorteo: boolean;
+        nombre: string | null;
+        cedula: string | null;
+        telefono: string | null;
+        codigo: string | null;
+      }>
+    >(
+      `SELECT id, "${src.segmentsField}" AS "driverType", COALESCE("${src.channelField}", 'public') AS channel,
+              "capturedAt" AS captured, "completedAt" AS completed, "participaSorteo",
+              nombre, cedula, telefono, "codigoSorteo" AS codigo
+       FROM ${src.table} ${where}
+       ORDER BY "completedAt" DESC
+       LIMIT $${params.length + 1} OFFSET $${params.length + 2}`,
+      ...params,
+      limit,
+      offset,
+    );
+    const items = rows.map((r) => ({
+      id: r.id,
+      driverType: r.driverType,
+      channel: r.channel,
+      captured: r.captured,
+      momento: r.completed,
+      participaSorteo: r.participaSorteo,
+      nombre: mask ? maskValue(r.nombre) : r.nombre,
+      cedula: mask ? maskValue(r.cedula) : r.cedula,
+      telefono: mask ? maskValue(r.telefono) : r.telefono,
+      codigo: r.codigo,
+    }));
+    const total = totals?.total ?? 0;
+    return { items, total, page, limit, totalPages: Math.max(1, Math.ceil(total / limit)) };
+  }
+
   /** Lista paginada de participantes del sorteo (read-only); PII enmascarada por rol. */
   async participants(page: number, limit: number, mask: boolean): Promise<Page<unknown>> {
     const offset = (page - 1) * limit;

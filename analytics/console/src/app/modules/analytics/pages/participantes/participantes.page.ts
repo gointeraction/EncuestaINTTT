@@ -9,6 +9,7 @@ import {
 } from '@cifraflow/design';
 import { PARTICIPANTS_STATE, type ParticipantsStateContract } from './business/contracts/participants.state.contract';
 import { ParticipantsStateService } from './business/state/participants.state.service';
+import { FilterBuilderComponent } from '../../../../shared/components/filter-builder/filter-builder.component';
 
 /**
  * @akuri-page
@@ -21,7 +22,7 @@ import { ParticipantsStateService } from './business/state/participants.state.se
 @Component({
   selector: 'app-participantes-page',
   standalone: true,
-  imports: [NumPipe, DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
+  imports: [NumPipe, FilterBuilderComponent, DsContainerComponent, DsHeaderComponent, DsPageTitleComponent, DsButtonComponent],
   providers: [
     ParticipantsStateService,
     { provide: PARTICIPANTS_STATE, useExisting: ParticipantsStateService },
@@ -43,6 +44,17 @@ import { ParticipantsStateService } from './business/state/participants.state.se
       </ds-container>
 
       <ds-container kind="area" name="body" class="pg" style="padding-block: var(--ds-space-4)">
+        <ds-container kind="section" name="filtros">
+          <app-filter-builder
+            [questions]="state.filterQuestions()"
+            [value]="state.filters()"
+            (valueChange)="state.setFilters($event)"
+          />
+          <div class="pt__apply">
+            <ds-button size="sm" [loading]="state.loading()" (click)="state.applyFilters()">Aplicar filtros</ds-button>
+          </div>
+        </ds-container>
+
         <ds-container kind="section" name="lista">
           @if (state.page(); as p) {
             <p class="pt__meta">
@@ -82,6 +94,7 @@ import { ParticipantsStateService } from './business/state/participants.state.se
     </ds-container>
   `,
   styles: `
+    .pt__apply { display: flex; justify-content: flex-end; margin-top: var(--ds-space-3); }
     .pt__meta { margin: 0 0 var(--ds-space-3); font-size: var(--ds-text-small); color: var(--ds-text-muted); }
     .pt__table { width: 100%; border-collapse: collapse; font-size: var(--ds-text-small); color: var(--ds-surface-page-on); }
     .pt__table th, .pt__table td { text-align: left; padding: var(--ds-space-2) var(--ds-space-3); border-bottom: 1px solid var(--ds-border-subtle); }

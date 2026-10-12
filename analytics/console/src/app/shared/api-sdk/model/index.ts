@@ -30,4 +30,8 @@ export * from './reportingControllerFilteredBody';
 export * from './reportingControllerFilteredBodyCombinator';
 export * from './reportingControllerFilteredBodyConditionsItem';
 export * from './reportingControllerParticipantsParams';
+export * from './reportingControllerRecordsBody';
+export * from './reportingControllerRecordsBodyCombinator';
+export * from './reportingControllerRecordsBodyConditionsItem';
+export * from './reportingControllerRecordsBodyKind';
 export * from './reportingControllerSurveyParams';

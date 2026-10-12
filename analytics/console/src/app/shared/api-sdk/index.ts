@@ -47,6 +47,7 @@ import type {
   ReportingControllerCrossTabParams,
   ReportingControllerFilteredBody,
   ReportingControllerParticipantsParams,
+  ReportingControllerRecordsBody,
   ReportingControllerSurveyParams
 } from './model';
 
@@ -306,6 +307,17 @@ export class EncuestaINTTTBackOfficeAnalíticoService {
     );
   }
 
+ reportingControllerRecords<TData = void>(reportingControllerRecordsBody: ReportingControllerRecordsBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
+ reportingControllerRecords<TData = void>(reportingControllerRecordsBody: ReportingControllerRecordsBody, options?: HttpClientOptions & { observe: 'events' }): Observable<HttpEvent<TData>>;
+ reportingControllerRecords<TData = void>(reportingControllerRecordsBody: ReportingControllerRecordsBody, options?: HttpClientOptions & { observe: 'response' }): Observable<AngularHttpResponse<TData>>;
+  reportingControllerRecords<TData = void>(
+    reportingControllerRecordsBody: ReportingControllerRecordsBody, options?: HttpClientOptions & { observe?: any }): Observable<any> {
+    return this.http.post<TData>(
+      `/analytics/records`,
+      reportingControllerRecordsBody,options
+    );
+  }
+
  reportingControllerCrossTabFiltered<TData = void>(id: string,
     reportingControllerCrossTabFilteredBody: ReportingControllerCrossTabFilteredBody, options?: HttpClientOptions & { observe?: 'body' }): Observable<TData>;
  reportingControllerCrossTabFiltered<TData = void>(id: string,
@@ -413,6 +425,7 @@ export type ReportingControllerSurveyClientResult = NonNullable<void>
 export type ReportingControllerDimensionsClientResult = NonNullable<void>
 export type ReportingControllerTimelineClientResult = NonNullable<void>
 export type ReportingControllerFilteredClientResult = NonNullable<void>
+export type ReportingControllerRecordsClientResult = NonNullable<void>
 export type ReportingControllerCrossTabFilteredClientResult = NonNullable<void>
 export type ReportingControllerCrossTabClientResult = NonNullable<void>
 export type ReportingControllerAnomaliesClientResult = NonNullable<void>

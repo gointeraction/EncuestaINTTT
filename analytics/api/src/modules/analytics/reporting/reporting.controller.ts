@@ -74,6 +74,45 @@ export class ReportingController {
     return this.reporting.filtered(id, body?.conditions ?? [], combinator);
   }
 
+  @Post('records')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        kind: { type: 'string', enum: ['responses', 'participants'] },
+        page: { type: 'number' },
+        limit: { type: 'number' },
+        combinator: { type: 'string', enum: ['and', 'or'] },
+        conditions: {
+          type: 'array',
+          items: {
+            type: 'object',
+            properties: {
+              questionId: { type: 'string' },
+              values: { type: 'array', items: { type: 'string' } },
+            },
+          },
+        },
+      },
+    },
+  })
+  async records(
+    @Body() body: { kind?: string; page?: number; limit?: number; combinator?: string; conditions?: Array<{ questionId: string; values: string[] }> },
+    @Req() req: RequestWithUser,
+  ) {
+    await this.accessAudit.registrarLectura('analytics/records', req.staffUser?.id);
+    const mask = (req.staffUser?.role ?? 'analista') !== 'admin';
+    const kind = body?.kind === 'participants' ? 'participants' : 'responses';
+    return this.reporting.records(
+      kind,
+      Math.max(1, Math.floor(body?.page ?? 1)),
+      Math.min(200, Math.max(1, Math.floor(body?.limit ?? 20))),
+      mask,
+      body?.conditions ?? [],
+      body?.combinator === 'or' ? 'or' : 'and',
+    );
+  }
+
   @Post('surveys/:id/cross-tab')
   @ApiBody({
     schema: {

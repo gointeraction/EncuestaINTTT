@@ -34,4 +34,8 @@ export const ANALYTICS_ROUTES: Routes = [
     loadComponent: () =>
       import('./pages/participantes/participantes.page').then((m) => m.ParticipantesPage),
   },
+  {
+    path: 'encuestas',
+    loadComponent: () => import('./pages/encuestas/encuestas.page').then((m) => m.EncuestasPage),
+  },
 ];
