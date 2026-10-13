@@ -236,6 +236,7 @@ model SurveyResponse {
   @@index([cedula])
   @@index([deviceId, completedAt])
   @@index([surveyId])
+  @@index([channel])
   @@map("legacy_survey_responses")
 }
 

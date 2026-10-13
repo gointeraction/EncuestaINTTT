@@ -61,9 +61,12 @@ export function buildFilterWhere(
     const [a, b] = AGE_GROUPS[value];
     return { sql: `WHERE ("${af}"::jsonb ->> 'edad')::int BETWEEN $1 AND $2`, params: [a, b] };
   }
+  // CONTENCIÓN (`@>`) para que el predicado sea INDEXABLE por el GIN de `answers`:
+  //   escalar → {"q":"v"}   ·   miembro de array → {"q":["v"]}
+  // (antes usaba `->> =` + `?`, que no usa el índice y forzaba seq scan + parse de jsonb).
   return {
-    sql: `WHERE (("${af}"::jsonb ->> '${dimension}') = $1 OR ("${af}"::jsonb -> '${dimension}') ? $1)`,
-    params: [value],
+    sql: `WHERE ("${af}"::jsonb @> $1::jsonb OR "${af}"::jsonb @> $2::jsonb)`,
+    params: [JSON.stringify({ [dimension]: value }), JSON.stringify({ [dimension]: [value] })],
   };
 }
 
@@ -336,18 +339,16 @@ export async function aggregateAnswersSql(
   const seg = q.source.segmentsField;
   const w = whereSql || '';
   const andW = whereSql ? `${whereSql} AND ` : 'WHERE ';
-  const explode = `${table} r CROSS JOIN LATERAL jsonb_each(r."${af}"::jsonb) kv`;
-
-  const [tot] = await prisma.$queryRawUnsafe<Array<{ total: number }>>(
-    `SELECT COUNT(*)::int AS total FROM ${table} ${w}`,
-    ...params,
-  );
-  const total = tot?.total ?? 0;
 
   const byDriverType = await prisma.$queryRawUnsafe<Array<{ id: string; responses: number }>>(
     `SELECT "${seg}" AS id, COUNT(*)::int AS responses FROM ${table} ${w} GROUP BY 1 ORDER BY 2 DESC`,
     ...params,
   );
+  // `total` se deriva del propio GROUP BY (cada fila tiene un segmento no nulo) → una
+  // pasada completa MENOS por request.
+  const total = byDriverType.reduce((s, r) => s + r.responses, 0);
+
+  const explode = `${table} r CROSS JOIN LATERAL jsonb_each(r."${af}"::jsonb) kv`;
 
   const scalars = await prisma.$queryRawUnsafe<
     Array<{ key: string; sval: string | null; nval: number | null; c: number }>
@@ -537,11 +538,16 @@ export function buildConditionsWhere(
       }
       if (ors.length) parts.push('(' + ors.join(' OR ') + ')');
     } else {
-      params.push(values);
-      const n = params.length;
-      parts.push(
-        `(("${af}"::jsonb ->> '${c.questionId}') = ANY($${n}::text[]) OR ("${af}"::jsonb -> '${c.questionId}') ?| $${n}::text[])`,
-      );
+      // CONTENCIÓN indexable (GIN): por cada valor, dos ramas → escalar `{"q":"v"}` o
+      // miembro de array `{"q":["v"]}`. Se combinan con OR (BitmapOr de escaneos GIN).
+      const ors: string[] = [];
+      for (const v of values) {
+        const iScalar = params.push(JSON.stringify({ [c.questionId]: v }));
+        const iArray = params.push(JSON.stringify({ [c.questionId]: [v] }));
+        ors.push(`"${af}"::jsonb @> $${iScalar}::jsonb`);
+        ors.push(`"${af}"::jsonb @> $${iArray}::jsonb`);
+      }
+      if (ors.length) parts.push('(' + ors.join(' OR ') + ')');
     }
   }
   const sql = parts.length ? 'WHERE ' + parts.join(combinator === 'or' ? ' OR ' : ' AND ') : '';

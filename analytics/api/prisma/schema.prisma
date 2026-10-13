@@ -125,6 +125,23 @@ model GlobalDashboard {
   @@map("report_global_dashboard")
 }
 
+/// Caché persistente de dashboards FILTRADOS. La agregación sobre `public` (explode de
+/// `answers`) es O(N); a 1M de encuestas conviene calcularla una vez y servirla por clave
+/// (dimensión/valor o conjunto de condiciones). El `scheduler` la refresca cada hora y el
+/// TTL evita servir datos viejos.
+model FilteredDashboard {
+  surveyId     String   @map("survey_id")
+  cacheKey     String   @map("cache_key")
+  totalCount   Int      @default(0) @map("total_count")
+  payload      String   @db.Text
+  calculatedAt DateTime @default(now()) @map("calculated_at")
+
+  @@id([surveyId, cacheKey])
+  @@index([calculatedAt])
+  @@schema("analytics")
+  @@map("report_filtered_dashboards")
+}
+
 model SurveyExport {
   id        String   @id @default(uuid())
   surveyId  String   @map("survey_id")

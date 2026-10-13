@@ -23,6 +23,9 @@ export class SummarizationService {
         const surveys = await this.readModel.listSurveys();
         for (const s of surveys) {
           records += await this.readModel.summarizeSurvey(s.id);
+          // Refresca la caché de dashboards filtrados (envelope + edad) para que el filtro
+          // del panel se sirva desde caché sin recalcular el explode de `answers`.
+          await this.readModel.warmFilteredCache(s.id);
         }
       }
       await this.readModel.summarizeGlobal();

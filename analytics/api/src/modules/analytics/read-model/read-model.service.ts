@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../../core/prisma/prisma.service.js';
 import { QUESTIONNAIRES, PRIMARY_QUESTIONNAIRE, type Questionnaire } from './questionnaires.js';
-import { aggregateAnswersSql, buildFilterWhere, buildConditionsWhere, type FilterCondition } from './answers-analysis.js';
+import { aggregateAnswersSql, buildFilterWhere, buildConditionsWhere, AGE_GROUP_LABELS, type FilterCondition } from './answers-analysis.js';
 
 /**
  * ReadModelService — calcula y persiste los read models (esquema `analytics`) a partir de la
@@ -85,46 +85,93 @@ export class ReadModelService {
   }
 
   /**
-   * Resumen FILTRADO en vivo: acota por `(dimension = value)` y reagrega pregunta por pregunta
-   * (A2: analysis-filtering.md). Agrega en SQL; solo-lectura.
+   * Resumen FILTRADO (dimension=value), con CACHÉ persistente por clave. A 1M de encuestas
+   * la agregación (explode de `answers`) es O(N); se calcula una vez y se sirve por clave.
    */
-  async summarizeFiltered(surveyId: string, dimension: string, value: string): Promise<unknown> {
-    const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
-    const { sql, params } = buildFilterWhere(q, dimension, value);
-    const { questions, total, byDriverType } = await aggregateAnswersSql(this.prisma, q, sql, params);
-    return {
-      surveyId: q.id,
-      segment: { dimension, value },
-      totals: {
-        total,
-        responses: total,
-        completed: total,
-        abandoned: 0,
-        in_progress: 0,
-        completionRate: total ? 1 : 0,
-        abandonmentRate: 0,
-      },
-      byDriverType,
-      questions,
-      generatedAt: new Date().toISOString(),
-    };
+  async summarizeFiltered(
+    surveyId: string,
+    dimension: string,
+    value: string,
+    force = false,
+  ): Promise<unknown> {
+    const q = this.resolve(surveyId);
+    return this.cachedFiltered(
+      q,
+      `d:${dimension}=${value}`,
+      () => this.computeFiltered(q, buildFilterWhere(q, dimension, value), { segment: { dimension, value } }),
+      force,
+    );
   }
 
   /**
    * Resumen en vivo con un CONJUNTO de filtros (multi-valor) combinados con AND/OR
    * (A2: analysis-filtering.md). Cada condición sin valores se ignora (= todas).
+   * También cacheado por firma de las condiciones.
    */
   async summarizeWithFilters(
     surveyId: string,
     conditions: FilterCondition[],
     combinator: 'and' | 'or',
   ): Promise<unknown> {
-    const q = QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
-    const { sql, params } = buildConditionsWhere(q, conditions, combinator);
-    const { questions, total, byDriverType } = await aggregateAnswersSql(this.prisma, q, sql, params);
+    const q = this.resolve(surveyId);
+    const clean = (conditions ?? []).filter((c) => c && c.questionId && (c.values ?? []).length);
+    const key =
+      'f:' + combinator + ':' +
+      clean.map((c) => `${c.questionId}=${[...c.values].map(String).sort().join(',')}`).join('|');
+    return this.cachedFiltered(
+      q,
+      key,
+      () => this.computeFiltered(q, buildConditionsWhere(q, conditions, combinator), { filters: { conditions: conditions ?? [], combinator } }),
+      false,
+    );
+  }
+
+  /** Resuelve un cuestionario por id (cae al principal). */
+  private resolve(surveyId: string): Questionnaire {
+    return QUESTIONNAIRES.find((x) => x.id === surveyId) ?? PRIMARY_QUESTIONNAIRE;
+  }
+
+  /** TTL de la caché de dashboards filtrados (el `scheduler` la refresca cada hora). */
+  private static readonly FILTER_TTL_MS = 6 * 60 * 60 * 1000;
+
+  /** Devuelve el dashboard filtrado de la caché (si está fresco) o lo calcula y lo guarda. */
+  private async cachedFiltered(
+    q: Questionnaire,
+    cacheKey: string,
+    compute: () => Promise<unknown>,
+    force: boolean,
+  ): Promise<unknown> {
+    const row = await this.prisma.filteredDashboard.findUnique({
+      where: { surveyId_cacheKey: { surveyId: q.id, cacheKey } },
+    });
+    if (!force && row && Date.now() - row.calculatedAt.getTime() < ReadModelService.FILTER_TTL_MS) {
+      return JSON.parse(row.payload);
+    }
+    const payload = await compute();
+    const total = (payload as { totals?: { total?: number } })?.totals?.total ?? 0;
+    await this.prisma.filteredDashboard.upsert({
+      where: { surveyId_cacheKey: { surveyId: q.id, cacheKey } },
+      create: { surveyId: q.id, cacheKey, totalCount: total, payload: JSON.stringify(payload) },
+      update: { totalCount: total, payload: JSON.stringify(payload), calculatedAt: new Date() },
+    });
+    return payload;
+  }
+
+  /** Agrega el resumen filtrado (una pasada SQL) y arma el payload. */
+  private async computeFiltered(
+    q: Questionnaire,
+    where: { sql: string; params: unknown[] },
+    meta: Record<string, unknown>,
+  ): Promise<unknown> {
+    const { questions, total, byDriverType } = await aggregateAnswersSql(
+      this.prisma,
+      q,
+      where.sql,
+      where.params,
+    );
     return {
       surveyId: q.id,
-      filters: { conditions: conditions ?? [], combinator },
+      ...meta,
       totals: {
         total, responses: total, completed: total, abandoned: 0, in_progress: 0,
         completionRate: total ? 1 : 0, abandonmentRate: 0,
@@ -133,6 +180,23 @@ export class ReadModelService {
       questions,
       generatedAt: new Date().toISOString(),
     };
+  }
+
+  /**
+   * Calienta (y refresca) la caché de dashboards filtrados para las dimensiones de
+   * envelope + derivada (tipo de conductor, canal, edad). Lo invoca el `scheduler` cada
+   * hora, de modo que el filtro por esas dimensiones se sirve SIEMPRE desde caché.
+   */
+  async warmFilteredCache(surveyId: string): Promise<number> {
+    const q = this.resolve(surveyId);
+    const dims: Array<[string, string]> = [];
+    for (const v of Object.keys(q.segments)) dims.push([q.source.segmentsField, v]);
+    for (const v of Object.keys(q.channels)) dims.push([q.source.channelField ?? 'channel', v]);
+    for (const g of AGE_GROUP_LABELS) dims.push(['edad', g]);
+    for (const [dimension, value] of dims) {
+      await this.summarizeFiltered(q.id, dimension, value, true);
+    }
+    return dims.length;
   }
 
   /** Cuestionarios por día, por la FECHA DE CAPTURA (cae a recepción si es nula). */
