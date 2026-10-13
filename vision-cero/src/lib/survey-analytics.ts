@@ -2,7 +2,9 @@ import { SURVEY, DRIVER_TYPES, type DriverTypeId } from "@/lib/survey-data";
 
 export interface RawSurveyRow {
   driverType: string;
-  answers: string;
+  /** `answers` es `jsonb` (objeto); el respaldo local (`sqlite_backup.json`) puede traerlo
+   *  como string JSON. `parseSurveyRows` acepta ambos. */
+  answers: unknown;
   completedAt: Date;
   participaSorteo: boolean;
 }
