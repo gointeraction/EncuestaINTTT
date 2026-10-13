@@ -234,7 +234,12 @@ export function* legacyRowsForDriver(
 ): Iterable<Cell[]> {
   for (let i = 0; i < n; i++) {
     const r = rowRng(seed, 41 + typeIndex, i);
-    const cedulaSeq = typeIndex * 100_000 + i;
-    yield legacyRow(r, `seed-${driverType}-${i}`, driverType, typeIndex * 100_000 + i, cedulaSeq);
+    // Secuencia de cédula GLOBALMENTE única para cualquier `n`: entrelaza tipo e índice
+    // (`i * 6 + typeIndex`). Antes se usaba un rango fijo de 100k por tipo
+    // (`typeIndex * 100_000 + i`), que se desbordaba cuando un tipo superaba las 100k
+    // filas (muestra de 1M) y duplicaba cédulas → rompía el índice único
+    // `idx_legacy_cedula_sorteo_unique` y abortaba el COPY a mitad de carga.
+    const cedulaSeq = i * DRIVER_TYPE_IDS.length + typeIndex;
+    yield legacyRow(r, `seed-${driverType}-${i}`, driverType, cedulaSeq, cedulaSeq);
   }
 }
