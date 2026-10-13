@@ -39,7 +39,7 @@ ok()  { printf '%s[ok]%s %s\n'    "$C_GREEN" "$C_NC" "$*"; }
 err() { printf '%s[error]%s %s\n' "$C_RED"   "$C_NC" "$*" >&2; }
 
 usage() {
-  sed -n '2,20p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,22p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 EXTRA_ARGS=()

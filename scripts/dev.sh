@@ -13,11 +13,12 @@
 #   · admin   → consola de análisis (Angular, estáticos por Nginx)
 #
 # Uso:
-#   scripts/dev.sh [up|down|restart|logs|ps]     (por defecto: up)
+#   scripts/dev.sh [up|down|restart|reset|logs|ps]   (por defecto: up)
 #
 #   up        reconstruye y levanta todo en segundo plano, esperando healthchecks
 #   down      detiene y elimina los contenedores (la data queda en el host: PG_DATA_DIR, def. ./db/postgres)
 #   restart   reinicia los contenedores del stack
+#   reset     down + up (reinicio limpio conservando la data)
 #   logs      sigue los logs (opcional: nombres de servicio, ej: `logs api app`)
 #   ps        muestra el estado de los servicios
 #
@@ -54,7 +55,7 @@ warn() { printf '%s[!]%s %s\n'     "$C_YELLOW" "$C_NC" "$*"; }
 err()  { printf '%s[error]%s %s\n' "$C_RED"    "$C_NC" "$*" >&2; }
 
 usage() {
-  sed -n '2,40p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
+  sed -n '2,34p' "${BASH_SOURCE[0]}" | sed 's/^# \{0,1\}//'
 }
 
 require_docker() {
@@ -119,6 +120,12 @@ cmd_restart() {
   compose ps
 }
 
+cmd_reset() {
+  log "reset del stack de desarrollo (down + up, conservando la data)..."
+  cmd_down
+  cmd_up
+}
+
 cmd_logs() {
   if [ "$#" -eq 0 ]; then set -- --tail=100; else set -- --tail=100 "$@"; fi
   compose logs -f "$@"
@@ -130,6 +137,7 @@ case "$ACTION" in
   up)          require_docker; require_env; cmd_up ;;
   down)        require_docker; require_env; cmd_down ;;
   restart)     require_docker; require_env; cmd_restart ;;
+  reset)       require_docker; require_env; cmd_reset ;;
   logs)        require_docker; require_env; cmd_logs "$@" ;;
   ps)          require_docker; require_env; cmd_ps ;;
   -h|--help|help) usage ;;

@@ -71,8 +71,13 @@ El resto de los valores del `.env.example` sirven tal cual para desarrollo.
 ## 4. Levantar el entorno
 
 ```bash
-scripts/dev.sh up
+scripts/dev.sh up          # o el atajo desde la raíz: ./dev.sh up
 ```
+
+> Los scripts `scripts/dev.sh` / `scripts/dev-down.sh` tienen atajos en la **raíz** del repo
+> (`./dev.sh`, `./dev-down.sh`) para no tener que escribir la carpeta. Ejecútalos desde la raíz
+> del repo o con **ruta absoluta** (si tu shell quedó en un directorio inexistente, `cd` primero
+> a la raíz).
 
 Equivale a:
 
@@ -115,6 +120,7 @@ uso, terminó con éxito).
 scripts/dev.sh ps           # estado de los servicios
 scripts/dev.sh logs         # logs en vivo (o: scripts/dev.sh logs api app admin)
 scripts/dev.sh restart      # reinicia los contenedores
+scripts/dev.sh reset        # down + up (reinicio limpio conservando la data)
 scripts/dev.sh down         # detiene (incluye el perfil seed y huérfanos); conserva los datos
 
 scripts/dev-down.sh --volumes   # además elimina volúmenes nombrados de Docker
