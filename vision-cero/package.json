@@ -13,7 +13,8 @@
     "db:reset": "prisma migrate reset",
     "db:import-backup": "npx tsx scripts/import-backup-to-postgres.ts",
     "survey:summarize": "npx tsx scripts/summarize.ts",
-    "test:sdd": "npx tsx scripts/test-e2e-journey.ts"
+    "test:sdd": "npx tsx scripts/test-e2e-journey.ts",
+    "check:geo": "npx tsx scripts/check-estados-municipios.ts"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
