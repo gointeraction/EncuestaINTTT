@@ -1,0 +1,32 @@
+# =============================================================================
+# deploy/intt/compose/lb.override.yaml — Rol «lb» (VM-WEB-LB01, borde).
+#
+# Se usa ENCIMA del compose.yaml de la raíz:
+#   docker compose -f compose.yaml -f deploy/intt/compose/lb.override.yaml \
+#     --env-file .env.<entorno> up -d --wait proxy
+#
+# Levanta sólo el Nginx de borde, BALANCEANDO entre las dos VMs de aplicación
+# (APP01 y APP02) definidas en nginx/lb.conf.template. Aquí NO corren app/api/
+# db/cache: por eso se desactivan y se sustituye la config de Nginx por la del
+# balanceador (el entrypoint de la imagen resuelve ${APP01}/${APP02}).
+# =============================================================================
+
+services:
+  db:      { profiles: ["_no_en_esta_vm"] }
+  cache:   { profiles: ["_no_en_esta_vm"] }
+  migrate: { profiles: ["_no_en_esta_vm"] }
+  app:     { profiles: ["_no_en_esta_vm"] }
+  api:     { profiles: ["_no_en_esta_vm"] }
+  admin:   { profiles: ["_no_en_esta_vm"] }
+
+  proxy:
+    # Sin dependencia local de `app` (los backends son remotos).
+    depends_on: !reset []
+    # Reemplaza la config de proxy única por la plantilla del balanceador.
+    volumes: !override
+      - ./deploy/intt/nginx/lb.conf.template:/etc/nginx/templates/default.conf.template:ro
+    environment:
+      APP01: ${APP01:?defina APP01 (p.ej. 10.10.0.21:3001)}
+      APP02: ${APP02:?defina APP02 (p.ej. 10.10.0.22:3001)}
+      # envsubst sólo sustituye estas variables (deja intactos $host, $remote_addr, ...).
+      NGINX_ENVSUBST_FILTER: "APP0[12]"

@@ -1,0 +1,45 @@
+# =============================================================================
+# deploy/intt/compose/webapp.override.yaml — Rol «webapp» (VM-WEB-APP).
+#
+# Se usa ENCIMA del compose.yaml de la raíz:
+#   docker compose -f compose.yaml -f deploy/intt/compose/webapp.override.yaml \
+#     --env-file .env.<entorno> up -d --build --wait migrate app api admin
+#
+# Levanta la CAPTURA (app), el BACK-OFFICE (api) y la CONSOLA (admin) + la
+# migración Prisma, apuntando la base de datos y el caché a OTRA máquina
+# (VM-DATABASE): por eso se desactivan `db`, `cache` y `proxy` aquí y se
+# reescriben DATABASE_URL / REDIS_URL con DB_HOST / REDIS_HOST.
+# =============================================================================
+
+x-database-url: &database_url
+  DATABASE_URL: postgresql://${POSTGRES_USER:-intt_user}:${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD}@${DB_HOST:?defina DB_HOST (IP de VM-DATABASE)}:${DB_PORT:-5451}/${POSTGRES_DB:?defina POSTGRES_DB}?schema=public
+
+services:
+  # Estas piezas NO viven en la VM de aplicación (perfil nunca activado).
+  db:    { profiles: ["_no_en_esta_vm"] }
+  cache: { profiles: ["_no_en_esta_vm"] }
+  proxy: { profiles: ["_no_en_esta_vm"] }
+
+  # migrate: sin dependencia del `db` local (la BD es remota); se conecta a DB_HOST.
+  migrate:
+    depends_on: !reset []
+    environment:
+      <<: *database_url
+
+  # app: depende sólo de la migración; BD y Redis remotos.
+  app:
+    depends_on: !override
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      <<: *database_url
+      REDIS_URL: redis://${REDIS_HOST:?defina REDIS_HOST (IP del caché)}:${REDIS_PORT:-6379}
+
+  # api: rol analítico `intt_analytics` (esquema analytics) + Redis remotos.
+  api:
+    depends_on: !override
+      migrate:
+        condition: service_completed_successfully
+    environment:
+      DATABASE_URL: postgresql://intt_analytics:${ANALYTICS_DB_PASSWORD:?defina ANALYTICS_DB_PASSWORD}@${DB_HOST:?defina DB_HOST}:${DB_PORT:-5451}/${POSTGRES_DB:?}?schema=analytics
+      REDIS_URL: redis://${REDIS_HOST:?defina REDIS_HOST}:${REDIS_PORT:-6379}

@@ -1,0 +1,74 @@
+# =============================================================================
+# deploy/intt/nginx/lb.conf.template — Nginx de BORDE (balanceador), VM-WEB-LB01.
+#
+# La imagen `nginx:alpine` resuelve ${APP01} y ${APP02} al arrancar (envsubst con
+# NGINX_ENVSUBST_FILTER="APP0[12]", definido en compose/lb.override.yaml) y deja
+# intactas las variables propias de Nginx ($host, $remote_addr, ...).
+#
+# Balancea el tráfico ciudadano entre las DOS VMs de aplicación (APP01/APP02).
+# Réplica del perímetro de vision-cero/deploy/nginx/default.conf: rate-limit del
+# submit + Zero-Trust del panel/analítica.
+# =============================================================================
+
+limit_req_zone $binary_remote_addr zone=survey_submit_limit:10m rate=10r/m;
+
+upstream encuesta_app {
+    least_conn;
+    server ${APP01} max_fails=3 fail_timeout=10s;
+    server ${APP02} max_fails=3 fail_timeout=10s;
+    keepalive 64;
+}
+
+server {
+    listen 80;
+    server_name _;
+
+    client_max_body_size 2m;
+
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_min_length 256;
+    gzip_types text/plain text/css application/json application/javascript
+               text/xml application/xml image/svg+xml;
+
+    proxy_http_version 1.1;
+    proxy_set_header Host              $host;
+    proxy_set_header X-Real-IP         $remote_addr;
+    proxy_set_header X-Forwarded-For   $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header Upgrade           $http_upgrade;
+    proxy_set_header Connection        "upgrade";
+    # Reintenta en el otro nodo si uno falla.
+    proxy_next_upstream error timeout http_502 http_503 http_504;
+
+    # --- Rate-limit del envío ciudadano ---
+    location = /api/survey/submit {
+        limit_req zone=survey_submit_limit burst=5 nodelay;
+        proxy_pass http://encuesta_app;
+    }
+
+    # --- ZERO-TRUST: administración SÓLO desde Intranet / VPN INTT ---
+    location ~ ^/(api/admin|api/survey/stats|api/survey/participants|api/survey/seed|admin) {
+        allow 127.0.0.1;
+        allow 10.0.0.0/8;       # Red corporativa INTT
+        allow 172.16.0.0/12;    # VPN institucional
+        allow 192.168.0.0/16;   # LAN oficinas
+        # EXTRA_ADMIN_IP: añade aquí `allow <ip>;` si necesitas una pública fija.
+        deny all;               # 403 Forbidden para Internet público
+
+        proxy_pass http://encuesta_app;
+    }
+
+    # --- Proxy general (portal ciudadano, dashboard con auth de app, estáticos) ---
+    location / {
+        proxy_pass http://encuesta_app;
+    }
+
+    # --- Healthcheck del propio balanceador ---
+    location = /healthz {
+        access_log off;
+        return 200 "ok\n";
+    }
+}

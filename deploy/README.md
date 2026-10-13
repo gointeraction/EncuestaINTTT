@@ -7,6 +7,7 @@ Instructivos operativos de **Encuesta Visión Cero (INTT)**. Hay dos audiencias:
 | [`GUIA-DESARROLLO.md`](./GUIA-DESARROLLO.md) | Desarrolladores / QA | Levantar el entorno de **desarrollo y pruebas** (Docker Compose) y correr el seeder y las pruebas. |
 | [`GUIA-DESPLIEGUE.md`](./GUIA-DESPLIEGUE.md) | DevOps / Infraestructura | Desplegar correctamente en **producción** (on-premises), con el perímetro público/intranet y los respaldos. |
 | [`GUIA-ALTERNATIVA-NO-DOCKER.md`](./GUIA-ALTERNATIVA-NO-DOCKER.md) | DevOps / Infraestructura | Desplegar **sin Docker** (PostgreSQL + Node + PM2 + Nginx nativos), cuando no se permite contenedores. |
+| [`intt/`](./intt/README.md) | DevOps / Infraestructura | Instalar y operar **QA y Producción** en los servidores del cliente (INTT) por rol, con el dimensionamiento acordado y el modelo de ramas. |
 
 ## Modelo en una frase
 

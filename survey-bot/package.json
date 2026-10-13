@@ -1,0 +1,14 @@
+{
+  "name": "survey-bot",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Bot independiente que abre un navegador real, llena la encuesta Visión Cero y la envía como un usuario estándar (Playwright).",
+  "scripts": {
+    "run": "node src/run.js",
+    "install:browsers": "playwright install --with-deps chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  }
+}

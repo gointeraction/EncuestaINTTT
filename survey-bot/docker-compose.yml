@@ -1,0 +1,13 @@
+services:
+  survey-bot:
+    build: .
+    environment:
+      BASE_URL: ${BASE_URL:-http://host.docker.internal:80}
+      DRIVER_TYPE: ${DRIVER_TYPE:-Motociclista activo}
+      COUNT: ${COUNT:-1}
+      CONCURRENCY: ${CONCURRENCY:-1}
+      THINK_MS: ${THINK_MS:-400}
+      HEADLESS: ${HEADLESS:-true}
+      PARTICIPATE: ${PARTICIPATE:-false}
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

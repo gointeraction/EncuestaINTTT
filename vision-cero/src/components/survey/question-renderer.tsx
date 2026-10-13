@@ -49,7 +49,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
     // -------------------------------------------------------------------------
     case "radio":
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-qid={q.id}>
           {labelEl}
           <RadioGroup
             value={typeof value === "string" ? value : ""}
@@ -73,7 +73,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
     // -------------------------------------------------------------------------
     case "checkbox":
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-qid={q.id}>
           {labelEl}
           <div className="grid gap-2">
             {(q.options ?? []).map((opt) => {
@@ -108,7 +108,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
     // -------------------------------------------------------------------------
     case "select":
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-qid={q.id}>
           {labelEl}
           <Select
             value={typeof value === "string" ? value : ""}
@@ -131,7 +131,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
     // -------------------------------------------------------------------------
     case "text":
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-qid={q.id}>
           {labelEl}
           <Input
             value={typeof value === "string" ? value : ""}
@@ -144,7 +144,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
     // -------------------------------------------------------------------------
     case "textarea":
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-qid={q.id}>
           {labelEl}
           <Textarea
             value={typeof value === "string" ? value : ""}
@@ -158,7 +158,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
     // -------------------------------------------------------------------------
     case "number":
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-qid={q.id}>
           {labelEl}
           <div className="flex items-center gap-2">
             <Input
@@ -189,7 +189,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
       const min = q.scaleMin ?? 1;
       const max = q.scaleMax ?? 5;
       return (
-        <div className="space-y-4">
+        <div className="space-y-4" data-qid={q.id}>
           {labelEl}
           <div className="rounded-lg border border-input p-4">
             <div className="mb-3 flex items-center gap-3">
@@ -233,7 +233,7 @@ export function QuestionRenderer({ question, value, onChange, allAnswers, onMult
         : undefined;
 
       return (
-        <div className="space-y-3">
+        <div className="space-y-3" data-qid={q.id}>
           {labelEl}
           <div className="grid gap-4 sm:grid-cols-2">
             {/* Estado */}
