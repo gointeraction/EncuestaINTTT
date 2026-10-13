@@ -53,7 +53,7 @@ WRITE INFO: asignación de puertos (servicio interno → exposición):
 |-----------|--------|-----------|-------|
 | Captura (Next.js) | **3001** | público vía el perímetro `proxy` (Nginx, host `${HTTP_PORT:-80}`) | servicio interno `app:3001` |
 | Back-office (NestJS) | **3151** | NO expuesto al host; se accede tras la consola | servicio interno `api:3151` |
-| Consola (Angular) | **4301** | host `4301:4301` | Nginx interno en `:4301`; su `/api` proxya a `api:3151` |
+| Consola (Angular) | **4301** | host, SÓLO interfaz interna `${ADMIN_BIND:-127.0.0.1}:4301` (nunca `0.0.0.0`) | Nginx interno en `:4301`; su `/api` proxya a `api:3151`; fuera de `intt-edge` |
 | PostgreSQL | **5451** | interna (NUNCA publicada) | no estándar (no 5432); red `intt-internal` |
 | Redis | 6379 | interna (NUNCA publicada) | caché / rate-limit |
 | Nginx perímetro | 80 | host `${HTTP_PORT:-80}` | entrada pública de la captura |
@@ -65,10 +65,16 @@ conocidos (5432/5433, 6432 de PgBouncer, 3306) y reduce el escaneo automatizado.
 esquema del proyecto `…51` (3001 / 3151 / 4301). Además, la base de datos y Redis **no se publican
 al host**: viven en la red `intt-internal`, con acceso solo desde los contenedores.
 
+WRITE INFO: **perímetro de exposición** — sólo `vision-cero` (la encuesta, tras el proxy Nginx) es
+la cara pública y la única publicada en la red de borde `intt-edge`. Todo `analytics/` (back-office
+`api` y consola `admin`) es **privado de intranet**: vive sólo en `intt-internal`, no se une a
+`intt-edge` y su puerto host se enlaza únicamente a la interfaz interna `${ADMIN_BIND:-127.0.0.1}`.
+
 ### SECTION 03-CAMBIOS
 
 WRITE INFO: la asignación se aplica en: `compose.yaml` (servicios `db`/`app`/`api`/`admin` +
-anclas `DATABASE_URL`), `Dockerfile` (raíz, `analytics/api`, `analytics/console`), los Nginx
+anclas `DATABASE_URL`; `admin` publica `${ADMIN_BIND:-127.0.0.1}:${ADMIN_PORT:-4301}` y NO se une a
+`intt-edge`), `Dockerfile` (raíz, `analytics/api`, `analytics/console`), los Nginx
 (`deploy/nginx/default.conf`, `analytics/console/deploy/nginx-console.conf`), el `Caddyfile`
 (dev), `package.json` (dev de la captura), `analytics/api/src/main.ts`, `angular.json` (serve),
 `install.sh` (on-prem: `postgresql.conf port=5451`, `DATABASE_URL`, `pg_dump -p 5451`),
@@ -78,6 +84,10 @@ WRITE RULE: la base de datos y Redis MUST NOT publicarse al host; se accede a el
 red interna. — MUST
 
 WRITE RULE: el back-office (NestJS) MUST alcanzarse solo a través de la consola. — MUST
+
+WRITE RULE: sólo `vision-cero` (el proxy y la captura) MUST publicarse al host/borde; los servicios
+de `analytics/` (api y consola) MUST NOT publicarse fuera de la intranet (sin `intt-edge`, con bind
+a la interfaz interna). — MUST
 
 ## CHAPTER 4: EVALUATION & CLOSING
 

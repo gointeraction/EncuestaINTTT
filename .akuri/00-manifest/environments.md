@@ -55,8 +55,8 @@ WRITE INFO: dos entornos, una sola imagen. Todo se parametriza por entorno:
 
 | Entorno | `APP_ENV` | `POSTGRES_DB` | `PGDATA` (bind) | `COMPOSE_PROJECT_NAME` | Seed |
 |---------|-----------|---------------|-----------------|------------------------|------|
-| development | `development` | **`intt_encuesta_dev`** | `./.data/development/postgres` | `encuesta-intt-dev` | **permitido** (`SEED_ALLOW=1`) |
-| production | `production` | **`intt_encuesta`** | `./.data/production/postgres` | `encuesta-intt-prod` | **prohibido** |
+| development | `development` | **`intt_encuesta_dev`** | `./db/postgres` (inspeccionable) | `encuesta-intt-dev` | **permitido** (`SEED_ALLOW=1`) |
+| production | `production` | **`intt_encuesta`** | `./.data/production/postgres` (ruta fijada por DevOps) | `encuesta-intt-prod` | **prohibido** |
 
 WRITE INFO: la consola, la API y la captura son la MISMA imagen en ambos entornos; solo cambian
 `DATABASE_URL`, `POSTGRES_DB`, la ruta de datos y el proyecto de compose.
@@ -67,10 +67,17 @@ WRITE INFO: el aislamiento se logra así:
 
 1. **Archivos de entorno separados** (NUNCA versionados): `.env.development` y `.env.production`.
 2. **Base de datos distinta** por `POSTGRES_DB` (ver §01).
-3. **Ruta de datos distinta** por `PGDATA=./.data/${APP_ENV}/postgres` (sin volumen compartido).
+3. **Ruta de datos** por `PG_DATA_DIR` (bind mount; **dev** → `./db/postgres`, dentro del repo e
+   inspeccionable; **prod** → la ruta que fije DevOps, relativa o absoluta), sin volumen compartido.
 4. **Proyecto de compose distinto** por `COMPOSE_PROJECT_NAME` → contenedores, red y volúmenes
    con prefijo propio (dev y prod no se pisan aunque corran en el mismo host).
 5. **PostgreSQL y Redis no se publican** al host (red `intt-internal`); ver `ports.md`.
+6. **Perímetro de exposición**: sólo `vision-cero` (la encuesta) es la cara pública y la única
+   publicada en el borde (`intt-edge`). Todo `analytics/` (back-office `api` y consola `admin`)
+   es privado de intranet: sólo en `intt-internal`, sin unirse al borde.
+
+WRITE RULE: la cara pública MUST ser sólo `vision-cero`; el back-office analítico (`analytics/`)
+MUST NOT exponerse fuera de la intranet. — MUST
 
 ### SECTION 03-POLITICA-DEL-SEEDER
 

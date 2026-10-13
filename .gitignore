@@ -36,6 +36,8 @@ yarn-error.log*
 
 # container runtime data (colocated with the repo)
 /.data/
+# PostgreSQL data para desarrollo (inspeccionable dentro del repo)
+/db/postgres/
 
 # vercel
 .vercel

@@ -6,7 +6,12 @@
 # Diferencian base de datos (POSTGRES_DB), ruta de datos (APP_ENV) y proyecto.
 # Servicios: db · cache · migrate · app (captura) · api (back-office) · admin (consola) · proxy
 #            (+ `seed`, perfil opcional: seeder de datos simulados, SOLO dev).
-# Los datos viven COLOCALIZADOS en el repo, bajo ./.data/<entorno>/ (gitignored).
+# PERÍMETRO: `proxy` (vision-cero, la encuesta) es la ÚNICA entrada pública (red
+#            `intt-edge`); el back-office analítico (`api` + `admin`) es PRIVADO y
+#            vive sólo en `intt-internal`, sin unirse al borde.
+# Los datos viven COLOCALIZADOS por defecto en el repo, bajo ./.data/<entorno>/ (gitignored).
+# `PG_DATA_DIR` permite cambiarlo: en dev apunta a ./db/postgres (inspeccionable); en
+# producción lo fija DevOps (p.ej. ./.data/production/postgres o una ruta absoluta).
 # =============================================================================
 name: "${COMPOSE_PROJECT_NAME:-encuesta-intt}"
 
@@ -21,9 +26,10 @@ services:
       POSTGRES_USER: ${POSTGRES_USER:-intt_user}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?defina POSTGRES_PASSWORD en .env}
       POSTGRES_DB: ${POSTGRES_DB:-intt_encuesta}
-    # PGDATA vive con el repo (bind mount, por ENTORNO: .data/development · .data/production).
+    # PGDATA vive con el repo (bind mount). Ruta por `PG_DATA_DIR`:
+    #   dev  → ./db/postgres (inspeccionable)  ·  prod → ./.data/production/postgres (o la que fije DevOps)
     volumes:
-      - "./.data/${APP_ENV:-development}/postgres:/var/lib/postgresql/data"
+      - "${PG_DATA_DIR:-./.data/${APP_ENV:-development}/postgres}:/var/lib/postgresql/data"
       - ./db/init:/docker-entrypoint-initdb.d:ro
     command: >
       postgres
@@ -152,12 +158,14 @@ services:
     networks: [intt-internal]
 
   # Consola de análisis (Angular, estáticos servidos por Nginx).
+  # PRIVADA (intranet): NO se une a `intt-edge` y su puerto se publica sólo en la
+  # interfaz interna `ADMIN_BIND` (por defecto loopback), nunca en 0.0.0.0.
   admin:
     build:
       context: analytics/console
     restart: unless-stopped
     ports:
-      - "${ADMIN_PORT:-4301}:4301"
+      - "${ADMIN_BIND:-127.0.0.1}:${ADMIN_PORT:-4301}:4301"
     depends_on:
       api:
         condition: service_healthy
@@ -167,7 +175,7 @@ services:
       timeout: 5s
       retries: 5
       start_period: 10s
-    networks: [intt-internal, intt-edge]
+    networks: [intt-internal]
 
   # Seeder de datos simulados (NestJS standalone) — SOLO entorno development.
   # NO arranca con `up` (perfil `seed`); se invoca a demanda:
