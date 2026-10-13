@@ -2,7 +2,7 @@
    - Navegaciones: red primero; si no hay red, sirve el app-shell cacheado.
    - Estáticos hasheados (/_next/static, fuentes, imágenes): cache primero.
    - API: nunca se cachea (siempre red; las entrevistas offline viven en el outbox). */
-const CACHE = "vision-cero-shell-v1";
+const CACHE = "vision-cero-shell-v2";
 const SHELL = "/";
 
 self.addEventListener("install", () => self.skipWaiting());
@@ -25,7 +25,7 @@ self.addEventListener("fetch", (event) => {
 
   if (req.mode === "navigate") {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: "no-store" })
         .then((res) => {
           const copy = res.clone();
           caches.open(CACHE).then((c) => c.put(SHELL, copy));
