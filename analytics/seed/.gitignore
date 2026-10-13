@@ -3,3 +3,4 @@ dist
 # CSV generados a demanda (fixtures por tipo + datasets por volumen) — NO versionar.
 data/*
 !data/.gitkeep
+!data/README.md

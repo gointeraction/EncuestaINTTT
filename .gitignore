@@ -47,7 +47,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 local-*
-!src/lib/services/local-survey-store.ts
+!**/src/lib/services/local-survey-store.ts
 .claude
 .z-ai-config
 *.log
