@@ -63,8 +63,35 @@ Complementos recomendados:
 
 ## 4. Migración al GitLab del cliente
 
+### 4.1. Clave SSH para registrar en GitLab
+
+Genera el par y registra la **pública** en GitLab (Deploy Key de lectura, o clave de usuario):
+
 ```bash
-git remote add intt https://git.intt.gob.ve/<grupo>/EncuestaINTTT.git
+deploy/intt/scripts/gen-deploy-key.sh --name intt_gitlab --comment "encuesta-intt@intt-gitlab"
+# imprime la CLAVE PÚBLICA a pegar en GitLab → Settings → Repository → Deploy keys
+```
+
+- En la **máquina que empuja** (migración): registra la pública con *Grant write permissions*.
+- En cada **servidor que hace `git pull`**: ejecuta el script **en ese servidor** y registra su
+  pública **sin** permiso de escritura. La privada nunca sale del host.
+
+Configura `~/.ssh/config`:
+
+```
+Host gitlab.intt.gob.ve
+    HostName gitlab.intt.gob.ve
+    User git
+    IdentityFile ~/.ssh/intt_gitlab
+    IdentitiesOnly yes
+```
+
+Comprueba con `ssh -T git@gitlab.intt.gob.ve` (debe responder *Welcome to GitLab*).
+
+### 4.2. Empujar el repositorio
+
+```bash
+git remote add intt git@gitlab.intt.gob.ve:<grupo>/EncuestaINTTT.git
 git push intt main desarrollo calidad produccion
 git push intt --tags
 ```
