@@ -10,7 +10,7 @@ import { ThankYou } from "@/components/survey/thank-you";
 import { Dashboard } from "@/components/dashboard/dashboard";
 import { SurveyManager } from "@/components/admin/survey-manager";
 import { AdminLogin, AdminHeader } from "@/components/admin/admin-login";
-import { ClipboardList, ExternalLink, Loader2, BarChart3, FilePlus2, KeyRound } from "lucide-react";
+import { ExternalLink, Loader2, BarChart3, FilePlus2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstitutionLogo } from "@/components/institution-logo";
 import { INSTITUTION } from "@/lib/institution";
@@ -221,16 +221,6 @@ export default function Home() {
 
           {/* Barra de navegación pública con acceso directo al módulo de gestión */}
           <nav className="flex items-center gap-2">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setView("welcome")}
-              className="text-white hover:bg-white/10"
-            >
-              <ClipboardList className="mr-1.5 h-4 w-4" />
-              <span className="hidden sm:inline">Responder Encuesta</span>
-            </Button>
-
             <a
               href="/canal"
               className="inline-flex items-center gap-1.5 rounded-md bg-[var(--intt-electric)] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[var(--intt-electric-deep)] transition-all hover:scale-[1.02]"
