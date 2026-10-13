@@ -179,7 +179,7 @@ export async function POST(req: NextRequest) {
       const saved = await db.surveyResponse.create({
         data: {
           driverType,
-          answers: JSON.stringify(answers),
+          answers,
           participaSorteo,
           nombre,
           cedula,
@@ -246,7 +246,7 @@ export async function GET() {
       responses: responses.map((r) => ({
         id: r.id,
         driverType: r.driverType,
-        answers: JSON.parse(r.answers),
+        answers: r.answers,
         completedAt: r.completedAt,
         participaSorteo: r.participaSorteo,
         nombre: r.nombre,

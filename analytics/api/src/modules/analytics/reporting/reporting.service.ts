@@ -137,8 +137,8 @@ export class ReportingService {
     const pB = params.length + 2;
     const cells = await this.prisma.$queryRawUnsafe<Array<{ v1: string; v2: string; n: number }>>(
       `SELECT
-         COALESCE("${src.answersField}"::jsonb ->> $${pA}, '') AS v1,
-         COALESCE("${src.answersField}"::jsonb ->> $${pB}, '') AS v2,
+         COALESCE("${src.answersField}" ->> $${pA}, '') AS v1,
+         COALESCE("${src.answersField}" ->> $${pB}, '') AS v2,
          COUNT(*)::int AS n
        FROM ${src.table}
        ${where}

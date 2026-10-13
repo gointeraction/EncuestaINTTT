@@ -59,13 +59,13 @@ export function buildFilterWhere(
   }
   if (dimension === 'edad' && AGE_GROUPS[value]) {
     const [a, b] = AGE_GROUPS[value];
-    return { sql: `WHERE ("${af}"::jsonb ->> 'edad')::int BETWEEN $1 AND $2`, params: [a, b] };
+    return { sql: `WHERE ("${af}" ->> 'edad')::int BETWEEN $1 AND $2`, params: [a, b] };
   }
   // CONTENCIÓN (`@>`) para que el predicado sea INDEXABLE por el GIN de `answers`:
   //   escalar → {"q":"v"}   ·   miembro de array → {"q":["v"]}
   // (antes usaba `->> =` + `?`, que no usa el índice y forzaba seq scan + parse de jsonb).
   return {
-    sql: `WHERE ("${af}"::jsonb @> $1::jsonb OR "${af}"::jsonb @> $2::jsonb)`,
+    sql: `WHERE ("${af}" @> $1::jsonb OR "${af}" @> $2::jsonb)`,
     params: [JSON.stringify({ [dimension]: value }), JSON.stringify({ [dimension]: [value] })],
   };
 }
@@ -348,7 +348,7 @@ export async function aggregateAnswersSql(
   // pasada completa MENOS por request.
   const total = byDriverType.reduce((s, r) => s + r.responses, 0);
 
-  const explode = `${table} r CROSS JOIN LATERAL jsonb_each(r."${af}"::jsonb) kv`;
+  const explode = `${table} r CROSS JOIN LATERAL jsonb_each(r."${af}") kv`;
 
   const scalars = await prisma.$queryRawUnsafe<
     Array<{ key: string; sval: string | null; nval: number | null; c: number }>
@@ -366,7 +366,7 @@ export async function aggregateAnswersSql(
   const arrays = await prisma.$queryRawUnsafe<Array<{ key: string; elem: string; c: number }>>(
     `SELECT kv.key AS key, elem, COUNT(*)::int AS c
      FROM ${table} r
-     CROSS JOIN LATERAL jsonb_each(r."${af}"::jsonb) kv
+     CROSS JOIN LATERAL jsonb_each(r."${af}") kv
      CROSS JOIN LATERAL jsonb_array_elements_text(kv.value) elem
      ${andW}jsonb_typeof(kv.value) = 'array'
      GROUP BY 1, 2`,
@@ -534,7 +534,7 @@ export function buildConditionsWhere(
         const r = rangeLabelToBounds(d.bins, v);
         if (!r) continue;
         params.push(r.lo, r.hi);
-        ors.push(`(("${af}"::jsonb ->> '${src}')::numeric BETWEEN $${params.length - 1} AND $${params.length})`);
+        ors.push(`(("${af}" ->> '${src}')::numeric BETWEEN $${params.length - 1} AND $${params.length})`);
       }
       if (ors.length) parts.push('(' + ors.join(' OR ') + ')');
     } else {
@@ -544,8 +544,8 @@ export function buildConditionsWhere(
       for (const v of values) {
         const iScalar = params.push(JSON.stringify({ [c.questionId]: v }));
         const iArray = params.push(JSON.stringify({ [c.questionId]: [v] }));
-        ors.push(`"${af}"::jsonb @> $${iScalar}::jsonb`);
-        ors.push(`"${af}"::jsonb @> $${iArray}::jsonb`);
+        ors.push(`"${af}" @> $${iScalar}::jsonb`);
+        ors.push(`"${af}" @> $${iArray}::jsonb`);
       }
       if (ors.length) parts.push('(' + ors.join(' OR ') + ')');
     }

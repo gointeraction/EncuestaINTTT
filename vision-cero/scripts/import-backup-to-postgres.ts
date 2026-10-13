@@ -19,7 +19,7 @@ async function main() {
   const formatted = records.map((r: any) => ({
     id: r.id,
     driverType: r.driverType,
-    answers: r.answers,
+    answers: typeof r.answers === "string" ? JSON.parse(r.answers) : r.answers,
     completedAt: new Date(r.completedAt),
     participaSorteo: Boolean(r.participaSorteo),
     nombre: r.nombre ?? null,

@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       const participa = Math.random() < 0.65;
       const data: Parameters<typeof db.surveyResponse.create>[0]["data"] = {
         driverType,
-        answers: JSON.stringify(answers),
+        answers,
         participaSorteo: participa,
         nombre: null,
         cedula: null,

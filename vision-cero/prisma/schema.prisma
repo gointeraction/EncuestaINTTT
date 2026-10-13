@@ -209,7 +209,7 @@ model AuditLog {
 model SurveyResponse {
   id              String   @id @default(cuid())
   driverType      String   // DriverTypeId
-  answers         String   @db.Text // JSON string
+  answers         Json     // documento de respuestas (jsonb)
   completedAt     DateTime @default(now()) // RECEPCIÓN: cuándo el servidor guardó el cuestionario
   capturedAt      DateTime? // CAPTURA: cuándo el dispositivo terminó (offline); null si online
 

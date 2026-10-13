@@ -110,7 +110,8 @@ JSON no cubra cómodamente. Hasta entonces, JSON + registro.
 WRITE INFO: reglas que endurecen la estrategia:
 1. **Completitud**: sólo se persiste el cuestionario completo (ver §02).
 2. **Contrato estable**: claves = ids de la definición; versionado con `answersVersion`.
-3. **Índice**: índice **GIN** sobre `answers::jsonb` → consultas por pregunta eficientes.
+3. **Índice**: `answers` se almacena como **`jsonb`**; índice **GIN** (`jsonb_path_ops`) sobre la
+   columna → consultas por pregunta (contención `@>`) eficientes, sin casts por fila.
 4. **Validación server-side** (F1): validar el documento contra la definición del instrumento.
 5. **Acotado**: límite de tamaño del cuerpo/`answers`.
 6. **Idempotencia/anti-fraude** y **canal**: ver `capture-offline-and-integrity.md`.
@@ -124,7 +125,7 @@ JSON para poder filtrar por canal y segmento sin parsear. — MUST
 
 WRITE INFO: la estrategia es válida cuando (a) cada cuestionario respondido es un documento
 completo e íntegro, (b) el análisis se obtiene pregunta por pregunta desde el registro, y (c) el
-índice GIN existe sobre `answers::jsonb`.
+índice GIN existe sobre la columna `answers` (jsonb).
 
 ### SECTION 02-REPORT
 
