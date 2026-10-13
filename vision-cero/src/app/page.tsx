@@ -10,7 +10,7 @@ import { ThankYou } from "@/components/survey/thank-you";
 import { Dashboard } from "@/components/dashboard/dashboard";
 import { SurveyManager } from "@/components/admin/survey-manager";
 import { AdminLogin, AdminHeader } from "@/components/admin/admin-login";
-import { ClipboardList, ExternalLink, Loader2, BarChart3, FilePlus2 } from "lucide-react";
+import { ClipboardList, ExternalLink, Loader2, BarChart3, FilePlus2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { InstitutionLogo } from "@/components/institution-logo";
 import { INSTITUTION } from "@/lib/institution";
@@ -232,11 +232,11 @@ export default function Home() {
             </Button>
 
             <a
-              href="/?admin=1&tab=surveys"
+              href="/canal"
               className="inline-flex items-center gap-1.5 rounded-md bg-[var(--intt-electric)] px-3.5 py-1.5 text-xs font-semibold text-white shadow-sm hover:bg-[var(--intt-electric-deep)] transition-all hover:scale-[1.02]"
             >
-              <FilePlus2 className="h-4 w-4" />
-              <span>Crear / Gestionar Encuestas</span>
+              <KeyRound className="h-4 w-4" />
+              <span>Asignar Canal</span>
             </a>
           </nav>
         </div>
@@ -284,11 +284,11 @@ export default function Home() {
             </p>
             <div className="flex items-center gap-4">
               <a
-                href="/?admin=1&tab=surveys"
+                href="/canal"
                 className="inline-flex items-center gap-1 text-[var(--intt-gold)] hover:underline font-medium"
               >
-                <FilePlus2 className="h-3.5 w-3.5" />
-                <span>Panel de Administración · Crear Encuestas</span>
+                <KeyRound className="h-3.5 w-3.5" />
+                <span>Asignar canal de captura</span>
               </a>
               <a
                 href={INSTITUTION.website}

@@ -47,7 +47,7 @@ import type { AdminDevice } from './business/models/devices.model';
             <b>Clave generada (guárdala: no se vuelve a mostrar)</b>
             <p>Dispositivo: <code>{{ s.id }}</code></p>
             <p>Clave: <code>{{ s.secret }}</code></p>
-            <p>Enrolamiento (en la captura): <code>/?device={{ s.id }}&amp;key={{ s.secret }}</code></p>
+            <p>Enrolamiento (en la captura): <code>/?device={{ s.id }}&amp;key={{ s.secret }}&amp;channel={{ channel() }}</code></p>
             <ds-button size="sm" (click)="state.clearSecret()">Cerrar</ds-button>
           </ds-container>
         }
